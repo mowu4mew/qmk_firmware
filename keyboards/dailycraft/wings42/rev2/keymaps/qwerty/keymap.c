@@ -262,7 +262,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         unregister_code(KC_LSFT);
 
-        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
+        if(timer_elapsed(cmd_spc_pressed_time) < HOLDING_TERM){
           tap_code(KC_SPC);
         }
       }
