@@ -51,11 +51,6 @@ enum custom_keycodes {
 //Declare Alias Layer Tap CMD Layer
 #define MT_FNC_PU LT(_FNC, KC_PGUP)    //hold:"Function"   tap:"Page Up"
 
-//Declare Alias Mouse Botton
-#define MBTN1 MOUSE_BTN1
-#define MBTN2 MOUSE_BTN2
-#define MBTN3 MOUSE_BTN3
-
 //Declare COMBO
 enum combos{
   LK_HENK,
@@ -81,7 +76,7 @@ combo_t key_combos[COMBO_COUNT] = {
   [KJ_TAB] = COMBO(kj_combo, KC_TAB),
   [DL_TAB] = COMBO(dl_combo, KC_TAB),
   [DF_ESC] = COMBO(df_combo, KC_ESC),
-  [DOT_COLON_MBTN3] = COMBO(dc_combo, MBTN3),
+  [DOT_COLON_MBTN3] = COMBO(dc_combo, KC_BTN3),
   [OI_LOCK] = COMBO(oi_combo, MC_LOCK)
 };
 
@@ -139,7 +134,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT(
   //,-----------------------------------------------------|   |-----------------------------------------------------.
-      XXXXXXX,A(KC_F4), C(KC_W),  KILL_L,MC_PRTSN, C(KC_T),       MBTN1,   MBTN2,   KC_UP,   INS_L,   KC_F2, XXXXXXX,
+      XXXXXXX,A(KC_F4), C(KC_W),  KILL_L,MC_PRTSN, C(KC_T),     KC_BTN1, KC_BTN2,   KC_UP,   INS_L,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F), C(KC_H),     KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MT_FNC_PU,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
