@@ -24,7 +24,8 @@ enum custom_keycodes {
 };
 
 //Declare Alias Mod Tap Layer NOB Layer
-#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
+#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"H"
+#define MT_FNC_F LT(_FNC, KC_F)       //hold:"Function"   tap:"F"
 
 //Declare Alias Mod Tap NOB Layer
 #define MT_CTL_A LCTL_T(KC_A)
@@ -86,7 +87,7 @@ combo_t key_combos[COMBO_COUNT] = {
 
 
 //Override
-const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, MT_CTL_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
 const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
 const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
 const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
@@ -120,7 +121,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,        KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-                        XXXXXXX, CMD_SPC, XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX,NUM_ENT, XXXXXXX
+                        XXXXXXX, CMD_SPC, XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, NUM_ENT, XXXXXXX
   //                  `--------+--------+--------+--------'   `--------+--------+--------+--------'
   ),
 
