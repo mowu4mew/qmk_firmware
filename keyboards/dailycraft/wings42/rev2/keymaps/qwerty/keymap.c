@@ -29,14 +29,14 @@ enum custom_keycodes {
 #define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
 
 //Declare Alias Mod Tap NOB Layer
-#define MT_GUI_D LGUI_T(KC_D)
-#define MT_GUI_K RGUI_T(KC_K)
-#define MT_SFT_V LSFT_T(KC_V)
-#define MT_SFT_M RSFT_T(KC_M)
 #define MT_CTL_A LCTL_T(KC_A)
 #define MT_CTL_MIN RCTL_T(JP_MINS)
 #define MT_ALT_S LALT_T(KC_S)
 #define MT_ALT_L RALT_T(KC_L)
+#define MT_GUI_D LGUI_T(KC_D)
+#define MT_GUI_K RGUI_T(KC_K)
+#define MT_SFT_V LSFT_T(KC_V)
+#define MT_SFT_M RSFT_T(KC_M)
 
 //Declare Alias Mod Tap NUM Layer
 #define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
@@ -60,16 +60,16 @@ enum combos{
   DL_TAB,
   DF_ESC,
   DOT_COLON_MBTN3,
-  XI_LOCK
+  OI_LOCK
 };
 
 const uint16_t PROGMEM lk_combo[] = {MT_ALT_L, MT_GUI_K ,COMBO_END};
 const uint16_t PROGMEM sd_combo[] = {MT_ALT_S, MT_GUI_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {MT_GUI_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM df_combo[] = {MT_GUI_D, KC_N, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {MT_GUI_D, KC_F, COMBO_END};
 const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
-const uint16_t PROGMEM oi_combo[] = {KC_X, KC_I, COMBO_END};
+const uint16_t PROGMEM oi_combo[] = {KC_O, KC_I, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [LK_HENK] = COMBO(lk_combo, JP_HENK),
@@ -78,7 +78,7 @@ combo_t key_combos[COMBO_COUNT] = {
   [DL_TAB] = COMBO(dl_combo, KC_TAB),
   [DF_ESC] = COMBO(df_combo, KC_ESC),
   [DOT_COLON_MBTN3] = COMBO(dc_combo, MBTN3),
-  [XI_LOCK] = COMBO(oi_combo, MC_LOCK)
+  [OI_LOCK] = COMBO(oi_combo, MC_LOCK)
 };
 
 
