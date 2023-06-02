@@ -1,234 +1,337 @@
 #include QMK_KEYBOARD_H
+#include "keymap_japanese.h"
 
-//Declare custum keyCodes
-enum custom_keycodes {
-    INS_L = SAFE_RANGE,           //Insert Line
-    KILL_L,                       //Kill Line
+//Declare layers
+enum layer_number {
+  _QWERTY = 0,
+  _NUM,
+  _CMD,
+  _FNC,
 };
 
-//Alias
-#define MC_TOV KEY_OVERRIDE_TOGGLE  //toggle override
-#define MT_SSPC LSFT_T(KC_SPC)    //hold:"Shift" tap:"Space"
-#define MT_NENT LT(2,KC_ENT)      //hold:"NMB" tap:"Enter"
-#define MT_FK LT(4,KC_K)          //hold:"Function" tap:"K"
-#define MT_FD LT(4,KC_D)          //hold:"Function" tap:"D"
-#define MT_FT LT(4,KC_T)          //hold:"Function" tap:"T"
-#define MT_FE LT(4,KC_E)          //hold:"Function" tap:"E"
-#define MT_ME LT(3,KC_MHEN)  //hold:"EMACS" tap:"M-Henkan"
-#define MT_HE LT(3,KC_HENK)  //hold:"EMACS" tap:"Henkan"
+//Declare custum keycodes
+enum custom_keycodes {
+  INS_L = SAFE_RANGE,
+  KILL_L,
+  CTL_ALL,
+  SFT_PST,
+  CMD_SPC,
+  NUM_ENT,
+  MBTN1,          //Left click
+  MBTN2,          //Right click
+  MBTN3           //Center click
+};
 
-#define MC_PSC  LGUI(S(KC_S))     //Print screen
-#define MC_DTR  LGUI(C(KC_RIGHT)) //Desk top move right
-#define MC_DTL  LGUI(C(KC_LEFT))  //Desk top move left
-#define MC_LCK  LGUI(KC_L)        //Screen Lock
-#define MC_MIN  LGUI(KC_M)        //Window Minimize
-#define MC_SRH  LGUI(KC_S)        //Search
-#define MC_RUN  LGUI(KC_R)        //Run
+//Declare Alias Mod Tap Layer NOB Layer
+#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
 
-#define JP_AT KC_LBRC             // @
-#define JP_CIRC KC_EQL            // ^, ~
-#define JP_COLN KC_QUOT           // :, *
-#define JP_LBRC KC_RBRC           // [
-#define JP_RBRC KC_NUHS           // ]
-#define JP_LCBR LSFT(JP_LBRC)     // {
-#define JP_RCBR LSFT(JP_RBRC)     // }
-#define JP_LPRN LSFT(KC_8)        // (
-#define JP_RPRN LSFT(KC_9)        // )
-#define JP_QUOT LSFT(KC_7)        //',"
-#define JP_AMPR LSFT(KC_6)        // &
-#define JP_UNDS LSFT(KC_INT1)     //_
-#define JP_PLUS LSFT(KC_SCLN)     // +
-#define JP_EQL LSFT(KC_MINS)      // =
-#define JP_ASTR LSFT(JP_COLN)     // *
-#define JP_GRV LSFT(JP_AT)        //`
-#define JP_PIPE LSFT(KC_INT3)     //|
-#define JP_DQUO S(KC_2) 	  //"
+//Declare Alias Mod Tap QWERTY Layer
+#define MT_CTL_A LCTL_T(KC_A)
+#define MT_CTL_MIN RCTL_T(JP_MINS)
+#define MT_ALT_L LALT_T(KC_L)
+#define MT_ALT_S RALT_T(KC_S)
+#define MT_GUI_D LGUI_T(KC_D)
+#define MT_GUI_K RGUI_T(KC_K)
+#define MT_SFT_V LSFT_T(KC_V)
+#define MT_SFT_M RSFT_T(KC_M)
 
+//Declare Alias Mod Tap NUM Layer
+#define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
+#define MT_SFT_YN RSFT_T(JP_YEN)           //hold:"SHIFT"        tap"\" JP_YEN
+
+//Declare Alias Mod Tap CMD Layer
+#define MT_SFT_HM LSFT_T(KC_HOME)        //hold:"GUI"        tap"."
+
+//Declare Alias Short Cut CMD Layer
+#define MC_PRTSN G(S(KC_S))           //print screen
+#define MC_LOCK G(KC_L)               //Lock
+
+//Declare Alias Layer Tap CMD Layer
+#define MT_FNC_PU LT(_FNC, KC_PGUP)    //hold:"Function"   tap:"Page Up"
+
+//Declare Alias Mouse Botton
+#define MBTN1 MOUSE_BTN1
+#define MBTN2 MOUSE_BTN2
+#define MBTN3 MOUSE_BTN3
+
+//Declare COMBO
+enum combos{
+  LK_HENK,
+  SD_MHEN,
+  KJ_TAB,
+  DL_TAB,
+  DF_ESC,
+  DOT_COLON_MBTN3,
+  OI_LOCK
+};
+
+const uint16_t PROGMEM lk_combo[] = {MT_ALT_L, MT_GUI_K ,COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {MT_ALT_S, MT_GUI_D, COMBO_END};
+const uint16_t PROGMEM kj_combo[] = {MT_GUI_K, KC_J, COMBO_END};
+const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {MT_GUI_D, KC_F, COMBO_END};
+const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
+const uint16_t PROGMEM oi_combo[] = {KC_O, KC_I, COMBO_END};
+
+combo_t key_combos[COMBO_COUNT] = {
+  [LK_HENK] = COMBO(lk_combo, JP_HENK),
+  [SD_MHEN] = COMBO(sd_combo, JP_MHEN),
+  [KJ_TAB] = COMBO(kj_combo, KC_TAB),
+  [DL_TAB] = COMBO(dl_combo, KC_TAB),
+  [DF_ESC] = COMBO(df_combo, KC_ESC),
+  [DOT_COLON_MBTN3] = COMBO(dc_combo, MBTN3),
+  [OI_LOCK] = COMBO(oi_combo, MC_LOCK)
+};
+
+
+//Override
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
+const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
+const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
+const key_override_t yensft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);      //\[SHIFT & JP_YEN]
+
+const key_override_t **key_overrides = (const key_override_t *[]){
+  &undssft_key_override,
+  &dquosft_key_override,
+  &colnsft_key_override,
+  &tildsft_key_override,
+  &yensft_key_override,
+  NULL
+};
+
+//Declare tap-dance
+enum tapdances{
+  TD_Q_ESC
+};
+
+tap_dance_action_t tap_dance_actions[] = {
+[TD_Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [0] = LAYOUT_split_3x6_3(
+  [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |------------------------------------------------------.
-       KC_ESC,    KC_Q,    KC_W,    KC_T,    KC_R,    KC_V,        KC_J,    KC_U,    KC_I,    KC_H,    KC_P, JP_QUOT,
+      XXXXXXX,TD(TD_Q_ESC),KC_W,    KC_E,    KC_R,    KC_T,        KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      _______,    KC_K,    KC_S,   MT_FD,    KC_N,    KC_G,        KC_F,    KC_A,   MT_FE,    KC_O,    KC_Y, KC_SCLN,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,    MT_FNC_H,    KC_J,MT_GUI_K,MT_ALT_L,MT_CTL_MIN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-       KC_TAB,    KC_Z,    KC_X,    KC_C,    KC_M,    KC_B,     KC_MINS,    KC_L, KC_COMM,  KC_DOT, KC_SLSH,RCS_T(JP_PIPE),
+      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,        KC_N,MT_SFT_M, JP_COMM,   JP_DOT, JP_SLSH,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------/   \--------+--------+--------+---------+--------+--------'
-                                 KC_LCTL,   MT_ME, MT_SSPC,     MT_NENT,   MT_HE, KC_RALT
+                                 XXXXXXX, CMD_SPC, XXXXXXX,     XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
   ),
 
-  [1] = LAYOUT_split_3x6_3(
+  [_QWERTY] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |------------------------------------------------------.
-       KC_ESC,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,        KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, KC_MINS,
+      XXXXXXX,TD(TD_Q_ESC),KC_W,    KC_M,    KC_R,    KC_V,        KC_J,   KC_U,     KC_I,    KC_X,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-        MO(3),    KC_A,    KC_S,   MT_FD,    KC_F,    KC_G,        KC_H,    KC_J,   MT_FK,    KC_L, KC_SCLN, JP_QUOT,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_N,    KC_G,    MT_FNC_H,    KC_A,MT_GUI_K,MT_ALT_L,MT_CTL_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-       KC_TAB,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,        KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,RCS_T(JP_PIPE),
+      XXXXXXX,    KC_Z,    KC_D,    KC_C,MT_SFT_V,    KC_B,     JP_MINS,MT_SFT_M, JP_COMM,   JP_DOT, JP_SLSH,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------/   \--------+--------+--------+---------+--------+--------'
-                                 KC_LCTL, KC_MHEN, MT_SSPC,     MT_NENT, KC_HENK,  KC_RALT
+                                 XXXXXXX, CMD_SPC, XXXXXXX,     XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
   ),
 
-  [2] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------|   |-----------------------------------------------------.
-       JP_GRV, KC_EXLM,   JP_AT, KC_HASH,  KC_DLR, KC_PERC,     JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS, KC_MINS, JP_DQUO,
+  [_NUM] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------|   |------------------------------------------------------.
+      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH, JP_DLR,  JP_PERC,     JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      _______,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,        KC_6,    KC_7,    KC_8,    KC_9,    KC_0, JP_COLN,
+      XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,        KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  JP_EQL, JP_UNDS, JP_LPRN, JP_LCBR, JP_LBRC,     JP_RBRC, JP_RCBR, JP_RPRN,  KC_DOT, KC_SLSH, JP_PIPE,
-  //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, _______,     _______, _______,   TO(4)
+       XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------/   \--------+--------+--------+---------+--------+--------'
+                                 XXXXXXX, _______,XXXXXXX,      XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
   ),
 
-  [3] = LAYOUT_split_3x6_3(
+  [_CMD] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |-----------------------------------------------------.
-       MC_SRH, XXXXXXX,   INS_L, XXXXXXX,  MC_PSC, XXXXXXX,      MC_RUN, KC_HOME, KC_TAB,S(KC_TAB),  KC_END,  KC_ESC,
+       XXXXXXX,A(KC_F4), C(KC_W),  KILL_L,MC_PRTSN, C(KC_T),      MBTN1,   MBTN2,   KC_UP,   INS_L,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      _______, C(KC_A),  KILL_L,  KC_DEL, C(KC_F), C(KC_H),     KC_BSPC, KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT,   KC_F2,
+      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F), C(KC_H),     KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MT_FNC_PU,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-       MC_LCK, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),  KC_MS_BTN3,  KC_ENT, KC_PGDN, KC_PGUP, C(KC_Z),  MC_MIN,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),     C(KC_N),MT_SFT_HM, KC_TAB,  KC_END, KC_PGDN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-                                 _______,  MC_DTL, _______,     _______,  MC_DTR, _______
-  //                           `--------+--------+--------'   `--------+--------+--------'
+                                 XXXXXXX, _______, XXXXXXX,     XXXXXXX, _______, XXXXXXX
+  //                           `--------+--------+--------'   `--------+--------+---------'
   ),
 
-  [4] = LAYOUT_split_3x6_3(
+  [_FNC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |-----------------------------------------------------.
-        RESET, RGB_TOG, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI,      MC_DTL, KC_HOME,  KC_TAB,S(KC_TAB), KC_END,  MC_DTR,
+       XXXXXXX, DM_RSTP, DM_REC1, DM_PLY1,  KC_F11,  KC_F12,     EE_CLR, QK_BOOT, KC_PGUP, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      _______,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,  KC_WH_L,A(KC_LEFT), KC_WH_D, KC_WH_U,A(KC_RIGHT),KC_WH_R,
+      XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,     XXXXXXX, KC_HOME, KC_PGDN,  KC_END, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      EEP_RST,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,   XXXXXXX,RCS(KC_TAB),KC_PGDN,KC_PGUP,C(KC_TAB),  MC_MIN,
+      XXXXXXX,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX,  MC_MIN,  MC_MIN,  KC_MS_BTN1,KC_MS_BTN2, TO(1)
+                                 XXXXXXX, _______, XXXXXXX,     XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+--------'
   ),
 
 };
 
-#ifdef OLED_DRIVER_ENABLE
-#include <stdio.h>
-
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (!is_keyboard_master()) {
-    return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
-  }
-  return rotation;
-}
-
-#define L_BASE 0
-#define L_QWERTY 2
-#define L_NMB 4
-#define L_EMACS 8
-#define L_FN 16
-
-void oled_render_layer_state(void) {
-  oled_write_P(PSTR("Layer: "), false);
-  switch (layer_state) {
-    case L_BASE:
-      oled_write_ln_P(PSTR("NOBIX"), false);
-      break;
-    case L_QWERTY:
-      oled_write_ln_P(PSTR("QWERTY"), false);
-      break;
-    case L_NMB:
-      oled_write_ln_P(PSTR("Number"), false);
-      break;
-    case L_EMACS:
-      oled_write_ln_P(PSTR("Emacs"), false);
-      break;
-    case L_FN:
-      oled_write_ln_P(PSTR("Function"), false);
-      break;
+//tap & hold setting
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+  switch(keycode){
+    case MT_GUI_D:
+      return 250;   //短くするとホールドになりやすい。長いとタップになりやすい。
+    case MT_GUI_K:
+      return 250;
+    case MT_SFT_V:
+      return 250;
+    case MT_SFT_M:
+      return 250;
+    case MT_CTL_A:
+      return 250;
+    case MT_CTL_MIN:
+      return 250;
+    case MT_ALT_S:
+      return 250;
+    case MT_ALT_L:
+      return 250;
+    case MT_SFT_TD:
+      return 250;
+    case MT_SFT_YN:
+      return 250;
+    case MT_SFT_HM:
+      return 250;
+    case MT_FNC_H:
+      return 250;
+    case MT_FNC_PU:
+      return 250;
+    case CTL_ALL:
+      return 400;
+    case SFT_PST:
+      return 400;
+    case TD_Q_ESC:
+      return 60;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
-      oled_write_ln_P(PSTR("Undefined"), false);
-      break;
+      return TAPPING_TERM;
   }
 }
 
-char keylog_str[24] = {};
-
-const char code_to_name[60] = {
-    ' ', ' ', ' ', ' ', 'a', 'b', 'c', 'd', 'e', 'f',
-    'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-    'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-    'R', 'E', 'B', 'T', '_', '-', '=', '[', ']', '\\',
-    '#', ';', '\'', '`', ',', '.', '/', ' ', ' ', ' '};
-
-void set_keylog(uint16_t keycode, keyrecord_t *record) {
-  char name = ' ';
-    if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) ||
-        (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) { keycode = keycode & 0xFF; }
-  if (keycode < 60) {
-    name = code_to_name[keycode];
+//MTキー長押し先離し&2キー後離しでMTキーtap判定
+bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    case ALT_T(KC_Y):
+      return true;
+    case CTL_T(KC_K):
+      return true;
+    default:
+      return false;
   }
-
-  // update keylog
-  snprintf(keylog_str, sizeof(keylog_str), "%dx%d, k%2d : %c",
-           record->event.key.row, record->event.key.col,
-           keycode, name);
 }
 
-void oled_render_keylog(void) {
-    oled_write(keylog_str, false);
+//MTキー長押し離しでtap
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    default:
+      return false;
+  }
 }
 
-void render_bootmagic_status(bool status) {
-    /* Show Ctrl-Gui Swap options */
-    static const char PROGMEM logo[][2][3] = {
-        {{0x97, 0x98, 0}, {0xb7, 0xb8, 0}},
-        {{0x95, 0x96, 0}, {0xb5, 0xb6, 0}},
-    };
-    if (status) {
-        oled_write_ln_P(logo[0][0], false);
-        oled_write_ln_P(logo[0][1], false);
-    } else {
-        oled_write_ln_P(logo[1][0], false);
-        oled_write_ln_P(logo[1][1], false);
+///MTキーホールド判定前に次キーtapでもmod有効
+bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
+    switch(keycode){
+        default:
+            return false;
     }
 }
 
-void oled_render_logo(void) {
-    static const char PROGMEM crkbd_logo[] = {
-        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94,
-        0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4,
-        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4,
-        0};
-    oled_write_P(crkbd_logo, false);
-}
+#define HOLDING_TERM 160  //この時間以上押されるとホールド判定
+#define DEAD_ZONE_TERM 50   //この時間以下は不感帯
+#define ALPHA_NUM_TERM 100   //この時間以下ならalpha 以上ならnum
 
-void oled_task_user(void) {
-    if (is_keyboard_master()) {
-        oled_render_layer_state();
-        oled_render_keylog();
-    } else {
-        oled_render_logo();
-    }
-}
-
-#endif // OLED_DRIVER_ENABLE
-
-
-static bool SHIFT_PRESSED = false;
-static bool EXCEPTIONALY_SHIFT_PRESSED = false;
+static bool is_cmd_spc_pressed = false;
+static bool is_num_ent_pressed = false;
+static uint32_t ctl_all_pressed_time = 0;
+static uint32_t sft_pst_pressed_time = 0;
+static uint32_t cmd_spc_pressed_time = 0;
+static uint32_t num_ent_pressed_time = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (record->event.pressed) {
-#ifdef OLED_DRIVER_ENABLE
-    set_keylog(keycode, record);
-#endif
-  }
 
   switch (keycode) {
-    case MT_SSPC:
+    case CMD_SPC:
       if(record->event.pressed){
-        SHIFT_PRESSED = true;
+        cmd_spc_pressed_time = record->event.time;
+        is_cmd_spc_pressed = true;
+        layer_on(_CMD);
+        update_tri_layer(_NUM, _CMD, _QWERTY);
+        if(IS_LAYER_ON(_QWERTY)){
+          layer_off(_CMD);
+          layer_off(_NUM);
+          register_code(KC_LSFT);
+        }
       }else{
-        SHIFT_PRESSED = false;
+        is_cmd_spc_pressed = false;
+        if(is_num_ent_pressed){
+          layer_on(_NUM);
+        }else{
+          layer_off(_CMD);
+        }
+        unregister_code(KC_LSFT);
+
+        if(timer_elapsed(cmd_spc_pressed_time) < HOLDING_TERM){
+          tap_code(KC_SPC);
+        }
       }
+      return false;
+      break;
+
+    case NUM_ENT:
+      if(record->event.pressed){
+        num_ent_pressed_time = record->event.time;
+        is_num_ent_pressed = true;
+        layer_on(_NUM);
+        update_tri_layer(_NUM, _CMD, _QWERTY);
+        if(IS_LAYER_ON(_QWERTY)){
+          layer_off(_CMD);
+          layer_off(_NUM);
+          register_code(KC_LSFT);
+        }
+      }else{
+        is_num_ent_pressed = false;
+        if(is_cmd_spc_pressed){
+          layer_on(_CMD);
+        }else{
+          layer_off(_NUM);
+        }
+        unregister_code(KC_LSFT);
+
+        if(timer_elapsed(num_ent_pressed_time) < HOLDING_TERM){
+          tap_code(KC_ENT);
+        }
+      }
+      return false;
+      break;
+
+     case CTL_ALL:
+      if(record->event.pressed){
+        ctl_all_pressed_time = record->event.time;
+        register_code(KC_LCTL);
+      }else{
+        unregister_code(KC_LCTL);
+        if(timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM){
+          SEND_STRING(SS_LCTL(SS_TAP(X_A)));
+        }
+      }
+      return false;
+      break;
+
+    case SFT_PST:
+      if(record->event.pressed){
+        sft_pst_pressed_time = record->event.time;
+        register_code(KC_LSFT);
+      }else{
+        unregister_code(KC_LSFT);
+        if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
+          SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+        }
+      }
+      return false;
       break;
 
     case KILL_L:
@@ -240,81 +343,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case INS_L:
       if(record->event.pressed){
-        SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT));
+        SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
       }
-      return false;
-      break;
-
-    case RST_MOD:
-      if(record->event.pressed){
-          clear_keyboard();
-          layer_move(0);
-        }
       return false;
       break;
 
     default:
-      if(SHIFT_PRESSED || EXCEPTIONALY_SHIFT_PRESSED){
-        switch(keycode){
-          case KC_MINS:
-            if(record->event.pressed){
-              register_code(KC_INT1);
-              EXCEPTIONALY_SHIFT_PRESSED = true;
-            }else{
-              unregister_code(KC_LSFT);
-              if(SHIFT_PRESSED){
-                register_code(KC_LSFT);
-              }
-              EXCEPTIONALY_SHIFT_PRESSED =false;
-            }
-            return false;
-            break;
+      return true;
 
-          case KC_SCLN:
-            if(record->event.pressed){
-              unregister_code(KC_LSFT);
-              register_code(KC_QUOT);
-              EXCEPTIONALY_SHIFT_PRESSED = true;
-            }else{
-              unregister_code(KC_LSFT);
-              if(SHIFT_PRESSED){
-                register_code(KC_LSFT);
-              }
-              EXCEPTIONALY_SHIFT_PRESSED =false;
-            }
-            return false;
-            break;
-
-          case JP_QUOT:
-            if(record->event.pressed){
-              register_code(KC_2);
-              EXCEPTIONALY_SHIFT_PRESSED = true;
-            }else{
-              unregister_code(KC_LSFT);
-              if(SHIFT_PRESSED){
-                register_code(KC_LSFT);
-              }
-              EXCEPTIONALY_SHIFT_PRESSED =false;
-            }
-            return false;
-            break;
-
-          case KC_ESC:
-            if(record->event.pressed){
-              register_code(KC_EQL);
-              EXCEPTIONALY_SHIFT_PRESSED = true;
-            }else{
-              unregister_code(KC_LSFT);
-              if(SHIFT_PRESSED){
-                register_code(KC_LSFT);
-              }
-            EXCEPTIONALY_SHIFT_PRESSED = false;
-            }
-            return false;
-            break;
-
-        }
-      }
-    }
-  return true;
+  }
 }
+
