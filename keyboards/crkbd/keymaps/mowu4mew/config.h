@@ -3,8 +3,6 @@
 #define MASTER_RIGHT
 #define NO_MUSIC_MODE
 #define LAYER_STATE_16BIT
-//#define PAW3204_SCLK_PIN D0
-//#define PAW3204_SDIO_PIN D1
 
 #define COMBO_COUNT 7
 #define COMBO_TERM 10
@@ -18,7 +16,7 @@
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 #define NO_ACTION_ONESHOT
-#
+
 
 
 

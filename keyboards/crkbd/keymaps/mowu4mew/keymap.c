@@ -24,6 +24,7 @@ enum custom_keycodes {
 
 //Declare Alias Mod Tap Layer NOB Layer
 #define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
+#define MT_FNC_C LT(_FNC, KC_C)       //hold:"Function"   tap):"C"
 
 //Declare Alias Mod Tap QWERTY Layer
 #define MT_CTL_A LCTL_T(KC_A)
@@ -48,6 +49,7 @@ enum custom_keycodes {
 
 //Declare Alias Layer Tap CMD Layer
 #define MT_FNC_PU LT(_FNC, KC_PGUP)    //hold:"Function"   tap:"Page Up"
+
 
 //Declare COMBO
 enum combos{
@@ -109,9 +111,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|   |------------------------------------------------------.
       XXXXXXX,TD(TD_Q_ESC),KC_W,    KC_E,    KC_R,    KC_T,        KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,    MT_FNC_H,    KC_J,MT_GUI_K,MT_ALT_L,MT_CTL_MIN, XXXXXXX,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,    MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CTL_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,        KC_N,MT_SFT_M, JP_COMM,   JP_DOT, JP_SLSH,XXXXXXX,
+      XXXXXXX,    KC_Z,    KC_X,MT_FNC_C,MT_SFT_V,    KC_B,        KC_N,MT_SFT_M, JP_COMM,   JP_DOT, JP_SLSH,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------/   \--------+--------+--------+---------+--------+--------'
                                  XXXXXXX, CMD_SPC, XXXXXXX,     XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
@@ -123,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,        KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-       XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,     JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------/   \--------+--------+--------+---------+--------+--------'
                                  XXXXXXX, _______,XXXXXXX,      XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
@@ -131,11 +133,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |-----------------------------------------------------.
-       XXXXXXX,A(KC_F4), C(KC_W),  KILL_L,MC_PRTSN, C(KC_T),    KC_BTN1, KC_BTN2,   KC_UP,   INS_L,   KC_F2, XXXXXXX,
+       XXXXXXX,A(KC_F4), C(KC_W),  KILL_L,MC_PRTSN,C(KC_T),     KC_BTN1, KC_BTN2,   KC_UP,   INS_L,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F), C(KC_H),     KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MT_FNC_PU,XXXXXXX,
+      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F), C(KC_H),     KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC),XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),     C(KC_N),MT_SFT_HM, KC_TAB,  KC_END, KC_PGDN, XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),     C(KC_N),MT_SFT_HM, KC_TAB,  KC_END,   KC_F5, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,     XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+---------'
@@ -143,11 +145,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_FNC] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------|   |-----------------------------------------------------.
-       XXXXXXX, DM_RSTP, DM_REC1, DM_PLY1,  KC_F11,  KC_F12,     EE_CLR, QK_BOOT, KC_PGUP, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, KC_BTN1, KC_MS_U, KC_BTN2, _______,       KC_F3,   KC_F4, KC_PGUP,   KC_F6,   KC_F7, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,     XXXXXXX, KC_HOME, KC_PGDN,  KC_END, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, KC_MS_L, KC_MS_D, KC_MS_R, _______,       KC_F8, KC_HOME, KC_PGDN,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,       KC_F9,  KC_F10,  KC_F11,  KC_F12, QK_BOOT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,     XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'   `--------+--------+--------'
