@@ -31,13 +31,14 @@ enum custom_keycodes {
 
 //Declare Alias Mod Tap QWERTY Layer
 #define MT_CTL_A LCTL_T(KC_A)
-#define MT_CTL_MIN RCTL_T(JP_MINS)
+//#define MT_CTL_MIN RCTL_T(JP_MINS)
 #define MT_ALT_S LALT_T(KC_S)
 #define MT_ALT_L RALT_T(KC_L)
 #define MT_GUI_D LGUI_T(KC_D)
 #define MT_GUI_K RGUI_T(KC_K)
 #define MT_SFT_V LSFT_T(KC_V)
 #define MT_SFT_M RSFT_T(KC_M)
+#define MT_CTL_MIN LT(_CMD, JP_MINS)
 
 //Declare Alias Mod Tap NUM Layer
 #define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
@@ -87,7 +88,7 @@ combo_t key_combos[COMBO_COUNT] = {
 
 
 //Override
-const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, MT_CTL_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, MT_CMD_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
 const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
 const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
 const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
@@ -117,7 +118,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CTL_MIN,XXXXXXX,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CMD_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                       KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -187,7 +188,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
       return 250;
     case MT_CTL_A:
       return 250;
-    case MT_CTL_MIN:
+    case MT_CMD_MIN:
       return 250;
     case MT_ALT_S:
       return 250;
