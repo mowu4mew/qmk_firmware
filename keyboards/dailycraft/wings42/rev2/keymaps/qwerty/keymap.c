@@ -38,7 +38,7 @@ enum custom_keycodes {
 #define MT_GUI_K RGUI_T(KC_K)
 #define MT_SFT_V LSFT_T(KC_V)
 #define MT_SFT_M RSFT_T(KC_M)
-#define MT_CTL_MIN LT(_CMD, JP_MINS)
+#define MT_CMD_MIN LT(_CMD, JP_MINS)
 
 //Declare Alias Mod Tap NUM Layer
 #define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
