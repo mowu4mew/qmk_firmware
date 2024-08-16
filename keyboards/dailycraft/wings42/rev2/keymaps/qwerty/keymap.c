@@ -480,3 +480,20 @@ layer_state_t layer_state_set_user(layer_state_t state){
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
 }
+
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (index == 0) { /* First encoder */
+        if (clockwise) {
+            tap_code(KC_PGDN);
+        } else {
+            tap_code(KC_PGUP);
+        }
+    } else if (index == 1) { /* Second encoder */
+        if (clockwise) {
+            tap_code(KC_DOWN);
+        } else {
+            tap_code(KC_UP);
+        }
+    }
+    return false;
+}
