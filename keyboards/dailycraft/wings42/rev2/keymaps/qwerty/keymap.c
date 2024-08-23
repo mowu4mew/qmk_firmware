@@ -333,7 +333,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }else{
         unregister_code(KC_LSFT);
         if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
-          SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+          //SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+          SEND_STRING(SS_LGUI(SS_TAP(X_V)));
         }
       }
       return false;
