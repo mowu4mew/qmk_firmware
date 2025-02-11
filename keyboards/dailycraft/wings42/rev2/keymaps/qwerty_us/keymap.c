@@ -1,7 +1,5 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device.h"
-#include "keymap_japanese.h"
-
 
 //Declare layers
 enum layer_number {
@@ -27,25 +25,17 @@ enum custom_keycodes {
 };
 
 //Declare Alias Mod Tap Layer QWERTY Layer
-#define MT_FNC_N LT(_FNC, KC_N)       //hold:"Function"   tap:"N"
+#define MT_FN_A LT(_FN, KC_A)       //hold:"Function"   tap:"A"
+#define MT_FN_MIN LT(_CMD, KC_MINS) //hold:"Function"   tap:"-"
 
 //Declare Alias Mod Tap QWERTY Layer
-#define MT_CTL_A LCTL_T(KC_A)
-//#define MT_CTL_MIN RCTL_T(JP_MINS)
-#define MT_ALT_S LALT_T(KC_S)
-#define MT_ALT_L RALT_T(KC_L)
-#define MT_GUI_D LGUI_T(KC_D)
-#define MT_GUI_K RGUI_T(KC_K)
+#define MT_GUI_L RGUI_T(KC_L)
 #define MT_SFT_V LSFT_T(KC_V)
-#define MT_SFT_M RSFT_T(KC_M)
-#define MT_CMD_MIN LT(_CMD, JP_MINS)
-
-//Declare Alias Mod Tap NUM Layer
-#define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
-#define MT_SFT_YN RSFT_T(JP_YEN)           //hold:"SHIFT"        tap"\" JP_YEN
+#define MT_CTL_X LCTL_T(KC_X)
+#define MT_ALT_C LALT_T(KC_C)
 
 //Declare Alias Mod Tap CMD Layer
-#define MT_SFT_PD LSFT_T(KC_PGDN)        //hold:"SHIFT"        tap"Page Down"
+#define MT_FNC_SA LT(_FN, KC_PGDN)        //hold:"SHIFT"        tap"Page Down"
 
 //Declare Alias Short Cut CMD Layer
 #define MCPRTSCR G(S(KC_S))           //print screen
@@ -118,9 +108,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,MT_ALT_L, KC_MINS, XXXXXXX,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CMD_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                   MT_FNC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
+      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                       KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
