@@ -27,7 +27,7 @@ enum custom_keycodes {
 };
 
 //Declare Alias Mod Tap Layer QWERTY Layer
-#define MT_FNC_N LT(_FNC, KC_N)       //hold:"Function"   tap:"N"
+#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
 
 //Declare Alias Mod Tap QWERTY Layer
 #define MT_CTL_A LCTL_T(KC_A)
@@ -118,9 +118,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,MT_ALT_L, KC_MINS, XXXXXXX,
+      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CMD_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                   MT_FNC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
+      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                       KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
