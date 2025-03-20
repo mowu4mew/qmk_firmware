@@ -27,14 +27,14 @@ enum custom_keycodes {
 };
 
 //Declare Alias Mod Tap Layer QWERTY Layer
-#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
+//#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
 
 //Declare Alias Mod Tap QWERTY Layer
-#define MT_CTL_A LCTL_T(KC_A)
+#define MT_SFT_A LSFT_T(KC_A)
 //#define MT_CTL_MIN RCTL_T(JP_MINS)
-#define MT_ALT_S LALT_T(KC_S)
-#define MT_ALT_L RALT_T(KC_L)
-#define MT_GUI_D LGUI_T(KC_D)
+#define MT_CTR_S LCTL_T(KC_S)
+#define MT_CTR_L RCTL_T(KC_L)
+#define KC_D LGUI_T(KC_D)
 #define MT_GUI_K RGUI_T(KC_K)
 #define MT_SFT_V LSFT_T(KC_V)
 #define MT_SFT_M RSFT_T(KC_M)
@@ -66,11 +66,11 @@ enum combos{
   WE_PRTSCN
 };
 
-const uint16_t PROGMEM lk_combo[] = {MT_ALT_L, MT_GUI_K ,COMBO_END};
-const uint16_t PROGMEM sd_combo[] = {MT_ALT_S, MT_GUI_D, COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {MT_CTR_L, MT_GUI_K ,COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {MT_CTR_S, KC_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {MT_GUI_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM df_combo[] = {MT_GUI_D, KC_F, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM oi_combo[] = {KC_O, KC_I, COMBO_END};
 const uint16_t PROGMEM we_combo[] = {KC_W, KC_E, COMBO_END};
@@ -118,11 +118,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,MT_GUI_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_ALT_L,MT_CMD_MIN,XXXXXXX,
+      XXXXXXX,MT_SFT_A,MT_CTR_S,KC_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_CTR_L,MT_CMD_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                       KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
+                                 XXXXXXX, CMD_SPC, XXXXXXX,                 MO(_mouse), NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -140,7 +140,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,A(KC_F4), C(KC_W),  KILL_L, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
+      XXXXXXX,A(KC_F4), C(KC_W),  KILL_L, C(KC_H), C(KC_T),                           , KC_PGUP,   KC_UP, KC_DOWN,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F),   KC_F3,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -152,11 +152,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  KC_F11,  KC_F12,                    EE_CLR, QK_BOOT,C(KC_HOME),KC_PGUP, XXXXXXX, XXXXXXX,
+      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  KC_F11,  KC_F12,                      MBTN1,   MBTN2,C(KC_HOME),KC_PGUP, EE_CLR, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                    XXXXXXX, KC_HOME,C(KC_END), KC_END, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,                    XXXXXXX, KC_PGDN,S(KC_TAB),XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,                     QK_BOOT, KC_PGDN,S(KC_TAB),XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -178,21 +178,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //tap & hold setting
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
-    case MT_GUI_D:
-      return 250;   //短くするとホールドになりやすい。長いとタップになりやすい。
     case MT_GUI_K:
-      return 250;
+      return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
     case MT_SFT_V:
       return 250;
     case MT_SFT_M:
       return 250;
-    case MT_CTL_A:
+    case MT_SFT_A:
       return 250;
     case MT_CMD_MIN:
       return 250;
-    case MT_ALT_S:
+    case MT_CTR_S:
       return 250;
-    case MT_ALT_L:
+    case MT_CTR_L:
       return 250;
     case MT_SFT_TD:
       return 250;
