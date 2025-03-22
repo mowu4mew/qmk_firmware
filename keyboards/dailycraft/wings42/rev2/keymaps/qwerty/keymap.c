@@ -194,13 +194,16 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 static bool is_scroll_mode;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
-static uint32_t ctl_all_pressed_time = 0;
-static uint32_t alt_save_pressed_time = 0;
-static uint32_t sft_find_pressed_time = 0;
-static uint32_t cmd_spc_pressed_time = 0;
-static uint32_t num_ent_pressed_time = 0;
+static uint16_t ctl_all_pressed_time = 0;
+static uint16_t alt_save_pressed_time = 0;
+static uint16_t sft_find_pressed_time = 0;
+static uint16_t cmd_spc_pressed_time = 0;
+static uint16_t num_ent_pressed_time = 0;
+static uint16_t ctl_min_pressed_time = 0;
 
 enum key_state alt_save_state = RELEASED;
+enum key_state ctl_min_state = RELEASED;
+
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   report_mouse_t currentReport = {};
@@ -362,7 +365,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-
+      
+    case CTL_MIN:
+      if(record->event.pressed){
+        ctl_min_pressed_time = record->event.time;
+        ctl_min_state = PRESSED;
+      }else{
+        if(ctl_min_state == HOLDEN){
+          unregister_code(JP_MINS);
+        }
+        ctl_min_state = RELEASED;
+      }
+      
     default:
       if(alt_save_state == PRESSED){
         register_code(KC_LALT);
@@ -372,6 +386,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
+void matrix_scan_user(void){
+  if(ctl_min_state == PRESSED && timer_elapsed(ctl_min_pressed_time) > TAPPING_TERM){
+    register_code(JP_MINS);
+    ctl_min_state = HOLDEN;
+  }
+}
 
 static int16_t h_acm = 0;
 static int16_t v_acm = 0;
