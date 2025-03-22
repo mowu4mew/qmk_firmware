@@ -6,16 +6,17 @@ enum layer_number {
   _QWERTY = 0,
   _NUM,
   _CMD,
-  _FNC,
   _MOUSE,
+  _FNC,
 };
 
 //Declare custum keycodes
 enum custom_keycodes {
   INS_L = SAFE_RANGE,
   KILL_L,
-  FN_ALL,
-  SFT_PST,
+  CTL_ALL,
+  ALT_SAVE,
+  SFT_FIND,
   CMD_SPC,
   NUM_ENT,
   MBTN1,          //Left click
@@ -24,22 +25,31 @@ enum custom_keycodes {
   SCRL
 };
 
-//Declare Alias Mod Tap Layer QWERTY Layer
-#define MT_FN_A LT(_FNC, KC_A)       //hold:"Function"   tap:"A"
-#define MT_FN_MIN LT(_CMD, KC_MINS) //hold:"Function"   tap:"-"
+//Declare key state
+enum key_state{
+  RELEASED,
+  PRESSED,
+  HOLDEN
+};
 
 //Declare Alias Mod Tap QWERTY Layer
-#define MT_GUI_L RGUI_T(KC_L)
-#define MT_SFT_V LSFT_T(KC_V)
-#define MT_CTL_X LCTL_T(KC_X)
-#define MT_ALT_C LALT_T(KC_C)
+#define CTL_A LCTL_T(KC_A)
+#define CTL_MIN RCTL_T(KC_MINS)
+#define ALT_S LALT_T(KC_S)
+#define ALT_L RALT_T(KC_L)
+#define GUI_G LGUI_T(KC_G)
+#define GUI_H RGUI_T(KC_H)
+#define SFT_F LSFT_T(KC_F)
+#define SFT_J RSFT_T(KC_J)
+#define MHEN KC_F13
+#define HENK KC_F14
 
-//Declare Alias Mod Tap CMD Layer
-#define MT_FNC_SA LT(_FN, KC_PGDN)        //hold:"SHIFT"        tap"Page Down"
-
-//Declare Alias Short Cut Combo
-#define MCPRTSCR G(S(KC_S))           //print screen
-#define MC_LOCK G(KC_L)               //Lock
+//Declare Alias Short Cut
+#define MCPRTSCR G(S(KC_S))   //print screen
+#define QUIT A(KC_F4)         //apli quit
+#define RECVT G(KC_SLSH)      //re convert ime
+#define PG_TOP C(KC_HOME)     //go page top
+#define PG_BTM C(KC_END)      //go page bottom
 
 //Declare COMBO
 enum combos{
@@ -49,50 +59,47 @@ enum combos{
   DL_TAB,
   DF_ESC,
   DOT_COLON_MBTN3,
-  OI_LOCK,
   WE_PRTSCN
 };
 
-//const uint16_t PROGMEM lk_combo[] = {MT_GUI_L, KC_K ,COMBO_END};
-//const uint16_t PROGMEM sd_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM kj_combo[] = {KC_K, KC_J, COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {ALT_S, KC_D, COMBO_END};
+const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM df_combo[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {KC_D, SFT_F, COMBO_END};
 const uint16_t PROGMEM dc_combo[] = {KC_DOT, KC_COMM, COMBO_END};
-const uint16_t PROGMEM oi_combo[] = {KC_O, KC_I, COMBO_END};
 const uint16_t PROGMEM we_combo[] = {KC_W, KC_E, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-  //[LK_HENK] = COMBO(lk_combo, KC_HENK),
-  //[SD_MHEN] = COMBO(sd_combo, KC_MHEN),
+  [LK_HENK] = COMBO(lk_combo, HENK),
+  [SD_MHEN] = COMBO(sd_combo, MHEN),
   [KJ_TAB] = COMBO(kj_combo, KC_TAB),
   [DL_TAB] = COMBO(dl_combo, KC_TAB),
   [DF_ESC] = COMBO(df_combo, KC_ESC),
   [DOT_COLON_MBTN3] = COMBO(dc_combo, MBTN3),
-  [OI_LOCK] = COMBO(oi_combo, MC_LOCK),
   [WE_PRTSCN] = COMBO(we_combo, MCPRTSCR)
 };
 
 //Declare tap-dance
 enum tapdances{
-  TD_Q_ESC
+  Q_ESC
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-[TD_Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+[Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
 };
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,TD(TD_Q_ESC),KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, XXXXXXX,
+     XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, MT_FN_A,    KC_S,    KC_D,    KC_F,    KC_G,                        KC_H,    KC_J,    KC_K,MT_GUI_L,MT_FN_MIN,XXXXXXX,
+      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, CTL_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,MT_CTL_X,MT_ALT_C,MT_SFT_V,    KC_B,                       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, XXXXXXX,
+      XXXXXXX,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
+                                 MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), NUM_ENT, HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -102,92 +109,74 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,S(KC_GRV),KC_QUOT, KC_LBRC, KC_LSFT, KC_LPRN,                    KC_RPRN, KC_RSFT, KC_RBRC, KC_SCLN, KC_BSLS, XXXXXXX,
+      XXXXXXX, KC_TILD, KC_QUOT, KC_LBRC,MO(_FNC), KC_LPRN,                    KC_RPRN,MO(_FNC), KC_RBRC, KC_SCLN, KC_BSLS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______,XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+                                 MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), _______, HENK
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,A(KC_F4), C(KC_W),   KC_F2, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP, KC_RCTL, XXXXXXX,
+      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   INS_L, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, FN_ALL, C(KC_S),  KC_DEL,  C(KC_F),   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+      XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),                    C(KC_N), KC_PGDN,  INS_L,  KC_ESC,G(KC_SLSH), XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   KC_F2,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
-
-    [_FNC] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    EE_CLR, QK_BOOT,C(KC_HOME),XXXXXXX, XXXXXXX, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX,  KILL_L,   KC_F3,  KC_F11,                      KC_F6, KC_HOME,C(KC_END), KC_END, XXXXXXX, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX,   KC_F1,   KC_F4,  KC_F12,                      KC_F7,   KC_F8,   KC_F9, KC_F10, XXXXXXX, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+                                 MHEN, _______, XXXXXXX,                 MO(_MOUSE), NUM_ENT, HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_MOUSE] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      MBTN1,   MBTN2, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                       SCRL, KC_RSFT, KC_RCTL, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+                                 MHEN, CMD_SPC, XXXXXXX,                    _______, _______, HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
+
+  [_FNC] = LAYOUT_split_3x6_3_2(
+  //,-----------------------------------------------------|                  |-----------------------------------------------------.
+      XXXXXXX,  KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,                      KC_F9,  KC_F10,  PG_TOP, _______, QK_BOOT, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX,   KC_F1,   KC_F2,  KILL_L,   KC_F3,  KC_F11,                     KC_F12, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX,  KC_GRV, KC_DQUO, KC_LCBR, _______, KC_LPRN,                    KC_RPRN, _______, KC_RCBR, KC_COLN, KC_PIPE, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                 MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), NUM_ENT, HENK
+  //                           `--------+--------+--------'                  `--------+--------+--------'
+  ),
+
 };
 
-//tap & hold setting 
-//短くするとホールドになりやすい。長いとタップになりやすい。
+//tap & hold setting
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
-   case MT_SFT_V:
+    case CTL_A:
+      return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
+    case CTL_MIN:
       return 250;
-    case FN_ALL:
-      return 400;
-    case SFT_PST:
-      return 400;
-    case TD_Q_ESC:
+    case ALT_S:
+      return 250;
+    case ALT_L:
+      return 250;
+    case GUI_G:
+      return 250;
+    case GUI_H:
+      return 250;
+    case SFT_F:
+      return 250;
+    case SFT_J:
+      return 250;
+    case Q_ESC:
       return 60;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
       return TAPPING_TERM;
   }
-}
-
-//MTキー長押し先離し&2キー後離しでMTキーtap判定
-bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    case ALT_T(KC_Y):
-      return true;
-    case CTL_T(KC_K):
-      return true;
-    default:
-      return false;
-  }
-}
-
-//MTキー長押し離しでtap
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    default:
-      return false;
-  }
-}
-
-///MTキーホールド判定前に次キーtapでもmod有効
-bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
-    switch(keycode){
-        default:
-            return false;
-    }
 }
 
 #define HOLDING_TERM 160  //この時間以上押されるとホールド判定
@@ -197,10 +186,13 @@ bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
 static bool is_scroll_mode;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
-static uint32_t FN_ALL_pressed_time = 0;
-static uint32_t sft_pst_pressed_time = 0;
+static uint32_t ctl_all_pressed_time = 0;
+static uint32_t alt_save_pressed_time = 0;
+static uint32_t sft_find_pressed_time = 0;
 static uint32_t cmd_spc_pressed_time = 0;
 static uint32_t num_ent_pressed_time = 0;
+
+enum key_state alt_save_state = RELEASED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   report_mouse_t currentReport = {};
@@ -260,27 +252,47 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
-     case FN_ALL:
+     case CTL_ALL:
       if(record->event.pressed){
-        FN_ALL_pressed_time = record->event.time;
-        layer_on(_FNC);
+        ctl_all_pressed_time = record->event.time;
+        register_code(KC_LCTL);
       }else{
-        layer_off(_FNC);
-        if(timer_elapsed(FN_ALL_pressed_time) < TAPPING_TERM){
+        unregister_code(KC_LCTL);
+        if(timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM){
           SEND_STRING(SS_LCTL(SS_TAP(X_A)));
         }
       }
       return false;
       break;
 
-    case SFT_PST:
+    case ALT_SAVE:
       if(record->event.pressed){
-        sft_pst_pressed_time = record->event.time;
+        alt_save_pressed_time = record->event.time;
+        alt_save_state = PRESSED;
+      }else{
+        switch (alt_save_state) {
+          case PRESSED:
+            SEND_STRING(SS_LCTL(SS_TAP(X_S)));
+            break;
+          case HOLDEN:
+            unregister_code(KC_LALT);
+            break;
+          case RELEASED:
+            break;
+        }
+        alt_save_state = RELEASED;
+      }
+      return false;
+      break;
+
+    case SFT_FIND:
+      if(record->event.pressed){
+        sft_find_pressed_time = record->event.time;
         register_code(KC_LSFT);
       }else{
         unregister_code(KC_LSFT);
-        if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
-          SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+        if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
+          SEND_STRING(SS_LCTL(SS_TAP(X_F)));
         }
       }
       return false;
@@ -288,7 +300,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case KILL_L:
       if(record->event.pressed){
-        SEND_STRING(SS_DOWN(X_LSFT) SS_TAP(X_END) SS_UP(X_LSFT) SS_TAP(X_DEL));
+        tap_code16(S(KC_END));
+        tap_code(KC_DEL);
       }
       return false;
       break;
@@ -343,6 +356,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
 
     default:
+      if(alt_save_state == PRESSED){
+        register_code(KC_LALT);
+        alt_save_state = HOLDEN;
+      }
       return true;
   }
 }
@@ -414,18 +431,14 @@ layer_state_t layer_state_set_user(layer_state_t state){
     case _NUM:
       is_scroll_mode = true;
       break;
-    case _FNC:
-      is_scroll_mode = false;
-      break;
     default:
-      is_scroll_mode = false;
       break;
   }
   return state;
 }
 
 void pointing_device_init_user(void) {
-    set_auto_mouse_layer(_MOUSE);
+    set_auto_mouse_layer(_FNC);
 }
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
@@ -443,4 +456,12 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
         }
     }
     return false;
+}
+
+uint16_t keycode_config(uint16_t keycode) {
+  return keycode;
+}
+
+uint8_t mod_config(uint8_t mod) {
+  return mod;
 }

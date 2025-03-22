@@ -7,6 +7,7 @@ enum layer_number {
   _QWERTY = 0,
   _NUM,
   _CMD,
+  _MOUSE,
   _FNC,
 };
 
@@ -25,18 +26,29 @@ enum custom_keycodes {
   SCRL
 };
 
-//Declare Alias Mod Tap QWERTY Layer
-#define MT_CTL_A LCTL_T(KC_A)
-#define MT_CTL_MIN RCTL_T(JP_MINS)
-#define MT_ALT_S LALT_T(KC_S)
-#define MT_ALT_L RALT_T(KC_L)
-#define MT_GUI_G LGUI_T(KC_G)
-#define MT_GUI_H RGUI_T(KC_H)
-#define MT_SFT_F LSFT_T(KC_F)
-#define MT_SFT_J RSFT_T(KC_J)
+//Declare key state
+enum key_state{
+  RELEASED,
+  PRESSED,
+  HOLDEN
+};
 
-//Declare Alias Short Cut Combo
-#define MCPRTSCR G(S(KC_S))           //print screen
+//Declare Alias Mod Tap QWERTY Layer
+#define CTL_A LCTL_T(KC_A)
+#define CTL_MIN RCTL_T(JP_MINS)
+#define ALT_S LALT_T(KC_S)
+#define ALT_L RALT_T(KC_L)
+#define GUI_G LGUI_T(KC_G)
+#define GUI_H RGUI_T(KC_H)
+#define SFT_F LSFT_T(KC_F)
+#define SFT_J RSFT_T(KC_J)
+
+//Declare Alias Short Cut
+#define MCPRTSCR G(S(KC_S))   //print screen
+#define QUIT A(KC_F4)         //apli quit
+#define RECVT G(JP_SLSH)      //re convert ime
+#define PG_TOP C(KC_HOME)     //go page top
+#define PG_BTM C(KC_END)      //go page bottom
 
 //Declare COMBO
 enum combos{
@@ -49,11 +61,11 @@ enum combos{
   WE_PRTSCN
 };
 
-const uint16_t PROGMEM lk_combo[] = {MT_ALT_L, KC_K ,COMBO_END};
-const uint16_t PROGMEM sd_combo[] = {MT_ALT_S, KC_D, COMBO_END};
-const uint16_t PROGMEM kj_combo[] = {KC_K, MT_SFT_J, COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {ALT_S, KC_D, COMBO_END};
+const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM df_combo[] = {KC_D, MT_SFT_F, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {KC_D, SFT_F, COMBO_END};
 const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM we_combo[] = {KC_W, KC_E, COMBO_END};
 
@@ -69,7 +81,7 @@ combo_t key_combos[COMBO_COUNT] = {
 
 
 //Override
-const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, MT_CTL_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, CTL_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
 
 const key_override_t *key_overrides[] = {
   &undssft_key_override,
@@ -78,24 +90,24 @@ const key_override_t *key_overrides[] = {
 
 //Declare tap-dance
 enum tapdances{
-  TD_Q_ESC
+  Q_ESC
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-[TD_Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+[Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
 };
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
+     XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MT_CTL_A,MT_ALT_S,    KC_D,MT_SFT_F,MT_GUI_G,                   MT_GUI_H,MT_SFT_J,  KC_K,MT_ALT_L,MT_CTL_MIN,XXXXXXX,
+      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, CTL_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                   MO(_FNC), NUM_ENT, JP_HENK
+                                 JP_MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), NUM_ENT, JP_HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -105,33 +117,45 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,MO(_FNC),JP_TILD, JP_QUOT, JP_LBRC,  JP_LPRN,                    JP_RPRN, JP_RBRC, JP_SCLN,  JP_YEN,MO(_FNC), XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN,MO(_FNC), JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                    XXXXXXX, _______, JP_HENK
+                                 JP_MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), _______, JP_HENK
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,A(KC_F4), C(KC_W), KC_TAB,  C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   INS_L, XXXXXXX,
+      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   INS_L, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   KC_F2,KC_ESC,G(JP_SLSH), XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   KC_F2,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                    XXXXXXX, _______, JP_HENK
+                                 JP_MHEN, _______, XXXXXXX,                 MO(_MOUSE), NUM_ENT, JP_HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
-    [_FNC] = LAYOUT_split_3x6_3_2(
+  [_MOUSE] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,  KC_F10,   KC_F9,   KC_F8,   KC_F7,   KC_F6,                      MBTN1,   MBTN2,C(KC_HOME),KC_PGUP,QK_BOOT, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______,   KC_F4,  KILL_L,   KC_F3,  KC_F11,                     KC_F12, KC_HOME,C(KC_END), KC_END, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                       SCRL, KC_RSFT, KC_RCTL, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______,  JP_GRV, JP_DQUO, JP_LCBR, JP_LPRN,                    JP_RPRN, JP_RCBR, JP_COLN, JP_PIPE, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                    XXXXXXX, _______, JP_HENK
+                                 JP_MHEN, CMD_SPC, XXXXXXX,                    _______, _______, JP_HENK
+  //                           `--------+--------+--------'                  `--------+--------+--------'
+  ),
+
+  [_FNC] = LAYOUT_split_3x6_3_2(
+  //,-----------------------------------------------------|                  |-----------------------------------------------------.
+      XXXXXXX,  KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,                      KC_F9,  KC_F10,  PG_TOP, _______, QK_BOOT, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX,   KC_F1,   KC_F2,  KILL_L,   KC_F3,  KC_F11,                     KC_F12, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX,  JP_GRV, JP_DQUO, JP_LCBR, _______, JP_LPRN,                    JP_RPRN, _______, JP_RCBR, JP_COLN, JP_PIPE, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                 JP_MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), NUM_ENT, JP_HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -140,55 +164,27 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //tap & hold setting
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
-    case MT_CTL_A:
+    case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
-    case MT_CTL_MIN:
+    case CTL_MIN:
       return 250;
-    case MT_ALT_S:
+    case ALT_S:
       return 250;
-    case MT_ALT_L:
+    case ALT_L:
       return 250;
-    case MT_GUI_G:
+    case GUI_G:
       return 250;
-    case MT_GUI_H:
+    case GUI_H:
       return 250;
-    case MT_SFT_F:
+    case SFT_F:
       return 250;
-    case MT_SFT_J:
+    case SFT_J:
       return 250;
-    case TD_Q_ESC:
+    case Q_ESC:
       return 60;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
       return TAPPING_TERM;
   }
-}
-
-//MTキー長押し先離し&2キー後離しでMTキーtap判定
-bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    case ALT_T(KC_Y):
-      return true;
-    case CTL_T(KC_K):
-      return true;
-    default:
-      return false;
-  }
-}
-
-//MTキー長押し離しでtap
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    default:
-      return false;
-  }
-}
-
-///MTキーホールド判定前に次キーtapでもmod有効
-bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
-    switch(keycode){
-        default:
-            return false;
-    }
 }
 
 #define HOLDING_TERM 160  //この時間以上押されるとホールド判定
@@ -203,6 +199,8 @@ static uint32_t alt_save_pressed_time = 0;
 static uint32_t sft_find_pressed_time = 0;
 static uint32_t cmd_spc_pressed_time = 0;
 static uint32_t num_ent_pressed_time = 0;
+
+enum key_state alt_save_state = RELEASED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   report_mouse_t currentReport = {};
@@ -278,12 +276,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case ALT_SAVE:
       if(record->event.pressed){
         alt_save_pressed_time = record->event.time;
-        register_code(KC_LALT);
+        alt_save_state = PRESSED;
       }else{
-        unregister_code(KC_RALT);
-        if(timer_elapsed(alt_save_pressed_time) < TAPPING_TERM) {
-          SEND_STRING(SS_LCTL(SS_TAP(X_S)));
+        switch (alt_save_state) {
+          case PRESSED:
+            SEND_STRING(SS_LCTL(SS_TAP(X_S)));
+            break;
+          case HOLDEN:
+            unregister_code(KC_LALT);
+            break;
+          case RELEASED:
+            break;
         }
+        alt_save_state = RELEASED;
       }
       return false;
       break;
@@ -303,7 +308,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case KILL_L:
       if(record->event.pressed){
-        SEND_STRING(SS_DOWN(X_LSFT) SS_TAP(X_END) SS_UP(X_LSFT) SS_TAP(X_DEL));
+        tap_code16(S(KC_END));
+        tap_code(KC_DEL);
       }
       return false;
       break;
@@ -358,6 +364,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
 
     default:
+      if(alt_save_state == PRESSED){
+        register_code(KC_LALT);
+        alt_save_state = HOLDEN;
+      }
       return true;
   }
 }
@@ -429,11 +439,7 @@ layer_state_t layer_state_set_user(layer_state_t state){
     case _NUM:
       is_scroll_mode = true;
       break;
-    case _FNC:
-      is_scroll_mode = false;
-      break;
     default:
-      is_scroll_mode = false;
       break;
   }
   return state;
