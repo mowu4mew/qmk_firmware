@@ -376,7 +376,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         ctl_min_state = RELEASED;
       }
-      
+
     default:
       if(alt_save_state == PRESSED){
         register_code(KC_LALT);
@@ -388,6 +388,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void matrix_scan_user(void){
   if(ctl_min_state == PRESSED && timer_elapsed(ctl_min_pressed_time) > TAPPING_TERM){
+    unregister_code(KC_RCTL);
     register_code(JP_MINS);
     ctl_min_state = HOLDEN;
   }
