@@ -17,7 +17,8 @@
 #define PERMISSIVE_HOLD_PER_KEY
 
 #define POINTING_DEVICE_AUTO_MOUSE_ENABLE
-#define AUTO_MOUSE_TIME 250
+#define AUTO_MOUSE_DEFAULT_LAYER 3
+#define AUTO_MOUSE_TIME 1000
 
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
@@ -26,7 +27,7 @@
 //#define LEADER_TIMEOUT 500
 
 //#define HOLD_ON_OTHER_KEY_PRESS   //MTキー長押し先離し&次キー後離しでMTキーtap判定
-//#define TAPPING_FORCE_HOLD        //MTキー長押しでもTリピートしない。
+#define TAPPING_FORCE_HOLD        //MTキー長押しでもTリピートしない。
 //#define PERMISSIVE_HOLD           //MTキーホールド判定前に次キーtapでもmod有効
 //#define RETRO_TAPPING             //MTキー長押し離しでtap
 //#define TAPPING_TOGGLE 1          //tt(layer)を使用するとき用

@@ -18,12 +18,12 @@ enum custom_keycodes {
   CTL_ALL,
   ALT_SAVE,
   SFT_FIND,
+  FNC_UNDO,
   CMD_SPC,
   NUM_ENT,
   MBTN1,          //Left click
   MBTN2,          //Right click
   MBTN3,          //Center click
-  CTL_MIN,
   SCRL
 };
 
@@ -42,6 +42,8 @@ enum key_state{
 #define GUI_H RGUI_T(KC_H)
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
+//#define CMD_SPC LT(_CMD, KC_SPC)
+//#define NUM_ENT LT(_NUM, KC_ENT)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
@@ -119,7 +121,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN,MO(_FNC), JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                    _______, _______, JP_HENK
+                                 _______, _______, XXXXXXX,                    _______, _______, _______
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -129,9 +131,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
+      XXXXXXX,FNC_UNDO, C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                    _______, NUM_ENT, JP_HENK
+                                 _______, _______, XXXXXXX,                    _______, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -143,7 +145,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                    _______, _______, JP_HENK
+                                 _______, _______, XXXXXXX,                    _______, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -155,7 +157,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,  JP_GRV, JP_DQUO, JP_LCBR, _______, JP_LPRN,                    JP_RPRN, _______, JP_RCBR, JP_COLN, JP_PIPE, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), NUM_ENT, JP_HENK
+                                 _______, _______, XXXXXXX,                    _______, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -166,7 +168,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
     case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
-    case CTL_MIN:
+    case FNC_UNDO:
       return 250;
     case ALT_S:
       return 250;
@@ -191,18 +193,21 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 #define DEAD_ZONE_TERM 50   //この時間以下は不感帯
 #define ALPHA_NUM_TERM 100   //この時間以下ならalpha 以上ならnum
 
-static bool is_scroll_mode;
+static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
+//static bool is_fnc_undo_pressed = false;
+//static bool is_shift_cmd_num = false;
 static uint16_t ctl_all_pressed_time = 0;
 static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 static uint16_t cmd_spc_pressed_time = 0;
 static uint16_t num_ent_pressed_time = 0;
-static uint16_t ctl_min_pressed_time = 0;
+static uint16_t fnc_undo_pressed_time = 0;
 
 enum key_state alt_save_state = RELEASED;
-enum key_state ctl_min_state = RELEASED;
+//enum key_state cmd_spc_state = RELEASED;
+//enum key_state num_ent_state = RELEASED;
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -212,26 +217,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case CMD_SPC:
       if(record->event.pressed){
         cmd_spc_pressed_time = record->event.time;
-        is_cmd_spc_pressed = true;
         layer_on(_CMD);
         update_tri_layer(_NUM, _CMD, _QWERTY);
         if(IS_LAYER_ON(_QWERTY)){
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
+          //is_shift_cmd_num = true;
         }
+        //cmd_spc_state = PRESSED;
       }else{
         is_cmd_spc_pressed = false;
+        //layer_off(_CMD);
         if(is_num_ent_pressed){
+          //unregister_code(KC_LSFT);
           layer_on(_NUM);
-        }else{
+          //is_shift_cmd_num = false;
+        }else {
           layer_off(_CMD);
         }
         unregister_code(KC_LSFT);
 
-        if(timer_elapsed(cmd_spc_pressed_time) < HOLDING_TERM){
+        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
           tap_code(KC_SPC);
         }
+
+        /*
+        if(cmd_spc_state == HOLDEN){
+          layer_off(_CMD);
+          
+        }
+        cmd_spc_state = RELEASED;
+        */
       }
       return false;
       break;
@@ -246,7 +263,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
+          //is_shift_cmd_num = true;
         }
+        //num_ent_state = PRESSED;
       }else{
         is_num_ent_pressed = false;
         if(is_cmd_spc_pressed){
@@ -259,11 +278,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM){
           tap_code(KC_ENT);
         }
+        /*
+        layer_off(_NUM);
+        if(is_shift_cmd_num){
+          unregister_code(KC_LSFT);
+          layer_on(_CMD);
+          is_shift_cmd_num = false;
+        }
+        if(num_ent_state == HOLDEN){
+          unregister_code(KC_ENT);
+        }
+        num_ent_state = RELEASED;
+      */
+      }
+    
+      return false;
+      break;
+
+    case FNC_UNDO:
+      if(record->event.pressed){
+        fnc_undo_pressed_time = record->event.time;
+        layer_on(_FNC);
+      }else{
+        layer_off(_FNC);
+        if(timer_elapsed(fnc_undo_pressed_time) < TAPPING_TERM){
+          tap_code16(C(KC_Z));
+        }
       }
       return false;
       break;
 
-     case CTL_ALL:
+    case CTL_ALL:
       if(record->event.pressed){
         ctl_all_pressed_time = record->event.time;
         register_code(KC_LCTL);
@@ -366,33 +411,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
       
-    case CTL_MIN:
-      if(record->event.pressed){
-        ctl_min_pressed_time = record->event.time;
-        ctl_min_state = PRESSED;
-      }else{
-        if(ctl_min_state == HOLDEN){
-          unregister_code(JP_MINS);
-        }
-        ctl_min_state = RELEASED;
-      }
-
     default:
       if(alt_save_state == PRESSED){
         register_code(KC_LALT);
         alt_save_state = HOLDEN;
       }
       return true;
-  }
+    }
 }
 
+/*
 void matrix_scan_user(void){
-  if(ctl_min_state == PRESSED && timer_elapsed(ctl_min_pressed_time) > TAPPING_TERM){
-    unregister_code(KC_RCTL);
-    register_code(JP_MINS);
-    ctl_min_state = HOLDEN;
+  if(cmd_spc_state == PRESSED  && timer_elapsed(cmd_spc_pressed_time) > TAPPING_TERM){
+    if(!is_shift_cmd_num){
+      register_code(KC_SPC);
+    }
+    cmd_spc_state = HOLDEN;
   }
-}
+  if(num_ent_state == PRESSED && timer_elapsed(num_ent_pressed_time) > TAPPING_TERM){
+    if(!is_shift_cmd_num){
+      register_code(KC_ENT);
+    }
+    num_ent_state = HOLDEN;
+  }
+}*/
+
 
 static int16_t h_acm = 0;
 static int16_t v_acm = 0;
@@ -468,7 +511,8 @@ layer_state_t layer_state_set_user(layer_state_t state){
 }
 
 void pointing_device_init_user(void) {
-    set_auto_mouse_layer(_FNC);
+    set_auto_mouse_layer(_MOUSE);
+    set_auto_mouse_enable(true);
 }
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
