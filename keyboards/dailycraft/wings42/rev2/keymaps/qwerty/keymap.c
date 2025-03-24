@@ -23,6 +23,7 @@ enum custom_keycodes {
   MBTN1,          //Left click
   MBTN2,          //Right click
   MBTN3,          //Center click
+  CTL_MIN,
   SCRL
 };
 
@@ -35,7 +36,6 @@ enum key_state{
 
 //Declare Alias Mod Tap QWERTY Layer
 #define CTL_A LCTL_T(KC_A)
-#define CTL_MIN RCTL_T(JP_MINS)
 #define ALT_S LALT_T(KC_S)
 #define ALT_L RALT_T(KC_L)
 #define GUI_G LGUI_T(KC_G)
@@ -81,7 +81,7 @@ combo_t key_combos[COMBO_COUNT] = {
 
 
 //Override
-const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, CTL_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
 
 const key_override_t *key_overrides[] = {
   &undssft_key_override,
@@ -103,7 +103,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
      XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, CTL_MIN,XXXXXXX,
+      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -119,19 +119,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN,MO(_FNC), JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                 MO(_MOUSE), _______, JP_HENK
+                                 JP_MHEN, _______, XXXXXXX,                    _______, _______, JP_HENK
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   INS_L, XXXXXXX,
+      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   KC_F2,  KC_ESC,   RECVT, XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, _______, XXXXXXX,                 MO(_MOUSE), NUM_ENT, JP_HENK
+                                 JP_MHEN, _______, XXXXXXX,                    _______, NUM_ENT, JP_HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -143,7 +143,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                    _______, _______, JP_HENK
+                                 JP_MHEN, _______, XXXXXXX,                    _______, _______, JP_HENK
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -461,6 +461,7 @@ layer_state_t layer_state_set_user(layer_state_t state){
       is_scroll_mode = true;
       break;
     default:
+      is_scroll_mode = false;
       break;
   }
   return state;
