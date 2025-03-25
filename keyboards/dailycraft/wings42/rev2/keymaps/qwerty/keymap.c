@@ -63,7 +63,7 @@ enum combos{
   WE_PRTSCN
 };
 
-const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {KC_L, KC_K ,COMBO_END};
 const uint16_t PROGMEM sd_combo[] = {ALT_S, KC_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
@@ -163,16 +163,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-//tap & hold setting
+//tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
     case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
-    case FNC_UNDO:
-      return 250;
     case ALT_S:
-      return 250;
-    case ALT_L:
       return 250;
     case GUI_G:
       return 250;
@@ -189,7 +185,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-#define HOLDING_TERM 160  //この時間以上押されるとホールド判定
+//#define HOLDING_TERM 160  //この時間以上押されるとホールド判定
 #define DEAD_ZONE_TERM 50   //この時間以下は不感帯
 #define ALPHA_NUM_TERM 100   //この時間以下ならalpha 以上ならnum
 
@@ -216,6 +212,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case CMD_SPC:
       if(record->event.pressed){
+        is_cmd_spc_pressed = true;
         cmd_spc_pressed_time = record->event.time;
         layer_on(_CMD);
         update_tri_layer(_NUM, _CMD, _QWERTY);
@@ -223,32 +220,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
-          //is_shift_cmd_num = true;
         }
-        //cmd_spc_state = PRESSED;
       }else{
         is_cmd_spc_pressed = false;
-        //layer_off(_CMD);
         if(is_num_ent_pressed){
-          //unregister_code(KC_LSFT);
           layer_on(_NUM);
-          //is_shift_cmd_num = false;
         }else {
           layer_off(_CMD);
         }
         unregister_code(KC_LSFT);
-
         if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
           tap_code(KC_SPC);
         }
-
-        /*
-        if(cmd_spc_state == HOLDEN){
-          layer_off(_CMD);
-          
-        }
-        cmd_spc_state = RELEASED;
-        */
       }
       return false;
       break;
@@ -263,9 +246,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
-          //is_shift_cmd_num = true;
         }
-        //num_ent_state = PRESSED;
       }else{
         is_num_ent_pressed = false;
         if(is_cmd_spc_pressed){
@@ -278,18 +259,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM){
           tap_code(KC_ENT);
         }
-        /*
-        layer_off(_NUM);
-        if(is_shift_cmd_num){
-          unregister_code(KC_LSFT);
-          layer_on(_CMD);
-          is_shift_cmd_num = false;
-        }
-        if(num_ent_state == HOLDEN){
-          unregister_code(KC_ENT);
-        }
-        num_ent_state = RELEASED;
-      */
       }
     
       return false;
