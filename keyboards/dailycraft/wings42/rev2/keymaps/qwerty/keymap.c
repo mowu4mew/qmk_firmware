@@ -63,7 +63,7 @@ enum combos{
   WE_PRTSCN
 };
 
-const uint16_t PROGMEM lk_combo[] = {KC_L, KC_K ,COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
 const uint16_t PROGMEM sd_combo[] = {ALT_S, KC_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
