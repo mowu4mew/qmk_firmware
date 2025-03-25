@@ -42,8 +42,6 @@ enum key_state{
 #define GUI_H RGUI_T(KC_H)
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
-//#define CMD_SPC LT(_CMD, KC_SPC)
-//#define NUM_ENT LT(_NUM, KC_ENT)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
@@ -187,15 +185,12 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-//#define HOLDING_TERM 160  //この時間以上押されるとホールド判定
 #define DEAD_ZONE_TERM 50   //この時間以下は不感帯
 #define ALPHA_NUM_TERM 100   //この時間以下ならalpha 以上ならnum
 
 static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
-//static bool is_fnc_undo_pressed = false;
-//static bool is_shift_cmd_num = false;
 static uint16_t ctl_all_pressed_time = 0;
 static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
@@ -204,9 +199,6 @@ static uint16_t num_ent_pressed_time = 0;
 static uint16_t fnc_undo_pressed_time = 0;
 
 enum key_state alt_save_state = RELEASED;
-//enum key_state cmd_spc_state = RELEASED;
-//enum key_state num_ent_state = RELEASED;
-
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   report_mouse_t currentReport = {};
@@ -390,22 +382,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return true;
     }
 }
-
-/*
-void matrix_scan_user(void){
-  if(cmd_spc_state == PRESSED  && timer_elapsed(cmd_spc_pressed_time) > TAPPING_TERM){
-    if(!is_shift_cmd_num){
-      register_code(KC_SPC);
-    }
-    cmd_spc_state = HOLDEN;
-  }
-  if(num_ent_state == PRESSED && timer_elapsed(num_ent_pressed_time) > TAPPING_TERM){
-    if(!is_shift_cmd_num){
-      register_code(KC_ENT);
-    }
-    num_ent_state = HOLDEN;
-  }
-}*/
 
 float h_acm = 0.0;
 float v_acm = 0.0;
