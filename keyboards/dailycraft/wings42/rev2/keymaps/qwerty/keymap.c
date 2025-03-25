@@ -105,7 +105,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
      XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
+      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -169,6 +169,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
     case ALT_S:
+      return 250;
+    case ALT_L:
       return 250;
     case GUI_G:
       return 250;
@@ -405,9 +407,8 @@ void matrix_scan_user(void){
   }
 }*/
 
-
-static int16_t h_acm = 0;
-static int16_t v_acm = 0;
+float h_acm = 0.0;
+float v_acm = 0.0;
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 
@@ -416,24 +417,14 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     int8_t y_rev =  + mouse_report.x * sin(rad) + mouse_report.y * cos(rad);
 
     if (is_scroll_mode) {
-        // rock scroll direction
         if (abs(x_rev) > abs(y_rev)) {
             y_rev = 0;
         } else {
             x_rev = 0;
         }
 
-        /* accumulate scroll
-        h_acm += x_rev * cocot_config.scrl_inv;
-        v_acm += y_rev * cocot_config.scrl_inv * -1;
-
-        int8_t h_rev = h_acm >> scrl_div_array[cocot_config.scrl_div];
-        int8_t v_rev = v_acm >> scrl_div_array[cocot_config.scrl_div];
-        */
-        // clear accumulated scroll on assignment
-
-        h_acm += x_rev;
-        v_acm += y_rev;
+        h_acm += (float)x_rev / 5.0;
+        v_acm += (float)y_rev / 5.0;
 
         int8_t h_rev = h_acm;
         int8_t v_rev = v_acm;
@@ -482,6 +473,20 @@ layer_state_t layer_state_set_user(layer_state_t state){
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
     set_auto_mouse_enable(true);
+}
+
+bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
+  switch(keycode){
+    case MBTN1:
+      return true;
+    case MBTN2:
+      return true;
+    case SCRL:
+      return true;
+    default:
+      return false;
+  }
+  return is_mouse_record_user(keycode, record);
 }
 
 bool encoder_update_user(uint8_t index, bool clockwise) {
