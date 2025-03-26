@@ -166,6 +166,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
+    case CMD_SPC:
+      return 160;
+    case NUM_ENT:
+      return 180;
     case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
     case ALT_S:
@@ -194,8 +198,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
-//static bool is_fnc_undo_pressed = false;
-//static bool is_shift_cmd_num = false;
 static uint16_t ctl_all_pressed_time = 0;
 static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
@@ -394,18 +396,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 /*
 void matrix_scan_user(void){
   if(cmd_spc_state == PRESSED  && timer_elapsed(cmd_spc_pressed_time) > TAPPING_TERM){
-    if(!is_shift_cmd_num){
+    if(num_ent_state == HOLDEN){
+      update_tri_layer(_CMD, _NUM, _QWERTY);
+      register_code(KC_LSFT)
+    }else{
       register_code(KC_SPC);
     }
     cmd_spc_state = HOLDEN;
   }
   if(num_ent_state == PRESSED && timer_elapsed(num_ent_pressed_time) > TAPPING_TERM){
-    if(!is_shift_cmd_num){
+    if(cmd_spc_state == HOLDEN){
+      update_tri_layer(_CMD,_NUM, _QWERTY);
+      register_code(KC_LSFT);
+    }else{
       register_code(KC_ENT);
     }
     num_ent_state = HOLDEN;
   }
-}*/
+}
+*/
 
 float h_acm = 0.0;
 float v_acm = 0.0;
