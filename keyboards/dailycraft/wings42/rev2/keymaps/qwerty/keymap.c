@@ -164,6 +164,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
+    case CMD_SPC:
+      return 160;
+    case NUM_ENT:
+      return 180;
     case CTL_A:
       return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
     case ALT_S:
