@@ -1,5 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device.h"
+#include "keymap_japanese.h"
+
 
 //Declare layers
 enum layer_number {
@@ -14,7 +16,7 @@ enum layer_number {
 enum custom_keycodes {
   INS_L = SAFE_RANGE,
   KILL_L,
-  FN_ALL,
+  CTL_ALL,
   SFT_PST,
   CMD_SPC,
   NUM_ENT,
@@ -25,21 +27,32 @@ enum custom_keycodes {
 };
 
 //Declare Alias Mod Tap Layer QWERTY Layer
-#define MT_FN_A LT(_FNC, KC_A)       //hold:"Function"   tap:"A"
-#define MT_FN_MIN LT(_CMD, KC_MINS) //hold:"Function"   tap:"-"
+//#define MT_FNC_H LT(_FNC, KC_H)       //hold:"Function"   tap:"F"
 
 //Declare Alias Mod Tap QWERTY Layer
-#define MT_GUI_L RGUI_T(KC_L)
+#define MT_SFT_A LSFT_T(KC_A)
+//#define MT_CTL_MIN RCTL_T(JP_MINS)
+#define MT_CTR_S LCTL_T(KC_S)
+#define MT_CTR_L RCTL_T(KC_L)
+#define KC_D LGUI_T(KC_D)
+#define MT_GUI_K RGUI_T(KC_K)
 #define MT_SFT_V LSFT_T(KC_V)
-#define MT_CTL_X LCTL_T(KC_X)
-#define MT_ALT_C LALT_T(KC_C)
+#define MT_SFT_M RSFT_T(KC_M)
+#define MT_CMD_MIN LT(_CMD, JP_MINS)
+
+//Declare Alias Mod Tap NUM Layer
+#define MT_SFT_TD LSFT_T(JP_TILD)        //hold:"SHIFT"        tap"~" JP_TILD
+#define MT_SFT_YN RSFT_T(JP_YEN)           //hold:"SHIFT"        tap"\" JP_YEN
 
 //Declare Alias Mod Tap CMD Layer
-#define MT_FNC_SA LT(_FN, KC_PGDN)        //hold:"SHIFT"        tap"Page Down"
+#define MT_SFT_PD LSFT_T(KC_PGDN)        //hold:"SHIFT"        tap"Page Down"
 
-//Declare Alias Short Cut Combo
+//Declare Alias Short Cut CMD Layer
 #define MCPRTSCR G(S(KC_S))           //print screen
 #define MC_LOCK G(KC_L)               //Lock
+
+//Declare Alias Layer Tap CMD Layer
+#define MT_FNC_PU LT(_FNC, KC_PGUP)    //hold:"Function"   tap:"Page Up"
 
 //Declare COMBO
 enum combos{
@@ -53,24 +66,41 @@ enum combos{
   WE_PRTSCN
 };
 
-//const uint16_t PROGMEM lk_combo[] = {MT_GUI_L, KC_K ,COMBO_END};
-//const uint16_t PROGMEM sd_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM kj_combo[] = {KC_K, KC_J, COMBO_END};
+const uint16_t PROGMEM lk_combo[] = {MT_CTR_L, MT_GUI_K ,COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {MT_CTR_S, KC_D, COMBO_END};
+const uint16_t PROGMEM kj_combo[] = {MT_GUI_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM df_combo[] = {KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM dc_combo[] = {KC_DOT, KC_COMM, COMBO_END};
+const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM oi_combo[] = {KC_O, KC_I, COMBO_END};
 const uint16_t PROGMEM we_combo[] = {KC_W, KC_E, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-  //[LK_HENK] = COMBO(lk_combo, KC_HENK),
-  //[SD_MHEN] = COMBO(sd_combo, KC_MHEN),
+  [LK_HENK] = COMBO(lk_combo, JP_HENK),
+  [SD_MHEN] = COMBO(sd_combo, JP_MHEN),
   [KJ_TAB] = COMBO(kj_combo, KC_TAB),
   [DL_TAB] = COMBO(dl_combo, KC_TAB),
   [DF_ESC] = COMBO(df_combo, KC_ESC),
   [DOT_COLON_MBTN3] = COMBO(dc_combo, MBTN3),
   [OI_LOCK] = COMBO(oi_combo, MC_LOCK),
   [WE_PRTSCN] = COMBO(we_combo, MCPRTSCR)
+};
+
+
+//Override
+const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, MT_CMD_MIN, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
+const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
+const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
+const key_override_t yensft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);      //\[SHIFT & JP_YEN]
+
+const key_override_t *key_overrides[] = {
+  &undssft_key_override,
+  &dquosft_key_override,
+  &colnsft_key_override,
+  &tildsft_key_override,
+  &yensft_key_override,
+  NULL
 };
 
 //Declare tap-dance
@@ -86,23 +116,23 @@ tap_dance_action_t tap_dance_actions[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,TD(TD_Q_ESC),KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, XXXXXXX,
+      XXXXXXX,TD(TD_Q_ESC), KC_W,   KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, MT_FN_A,    KC_S,    KC_D,    KC_F,    KC_G,                        KC_H,    KC_J,    KC_K,MT_GUI_L,MT_FN_MIN,XXXXXXX,
+      XXXXXXX,MT_SFT_A,MT_CTR_S,KC_D,    KC_F,    KC_G,                   MT_FNC_H,   KC_J,MT_GUI_K,MT_CTR_L,MT_CMD_MIN,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,MT_CTL_X,MT_ALT_C,MT_SFT_V,    KC_B,                       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, XXXXXXX,
+      XXXXXXX,    KC_Z,    KC_X,    KC_C,MT_SFT_V,    KC_B,                       KC_N,MT_SFT_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
+                                 XXXXXXX, CMD_SPC, XXXXXXX,                 MO(_mouse), NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_NUM] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, KC_EXLM,   KC_AT, KC_HASH, KC_DLR,  KC_PERC,                    KC_CIRC, KC_AMPR, KC_ASTR, KC_PLUS,  KC_EQL, XXXXXXX,
+      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH, JP_DLR,  JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,S(KC_GRV),KC_QUOT, KC_LBRC, KC_LSFT, KC_LPRN,                    KC_RPRN, KC_RSFT, KC_RBRC, KC_SCLN, KC_BSLS, XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______,XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
@@ -110,11 +140,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,A(KC_F4), C(KC_W),   KC_F2, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP, KC_RCTL, XXXXXXX,
+      XXXXXXX,A(KC_F4), C(KC_W),  KILL_L, C(KC_H), C(KC_T),                           , KC_PGUP,   KC_UP, KC_DOWN,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, FN_ALL, C(KC_S),  KC_DEL,  C(KC_F),   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL, C(KC_F),   KC_F3,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),                    C(KC_N), KC_PGDN,  INS_L,  KC_ESC,G(KC_SLSH), XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), SFT_PST, C(KC_Y),                    C(KC_N),MT_SFT_PD, KC_TAB,   INS_L,G(JP_SLSH), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -122,11 +152,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    EE_CLR, QK_BOOT,C(KC_HOME),XXXXXXX, XXXXXXX, XXXXXXX,
+      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,  KC_F11,  KC_F12,                      MBTN1,   MBTN2,C(KC_HOME),KC_PGUP, EE_CLR, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX,  KILL_L,   KC_F3,  KC_F11,                      KC_F6, KC_HOME,C(KC_END), KC_END, XXXXXXX, XXXXXXX,
+      XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                    XXXXXXX, KC_HOME,C(KC_END), KC_END, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, XXXXXXX, XXXXXXX,   KC_F1,   KC_F4,  KC_F12,                      KC_F7,   KC_F8,   KC_F9, KC_F10, XXXXXXX, XXXXXXX,
+      XXXXXXX,   KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,                     QK_BOOT, KC_PGDN,S(KC_TAB),XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -145,13 +175,34 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
-//tap & hold setting 
-//短くするとホールドになりやすい。長いとタップになりやすい。
+//tap & hold setting
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
-   case MT_SFT_V:
+    case MT_GUI_K:
+      return 250;//短くするとホールドになりやすい。長いとタップになりやすい。
+    case MT_SFT_V:
       return 250;
-    case FN_ALL:
+    case MT_SFT_M:
+      return 250;
+    case MT_SFT_A:
+      return 250;
+    case MT_CMD_MIN:
+      return 250;
+    case MT_CTR_S:
+      return 250;
+    case MT_CTR_L:
+      return 250;
+    case MT_SFT_TD:
+      return 250;
+    case MT_SFT_YN:
+      return 250;
+    case MT_SFT_PD:
+      return 250;
+    case MT_FNC_H:
+      return 250;
+    case MT_FNC_PU:
+      return 250;
+    case CTL_ALL:
       return 400;
     case SFT_PST:
       return 400;
@@ -197,7 +248,7 @@ bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
 static bool is_scroll_mode;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
-static uint32_t FN_ALL_pressed_time = 0;
+static uint32_t ctl_all_pressed_time = 0;
 static uint32_t sft_pst_pressed_time = 0;
 static uint32_t cmd_spc_pressed_time = 0;
 static uint32_t num_ent_pressed_time = 0;
@@ -260,13 +311,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
-     case FN_ALL:
+     case CTL_ALL:
       if(record->event.pressed){
-        FN_ALL_pressed_time = record->event.time;
-        layer_on(_FNC);
+        ctl_all_pressed_time = record->event.time;
+        register_code(KC_LCTL);
       }else{
-        layer_off(_FNC);
-        if(timer_elapsed(FN_ALL_pressed_time) < TAPPING_TERM){
+        unregister_code(KC_LCTL);
+        if(timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM){
           SEND_STRING(SS_LCTL(SS_TAP(X_A)));
         }
       }
