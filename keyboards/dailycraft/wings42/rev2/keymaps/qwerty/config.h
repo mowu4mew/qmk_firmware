@@ -21,6 +21,9 @@
 #define AUTO_MOUSE_TIME 1200
 #define AUTO_MOUSE_THRESHOLD 5
 
+#define LAYER_LOCK_IDLE_TIMEOUT 10000  // Turn off after 60 seconds.
+
+
 #undef LOCKING_SUPPORT_ENABLE
 #undef LOCKING_RESYNC_ENABLE
 
