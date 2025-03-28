@@ -94,8 +94,37 @@ enum tapdances{
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-[Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
 };
+
+
+//tap & hold setting 個別にホールド時間を設定できる。
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+  switch(keycode){
+    case CMD_SPC:
+      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
+    case NUM_ENT:
+      return 120;
+    case CTL_A:
+      return 250;
+    case ALT_S:
+      return 250;
+    case ALT_L:
+      return 250;
+    case GUI_G:
+      return 250;
+    case GUI_H:
+      return 250;
+    case SFT_F:
+      return 250;
+    case SFT_J:
+      return 250;
+    case Q_ESC:
+      return 180;   //短くするとタップになりやすい、長いとダブルタップになりやすい
+    default:
+      return TAPPING_TERM;
+  }
+}
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -161,36 +190,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-//tap & hold setting 個別にホールド時間を設定できる。
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  switch(keycode){
-    case CMD_SPC:
-      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
-    case NUM_ENT:
-      return 120;
-    case CTL_A:
-      return 250;
-    case ALT_S:
-      return 250;
-    case ALT_L:
-      return 250;
-    case GUI_G:
-      return 250;
-    case GUI_H:
-      return 250;
-    case SFT_F:
-      return 250;
-    case SFT_J:
-      return 250;
-    case Q_ESC:
-      return 60;   //短くするとタップになりやすい、長いとダブルタップになりやすい
-    default:
-      return TAPPING_TERM;
-  }
-}
-
-#define DEAD_ZONE_TERM 50   //この時間以下は不感帯
-#define ALPHA_NUM_TERM 100   //この時間以下ならalpha 以上ならnum
 
 static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
