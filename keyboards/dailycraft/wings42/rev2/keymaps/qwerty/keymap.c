@@ -97,14 +97,21 @@ tap_dance_action_t tap_dance_actions[] = {
   [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
 };
 
-
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
+    case CTL_ALL:
+      return 250;
+    case ALT_SAVE:
+      return 250;
+    case SFT_FIND:
+      return 250;
+    case FNC_UNDO:
+      return 250;
     case CMD_SPC:
-      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
+      return 80;//短くするとホールドになりやすい。長いとタップになりやすい。
     case NUM_ENT:
-      return 120;
+      return 90;
     case CTL_A:
       return 250;
     case ALT_S:
@@ -120,10 +127,38 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     case SFT_J:
       return 250;
     case Q_ESC:
-      return 180;   //短くするとタップになりやすい、長いとダブルタップになりやすい
+      return 1000;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
       return TAPPING_TERM;
   }
+}
+
+//MTキー長押し先離し&2キー後離しでMTキーtap判定
+bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    case ALT_S:
+      return true;
+    case GUI_H:
+      return true;
+    default:
+      return false;
+  }
+}
+
+//MTキー長押し離しでtap
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    default:
+      return false;
+  }
+}
+
+///MTキーホールド判定前に次キーtapでもmod有効
+bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
+    switch(keycode){
+        default:
+            return false;
+    }
 }
 
 //keymap
@@ -190,12 +225,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
-
 static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
-static uint16_t alt_save_pressed_time = 0;
+//static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 static uint16_t cmd_spc_pressed_time = 0;
 static uint16_t num_ent_pressed_time = 0;
@@ -226,7 +260,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_CMD);
         }
         unregister_code(KC_LSFT);
-        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
+        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM - 100){
           tap_code(KC_SPC);
         }
       }
@@ -253,7 +287,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         unregister_code(KC_LSFT);
 
-        if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM){
+        if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM - 100){
           tap_code(KC_ENT);
         }
       }
@@ -289,7 +323,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     case ALT_SAVE:
       if(record->event.pressed){
-        alt_save_pressed_time = record->event.time;
+        //alt_save_pressed_time = record->event.time;
         alt_save_state = PRESSED;
       }else{
         switch (alt_save_state) {
