@@ -14,11 +14,11 @@ enum layer_number {
 //Declare custum keycodes
 enum custom_keycodes {
   INS_L = SAFE_RANGE,
-  KILL_L,
+  KILL_E,
+  KILL_H,
   CTL_ALL,
   ALT_SAVE,
   SFT_FIND,
-  FNC_UNDO,
   CMD_SPC,
   NUM_ENT,
   MBTN1,          //Left click
@@ -106,7 +106,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
       return 250;
     case SFT_FIND:
       return 250;
-    case FNC_UNDO:
+    case KILL_H:
       return 250;
     case CMD_SPC:
       return 80;//短くするとホールドになりやすい。長いとタップになりやすい。
@@ -127,7 +127,7 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     case SFT_J:
       return 250;
     case Q_ESC:
-      return 1000;   //短くするとタップになりやすい、長いとダブルタップになりやすい
+      return 400;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
       return TAPPING_TERM;
   }
@@ -193,7 +193,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,FNC_UNDO, C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -201,25 +201,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_MOUSE] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, QK_LLCK, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                       SCRL, KC_RSFT, KC_RCTL, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, QK_LLCK, _______
+                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
   [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,  KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,                      KC_F9,  KC_F10,  PG_TOP, _______, QK_BOOT, XXXXXXX,
+      XXXXXXX,  KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,                      KC_F9,  KC_F10,  PG_TOP, KC_F12, QK_BOOT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F1,   KC_F2,  KILL_L,   KC_F3,  KC_F11,                     KC_F12, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+      XXXXXXX,   KC_F1,   KC_F2,  KILL_E,   KC_F3,  KC_F11,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,  JP_GRV, JP_DQUO, JP_LCBR, _______, JP_LPRN,                    JP_RPRN, _______, JP_RCBR, JP_COLN, JP_PIPE, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, NUM_ENT, _______
+                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -229,11 +229,9 @@ static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
-//static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 static uint16_t cmd_spc_pressed_time = 0;
 static uint16_t num_ent_pressed_time = 0;
-static uint16_t fnc_undo_pressed_time = 0;
 
 enum key_state alt_save_state = RELEASED;
 
@@ -295,19 +293,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
-    case FNC_UNDO:
-      if(record->event.pressed){
-        fnc_undo_pressed_time = record->event.time;
-        layer_on(_FNC);
-      }else{
-        layer_off(_FNC);
-        if(timer_elapsed(fnc_undo_pressed_time) < TAPPING_TERM){
-          tap_code16(C(KC_Z));
-        }
-      }
-      return false;
-      break;
-
     case CTL_ALL:
       if(record->event.pressed){
         ctl_all_pressed_time = record->event.time;
@@ -354,9 +339,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       return false;
       break;
 
-    case KILL_L:
+    case KILL_E:
       if(record->event.pressed){
         tap_code16(S(KC_END));
+        tap_code(KC_DEL);
+      }
+      return false;
+      break;
+
+    case KILL_H:
+      if(record->event.pressed){
+        tap_code16(S(KC_HOME));
         tap_code(KC_DEL);
       }
       return false;
@@ -495,6 +488,8 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
     case MBTN1:
       return true;
     case MBTN2:
+      return true;
+    case MBTN3:
       return true;
     case SCRL:
       return true;
