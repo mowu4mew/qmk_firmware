@@ -229,10 +229,12 @@ static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
+static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 static uint16_t cmd_spc_pressed_time = 0;
 static uint16_t num_ent_pressed_time = 0;
 
+enum key_state ctl_all_state = RELEASED;
 enum key_state alt_save_state = RELEASED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -289,29 +291,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code(KC_ENT);
         }
       }
-    
       return false;
       break;
 
     case CTL_ALL:
       if(record->event.pressed){
         ctl_all_pressed_time = record->event.time;
-        register_code(KC_LCTL);
+        ctl_all_state = PRESSED;
       }else{
-        unregister_code(KC_LCTL);
-        if(timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM){
-          SEND_STRING(SS_LCTL(SS_TAP(X_A)));
+        switch(ctl_all_state){
+          case PRESSED:
+            SEND_STRING(SS_LCTL(SS_TAP(X_A)));
+            break;
+          case HOLDEN:
+            unregister_code(KC_LCTL);
+            break;
+          case RELEASED:
+            break;
         }
+        ctl_all_state = RELEASED;
       }
       return false;
       break;
 
     case ALT_SAVE:
       if(record->event.pressed){
-        //alt_save_pressed_time = record->event.time;
+        alt_save_pressed_time = record->event.time;
         alt_save_state = PRESSED;
       }else{
-        switch (alt_save_state) {
+        switch(alt_save_state) {
           case PRESSED:
             SEND_STRING(SS_LCTL(SS_TAP(X_S)));
             break;
@@ -405,12 +413,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
       
     default:
-      if(alt_save_state == PRESSED){
-        register_code(KC_LALT);
-        alt_save_state = HOLDEN;
-      }
+      
       return true;
-    }
+  }
+}
+
+void matrix_scan_user(void){
+  if(ctl_all_state == PRESSED && timer_elapsed(ctl_all_pressed_time) > TAPPING_TERM){
+    register_code(KC_LCTL);
+    ctl_all_state = HOLDEN;
+  }
+  if(alt_save_state == PRESSED && timer_elapsed(alt_save_pressed_time) > TAPPING_TERM){
+    register_code(KC_LALT);
+    alt_save_state = HOLDEN;
+  }
 }
 
 float h_acm = 0.0;
