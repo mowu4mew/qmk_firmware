@@ -34,7 +34,7 @@ enum key_state{
   HOLDEN
 };
 
-//Declare Alias Mod Tap QWERTY Layer
+//Declare Alias Mod Tap
 #define CTL_A LCTL_T(KC_A)
 #define ALT_S LALT_T(KC_S)
 #define ALT_L RALT_T(KC_L)
@@ -42,6 +42,7 @@ enum key_state{
 #define GUI_H RGUI_T(KC_H)
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
+#define FNC_DOT LT(_FNC, JP_DOT)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
@@ -181,7 +182,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN,MO(_FNC), JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN, FNC_DOT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
