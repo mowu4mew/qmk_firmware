@@ -100,11 +100,13 @@ const key_override_t *key_overrides[] = {
 
 //Declare tap-dance
 enum tapdances{
-  Q_ESC
+  Q_ESC,
+  Z_ESC
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC),
+  [Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
 };
 
 //tap & hold setting 個別にホールド時間を設定できる。
@@ -179,9 +181,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
+     XXXXXXX,TD(Z_ESC),    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 JP_MHEN, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, JP_HENK
+                                 XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -223,11 +225,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,  KC_F4,    KC_F5,   KC_F6,   KC_F7,   KC_F8,                      KC_F9,  KC_F10,  PG_TOP, KC_F12, QK_BOOT, XXXXXXX,
+      XXXXXXX,  KC_F11,  KC_F12, QK_BOOT, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX,  PG_TOP, XXXXXXX, QK_BOOT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F1,   KC_F2,  KILL_E,   KC_F3,  KC_F11,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+      XXXXXXX, _______, _______,  KILL_E,   KC_F3,  KC_F11,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  JP_GRV, JP_DQUO, JP_LCBR, _______, JP_LPRN,                    JP_RPRN, _______, JP_RCBR, JP_COLN, JP_PIPE, XXXXXXX,
+      XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
