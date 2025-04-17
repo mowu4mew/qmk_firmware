@@ -225,7 +225,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,  KC_F11,  KC_F12, QK_BOOT, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX,  PG_TOP, XXXXXXX, QK_BOOT, XXXXXXX,
+      XXXXXXX,  KC_F11, KC_F12,S(KC_TAB), XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX,  PG_TOP, XXXXXXX, QK_BOOT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______,  KILL_E,   KC_F3,  KC_F11,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
