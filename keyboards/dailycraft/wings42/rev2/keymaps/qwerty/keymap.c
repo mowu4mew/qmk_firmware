@@ -42,7 +42,7 @@ enum key_state{
 #define GUI_H RGUI_T(KC_H)
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
-#define FNC_DOT LT(_FNC, JP_DOT)
+#define SFT_DOT LSFT_T(JP_DOT)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
@@ -83,11 +83,20 @@ combo_t key_combos[COMBO_COUNT] = {
 
 //Override
 const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
+const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
+const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
+const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
+const key_override_t yensft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);      //\[SHIFT & JP_YEN]
 
 const key_override_t *key_overrides[] = {
   &undssft_key_override,
+  &dquosft_key_override,
+  &colnsft_key_override,
+  &tildsft_key_override,
+  &yensft_key_override,
   NULL
 };
+
 
 //Declare tap-dance
 enum tapdances{
@@ -178,11 +187,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NUM] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH, JP_DLR,  JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
+      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR,  JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, SFT_DOT, JP_LPRN,                    JP_RPRN, SFT_DOT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC,MO(_FNC), JP_LPRN,                    JP_RPRN, FNC_DOT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
