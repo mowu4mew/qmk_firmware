@@ -191,7 +191,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR,  JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, SFT_DOT, JP_LPRN,                    JP_RPRN, SFT_DOT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
