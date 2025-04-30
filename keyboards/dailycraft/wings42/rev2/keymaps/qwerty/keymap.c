@@ -213,11 +213,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_MOUSE] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, QK_LLCK, _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______, _______, _______, _______,                       SCRL, KC_RSFT, KC_RCTL, _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______, _______, _______, _______,                    C(KC_X), C(KC_C), C(KC_V), _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -494,6 +494,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     return pointing_device_task_user(mouse_report);
 }
 
+/*
 layer_state_t layer_state_set_user(layer_state_t state){
   switch(get_highest_layer(state)){
     case _NUM:
@@ -505,6 +506,7 @@ layer_state_t layer_state_set_user(layer_state_t state){
   }
   return state;
 }
+*/
 
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
