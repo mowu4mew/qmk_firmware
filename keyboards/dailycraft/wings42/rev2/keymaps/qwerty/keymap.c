@@ -99,40 +99,40 @@ const key_override_t *key_overrides[] = {
   NULL
 };
 
-/*
+
 //Declare tap-dance
 enum tapdances{
-  Q_ESC,
-  Z_ESC
+  D_ESC,
+  K_ESC
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC),
-  [Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
+  [D_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_D, KC_ESC),
+  [K_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_K, KC_ESC)
 };
-*/
+
 
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
     case CTL_UNDO:
-      return 250;
+      return TAPPING_TERM - 5;
     case ALT_SAVE:
-      return 250;
+      return TAPPING_TERM;
     case SFT_FIND:
-      return 250;
+      return TAPPING_TERM;
     case KILL_H:
-      return 250;
+      return TAPPING_TERM;
     case CMD_SPC:
-      return 80;//短くするとホールドになりやすい。長いとタップになりやすい。
+      return TAPPING_TERM;//短くするとホールドになりやすい。長いとタップになりやすい。
     case NUM_ENT:
-      return 90;
+      return TAPPING_TERM;
     case ALT_L:
-      return 250;
+      return TAPPING_TERM;
     case SFT_F:
-      return 250;
+      return TAPPING_TERM;
     case SFT_J:
-      return 250;
+      return TAPPING_TERM;
     default:
       return TAPPING_TERM;
   }
