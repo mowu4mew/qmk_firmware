@@ -112,32 +112,8 @@ tap_dance_action_t tap_dance_actions[] = {
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
-    case CTL_ALL:
-      return 250;
-    case ALT_SAVE:
-      return 250;
-    case SFT_FIND:
-      return 250;
-    case KILL_H:
-      return 250;
     case CMD_SPC:
-      return 80;//短くするとホールドになりやすい。長いとタップになりやすい。
-    case NUM_ENT:
-      return 90;
-    case CTL_A:
-      return 250;
-    case ALT_S:
-      return 250;
-    case ALT_L:
-      return 250;
-    case GUI_G:
-      return 250;
-    case GUI_H:
-      return 250;
-    case SFT_F:
-      return 250;
-    case SFT_J:
-      return 250;
+      return 180;//短くするとホールドになりやすい。長いとタップになりやすい。
     case Q_ESC:
       return 400;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
