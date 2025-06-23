@@ -248,7 +248,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           layer_off(_CMD);
         }
         unregister_code(KC_LSFT);
-        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM - 100){
+        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
           tap_code(KC_SPC);
         }
       }
@@ -275,7 +275,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         unregister_code(KC_LSFT);
 
-        if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM - 100){
+        if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM){
           tap_code(KC_ENT);
         }
       }
