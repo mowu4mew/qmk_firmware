@@ -1,16 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "keymap_japanese.h"
 
-/*
-#ifdef PROTOCOL_LUFA
-  #include "lufa.h"
-  #include "split_util.h"
-#endif
-
-extern keymap_config_t keymap_config;
-*/
-
-
 // Layer
 enum layer_number {
   _NUM = 0, //Default Layer For NUM
@@ -29,31 +19,29 @@ enum custom_keycodes {
 //Override
 const key_override_t unds_key_override = ko_make_basic(MOD_MASK_SHIFT,KC_MINS, JP_UNDS); //_
 
-const key_override_t **key_overrides = (const key_override_t *[]){
+const key_override_t *key_overrides[] = {
   &unds_key_override,
   NULL
 };
 
 //Alias
 #define MT_SE LT(_SLCT,KC_ESC)    //hold:"SLCT"   tap:"ESC"
-#define MT_CE LT(_CMD,KC_ENTER)   //hold:"CMD"    tap:"ENTER"
-#define MC_DTR LGUI(C(KC_RIGHT))  //Desk top move right
-#define MC_DTL LGUI(C(KC_LEFT))   //Desk top move left
+#define MT_CE LT(_CMD,KC_ENT)   //hold:"CMD"    tap:"ENTER"
 
 //Keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NUM] = LAYOUT( \
     //,--------------------------------------------------------------|   |---------------------------------------------------------------.
-           KC_P,   KC_F5,   KC_F8,  KC_TAB,  KC_DEL, S(KC_8), KC_BSPC,     _______, _______, _______, _______, _______, _______, _______,
+           KC_P,S(KC_MINS), KC_F5,   KC_F8, S(KC_8), S(KC_7),  KC_DEL,     _______, _______, _______, _______, _______, _______, _______,
     //|--------+--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------+--------|
-           KC_X,    KC_7,    KC_8,    KC_9, KC_SLSH, S(KC_9),   KC_UP,     _______, _______, _______, _______, _______, _______, _______,
+           KC_X, KC_SLSH,    KC_9,    KC_8,    KC_7, KC_DOWN,   KC_UP,     _______, _______, _______, _______, _______, _______, _______,
     //|--------+--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------+--------|
-        C(KC_Y),    KC_4,    KC_5,    KC_6, KC_PAST, KC_LEFT,KC_RIGHT,     _______, _______, _______, _______, _______, _______, _______,
+        C(KC_Y), KC_PAST,    KC_6,    KC_5,    KC_4, KC_LEFT,KC_RIGHT,     _______, _______, _______, _______, _______, _______, _______,
     //|--------+--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------+--------|
-        C(KC_Z),    KC_1,    KC_2,    KC_3, KC_MINS, KC_LCTL, KC_DOWN,     _______, _______, _______, _______, _______, _______, _______,
+        C(KC_Z), KC_MINS,    KC_3,    KC_2,    KC_1,  KC_TAB, KC_BSPC,     _______, _______, _______, _______, _______, _______, _______,
     //|--------+--------+--------+--------+--------+--------+--------|   |--------+--------+--------+--------+--------+--------+--------|
-          MT_SE,    KC_0,S(KC_MINS),KC_DOT, KC_PPLS, KC_LSFT,   MT_CE,     _______, _______, _______, _______, _______, _______, _______
+          MT_SE, KC_PPLS,  KC_DOT,    KC_0, KC_LSFT, KC_LCTL,   MT_CE,     _______, _______, _______, _______, _______, _______, _______
     //,--------------------------------------------------------------|   |---------------------------------------------------------------.
       ),
 
