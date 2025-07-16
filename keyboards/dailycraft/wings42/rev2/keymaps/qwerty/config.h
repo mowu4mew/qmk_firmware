@@ -10,7 +10,7 @@
 #define COMBO_COUNT 8
 #define COMBO_TERM 10
 
-#define TAPPING_TERM 180
+#define TAPPING_TERM 160
 #define TAPPING_TERM_PER_KEY
 
 //#define PERMISSIVE_HOLD           //MTキーホールド判定前に次キーtapでもmod有効

@@ -113,9 +113,9 @@ tap_dance_action_t tap_dance_actions[] = {
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
     case CMD_SPC:
-      return 180;//短くするとホールドになりやすい。長いとタップになりやすい。
+      return 130;//短くするとホールドになりやすい。長いとタップになりやすい。
     case Q_ESC:
-      return 400;   //短くするとタップになりやすい、長いとダブルタップになりやすい
+      return 200;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
       return TAPPING_TERM;
   }
