@@ -17,7 +17,7 @@ enum custom_keycodes {
   KILL_E,
   KILL_H,
   CTL_ALL,
-  ALT_SAVE,
+  //ALT_SAVE,
   SFT_FIND,
   CMD_SPC,
   NUM_ENT,
@@ -35,10 +35,11 @@ enum key_state{
 };
 
 //Declare Alias Mod Tap
-#define CTL_A LCTL_T(KC_A)
-#define ALT_S LALT_T(KC_S)
+//#define CTL_A LCTL_T(KC_A)
+#define CTL_Z LCTL_T(KC_Z)
+//#define ALT_S LALT_T(KC_S)
 #define ALT_L RALT_T(KC_L)
-#define GUI_G LGUI_T(KC_G)
+//#define GUI_G LGUI_T(KC_G)
 #define GUI_H RGUI_T(KC_H)
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
@@ -63,7 +64,7 @@ enum combos{
 };
 
 const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
-const uint16_t PROGMEM sd_combo[] = {ALT_S, KC_D, COMBO_END};
+const uint16_t PROGMEM sd_combo[] = {KC_S, KC_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM df_combo[] = {KC_D, SFT_F, COMBO_END};
@@ -100,20 +101,19 @@ const key_override_t *key_overrides[] = {
 
 //Declare tap-dance
 enum tapdances{
-  Q_ESC,
-  Z_ESC
+  Q_ESC
 };
 
 tap_dance_action_t tap_dance_actions[] = {
-  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC),
-  [Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
+  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+  //[Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
 };
 
 //tap & hold setting 個別にホールド時間を設定できる。
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
   switch(keycode){
     case CMD_SPC:
-      return 130;//短くするとホールドになりやすい。長いとタップになりやすい。
+      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
     case Q_ESC:
       return 200;   //短くするとタップになりやすい、長いとダブルタップになりやすい
     default:
@@ -124,8 +124,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 //MTキー長押し先離し&2キー後離しでMTキーtap判定
 bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
   switch(keycode){
-    case ALT_S:
-      return true;
     case GUI_H:
       return true;
     default:
@@ -155,9 +153,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
      XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_A,   ALT_S,    KC_D,   SFT_F,   GUI_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
+      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-     XXXXXXX,TD(Z_ESC),    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
+      XXXXXXX,   CTL_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -179,7 +177,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------
       XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, CTL_ALL,ALT_SAVE,  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,   KC_F5,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,  KC_ESC,   RECVT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -217,13 +215,13 @@ static bool is_scroll_mode = false;
 static bool is_cmd_spc_pressed = false;
 static bool is_num_ent_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
-static uint16_t alt_save_pressed_time = 0;
+//static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 static uint16_t cmd_spc_pressed_time = 0;
 static uint16_t num_ent_pressed_time = 0;
 
 enum key_state ctl_all_state = RELEASED;
-enum key_state alt_save_state = RELEASED;
+//enum key_state alt_save_state = RELEASED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   report_mouse_t currentReport = {};
@@ -303,7 +301,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
-
+/*
     case ALT_SAVE:
       if(record->event.pressed){
         alt_save_pressed_time = record->event.time;
@@ -323,6 +321,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
+*/
 
     case SFT_FIND:
       if(record->event.pressed){
@@ -412,11 +411,11 @@ void matrix_scan_user(void){
   if(ctl_all_state == PRESSED && timer_elapsed(ctl_all_pressed_time) > TAPPING_TERM){
     register_code(KC_LCTL);
     ctl_all_state = HOLDEN;
-  }
+  }/*
   if(alt_save_state == PRESSED && timer_elapsed(alt_save_pressed_time) > TAPPING_TERM){
     register_code(KC_LALT);
     alt_save_state = HOLDEN;
-  }
+  }*/
 }
 
 float h_acm = 0.0;
