@@ -41,7 +41,7 @@ enum key_state{
 #define ALT_L RALT_T(KC_L)
 //#define GUI_G LGUI_T(KC_G)
 #define GUI_H RGUI_T(KC_H)
-#define SFT_F LSFT_T(KC_F)
+#define SFT_V LSFT_T(KC_V)
 #define SFT_J RSFT_T(KC_J)
 #define SFT_DOT LSFT_T(JP_DOT)
 
@@ -67,7 +67,7 @@ const uint16_t PROGMEM lk_combo[] = {ALT_L, KC_K ,COMBO_END};
 const uint16_t PROGMEM sd_combo[] = {KC_S, KC_D, COMBO_END};
 const uint16_t PROGMEM kj_combo[] = {KC_K, SFT_J, COMBO_END};
 const uint16_t PROGMEM dl_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM df_combo[] = {KC_D, SFT_F, COMBO_END};
+const uint16_t PROGMEM df_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM dc_combo[] = {JP_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM we_combo[] = {KC_W, KC_E, COMBO_END};
 
@@ -153,9 +153,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
      XXXXXXX,TD(Q_ESC),    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
+      XXXXXXX,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                      GUI_H,   SFT_J,    KC_K,   ALT_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_Z,    KC_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
+      XXXXXXX,   CTL_Z,    KC_X,    KC_C,   SFT_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT, JP_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
