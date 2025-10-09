@@ -839,3 +839,53 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     }
     return false;
 }
+
+
+/*Declare tap-dance
+enum tapdances{
+  Q_ESC
+};
+
+tap_dance_action_t tap_dance_actions[] = {
+  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
+  //[Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
+};
+
+
+//tap & hold setting 個別にホールド時間を設定できる。
+uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
+  switch(keycode){
+    case CMD_SPC:
+      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
+    default:
+      return TAPPING_TERM;
+  }
+}
+
+/*MTキー長押し先離し&2キー後離しでMTキーtap判定
+bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    case GUI_H:
+      return true;
+    default:
+      return false;
+  }
+}
+
+
+//MTキー長押し離しでtap
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
+  switch(keycode){
+    default:
+      return false;
+  }
+}
+
+///MTキーホールド判定前に次キーtapでもmod有効
+bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
+    switch(keycode){
+        default:
+            return false;
+    }
+}
+*/

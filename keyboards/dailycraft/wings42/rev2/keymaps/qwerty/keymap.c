@@ -103,59 +103,12 @@ const key_override_t *key_overrides[] = {
   NULL
 };
 
-/*Declare tap-dance
-enum tapdances{
-  Q_ESC
-};
-
-tap_dance_action_t tap_dance_actions[] = {
-  [Q_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Q, KC_ESC)
-  //[Z_ESC] = ACTION_TAP_DANCE_DOUBLE(KC_Z, KC_ESC)
-};
-*/
-
-//tap & hold setting 個別にホールド時間を設定できる。
-uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
-  switch(keycode){
-    case CMD_SPC:
-      return 120;//短くするとホールドになりやすい。長いとタップになりやすい。
-    default:
-      return TAPPING_TERM;
-  }
-}
-
-/*MTキー長押し先離し&2キー後離しでMTキーtap判定
-bool get_hold_on_other_key(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    case GUI_H:
-      return true;
-    default:
-      return false;
-  }
-}
-*/
-
-//MTキー長押し離しでtap
-bool get_retro_tapping(uint16_t keycode, keyrecord_t *record){
-  switch(keycode){
-    default:
-      return false;
-  }
-}
-
-///MTキーホールド判定前に次キーtapでもmod有効
-bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
-    switch(keycode){
-        default:
-            return false;
-    }
-}
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O, GUI_T(KC_P), XXXXXXX,
+      XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -167,13 +120,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_NUM] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR,  JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
+      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR, JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -185,7 +138,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,   RECVT, KC_RALT,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -197,7 +150,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -209,7 +162,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 _______, _______, XXXXXXX,                    XXXXXXX, _______, _______
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
