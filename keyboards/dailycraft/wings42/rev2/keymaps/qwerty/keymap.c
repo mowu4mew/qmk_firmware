@@ -37,7 +37,7 @@ enum key_state{
 #define CTL_Z LCTL_T(KC_Z)
 #define SFT_V LSFT_T(KC_V)
 #define ALT_SLSH LALT_T(JP_SLSH)
-#define GUI_P LGUI_T(KC_P)
+#define GUI_DOT LGUI_T(JP_DOT)
 #define MOUSE_Q LT(_MOUSE, KC_Q)
 #define FNC_MINS LT(_FNC, JP_MINS)
 
@@ -70,7 +70,7 @@ const uint16_t PROGMEM k_j_combo[] = {KC_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dwn_lft_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM d_f_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM del_fnd_combo[] = {KC_DEL, SFT_FIND, COMBO_END};
-const uint16_t PROGMEM dt_cm_combo[] = {JP_DOT, JP_COMM, COMBO_END};
+const uint16_t PROGMEM dt_cm_combo[] = {GUI_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM x_c_combo[] = {KC_X, KC_C, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -155,11 +155,11 @@ bool get_permissive_hold_per_key(uint16_t keycode,keyrecord_t *record){
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,   GUI_P, XXXXXXX,
+      XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O, GUI_T(KC_P), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_Z,    KC_X,    KC_C,   SFT_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  JP_DOT,ALT_SLSH, XXXXXXX,
+      XXXXXXX,   CTL_Z,    KC_X,    KC_C,   SFT_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  GUI_DOT,ALT_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
