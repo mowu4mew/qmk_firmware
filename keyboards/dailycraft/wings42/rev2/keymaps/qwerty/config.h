@@ -7,8 +7,8 @@
 #define PAW3204_SCLK_PIN D0
 #define PAW3204_SDIO_PIN D1
 
-#define COMBO_COUNT 8
-#define COMBO_TERM 10
+#define COMBO_COUNT 10
+#define COMBO_TERM 12
 
 #define TAPPING_TERM 150
 #define TAPPING_TERM_PER_KEY
