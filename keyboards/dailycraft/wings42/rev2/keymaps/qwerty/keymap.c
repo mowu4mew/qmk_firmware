@@ -13,13 +13,13 @@ enum layer_number {
 
 //Declare custum keycodes
 enum custom_keycodes {
-  INS_L = SAFE_RANGE,
+  CMD_SPC = SAFE_RANGE,
+  NUM_ENT,
+  CTL_ALL, 
+  SFT_FIND,
   KILL_E,
   KILL_H,
-  CTL_ALL,
-  SFT_FIND,
-  CMD_SPC,
-  NUM_ENT,
+  INS_L,
   MBTN1,          //Left click
   MBTN2,          //Right click
   MBTN3,          //Center click
@@ -47,6 +47,7 @@ enum key_state{
 #define RECVT G(ALT_SLSH)      //re convert ime
 #define PG_TOP C(KC_HOME)     //go page top
 #define PG_BTM C(KC_END)      //go page bottom
+#define S_ENT S(KC_ENT)       //shift + enter
 
 //Declare COMBO
 enum combos{
@@ -150,7 +151,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, KC_LCTL, _______, _______, KC_LSFT, _______,                    _______, _______, _______, KC_RGUI, KC_RALT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, S_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -209,7 +210,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
-      break;
 
     case NUM_ENT:
       if(record->event.pressed){
@@ -237,7 +237,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
-      break;
 
     case CTL_ALL:
       if(record->event.pressed){
@@ -257,29 +256,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         ctl_all_state = RELEASED;
       }
       return false;
-      break;
-/*
-    case ALT_SAVE:
-      if(record->event.pressed){
-        alt_save_pressed_time = record->event.time;
-        alt_save_state = PRESSED;
-      }else{
-        switch(alt_save_state) {
-          case PRESSED:
-            SEND_STRING(SS_LCTL(SS_TAP(X_S)));
-            break;
-          case HOLDEN:
-            unregister_code(KC_LALT);
-            break;
-          case RELEASED:
-            break;
-        }
-        alt_save_state = RELEASED;
-      }
-      return false;
-      break;
-*/
-
+      
     case SFT_FIND:
       if(record->event.pressed){
         sft_find_pressed_time = record->event.time;
@@ -291,7 +268,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
       }
       return false;
-      break;
 
     case KILL_E:
       if(record->event.pressed){
@@ -299,7 +275,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         tap_code(KC_DEL);
       }
       return false;
-      break;
 
     case KILL_H:
       if(record->event.pressed){
@@ -307,15 +282,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         tap_code(KC_DEL);
       }
       return false;
-      break;
-
+      
     case INS_L:
       if(record->event.pressed){
         SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
       }
       return false;
-      break;
-
+      
     case MBTN1:
       currentReport = pointing_device_get_report();
       if (record->event.pressed) {
@@ -325,8 +298,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       pointing_device_set_report(currentReport);
       return false;
-      break;
-
+      
     case MBTN2:
       currentReport = pointing_device_get_report();
       if (record->event.pressed) {
@@ -336,8 +308,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       pointing_device_set_report(currentReport);
       return false;
-      break;
-
+      
     case MBTN3:
       currentReport = pointing_device_get_report();
       if (record->event.pressed) {
@@ -347,8 +318,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       pointing_device_set_report(currentReport);
       return false;
-      break;
-
+      
     case SCRL:
       if (record->event.pressed){
         is_scroll_mode = true;
@@ -356,8 +326,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_scroll_mode = false;
       }
       return false;
-      break;
-      
+            
     default:
       
       return true;
@@ -463,22 +432,58 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
   return is_mouse_record_user(keycode, record);
 }
 
+/*
 bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (index == 0) { /* First encoder */
-        if (clockwise) {
-            tap_code(KC_DOWN);
-        } else {
-            tap_code(KC_UP);
+    if (index != 0) {
+        return true;
+    }
+
+    layer_state_t layer = get_highest_layer(layer_state | default_layer_state);
+    uint16_t keycode;
+    if (clockwise) {
+        switch (layer) {
+            case 1:
+                keycode = MS_WHLD;
+                break;
+            case 2:
+                keycode = MS_WHLL;
+                break;
+            default:
+                return true; // encoder_update_kbに任せる
         }
-    } else if (index == 1) { /* Second encoder */
+    } else { // counter clockwise
+        switch (layer) {
+            case 1:
+                keycode = MS_WHLU;
+                break;
+            case 2:
+                keycode = MS_WHLR;
+                break;
+            default:
+                return true; // encoder_update_kbに任せる
+        }
+    }
+    tap_code16_delay(keycode, 10);
+    return false; // encoder_update_kbの処理をスキップ
+}
+*/
+bool encoder_update_user(uint8_t index, bool clockwise) {
+    if (index == 0) { // First encoder 
         if (clockwise) {
-            tap_code(KC_PGDN);
+            tap_code(MS_WHLD);
         } else {
-            tap_code(KC_PGUP);
+            tap_code(MS_WHLU);
+        }
+    } else if (index == 1) { // Second encoder
+        if (clockwise) {
+            tap_code(MS_WHLD);
+        } else {
+            tap_code(MS_WHLU);
         }
     }
     return false;
 }
+
 
 uint16_t keycode_config(uint16_t keycode) {
   return keycode;
