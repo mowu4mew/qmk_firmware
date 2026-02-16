@@ -171,13 +171,51 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 static bool is_scroll_mode = false;
-static bool is_cmd_spc_pressed = false;
-static bool is_num_ent_pressed = false;
+//static bool is_cmd_spc_pressed = false;
+//static bool is_num_ent_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
 //static uint16_t alt_save_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
-static uint16_t cmd_spc_pressed_time = 0;
-static uint16_t num_ent_pressed_time = 0;
+//static uint16_t cmd_spc_pressed_time = 0;
+//static uint16_t num_ent_pressed_time = 0;
+
+//-----copilot
+static bool cmd_pressed = false;
+static bool num_pressed = false;
+
+static bool cmd_shift_token = false;  // CMD_SPCがShiftを保持しているか
+static bool num_shift_token = false;  // NUM_ENTがShiftを保持しているか
+
+static bool cmd_layer_active = false; // CMD_SPCが_CMDをONしているか（長押し昇格後）
+static bool num_layer_active = false; // NUM_ENTが_NUMをONしているか
+
+static uint16_t cmd_time = 0;
+static uint16_t num_time = 0;
+
+// Shift参照カウント（同時押しでもShiftが落ちないように）
+static uint8_t shift_ref = 0;
+
+static inline void shift_on_ref(void) {
+    if (shift_ref == 0) {
+        add_mods(MOD_BIT(KC_LSFT));
+    }
+    shift_ref++;
+}
+
+static inline void shift_off_ref(void) {
+    if (shift_ref > 0) {
+        shift_ref--;
+        if (shift_ref == 0) {
+            del_mods(MOD_BIT(KC_LSFT));
+        }
+    }
+}
+
+// 「押した瞬間の最前面がQWERTYか」を default_layer_state も込みで見る
+static inline bool top_is_qwerty_now(void) {
+    return get_highest_layer(layer_state | default_layer_state) == _QWERTY;
+}
+//-------copilot
 
 enum key_state ctl_all_state = RELEASED;
 //enum key_state alt_save_state = RELEASED;
@@ -187,62 +225,76 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
   switch (keycode) {
     case CMD_SPC:
-      if(record->event.pressed){
-        is_cmd_spc_pressed = true;
-        cmd_spc_pressed_time = record->event.time;
-        layer_on(_CMD);
-        update_tri_layer(_NUM, _CMD, _QWERTY);
-        if (layer_state_is(_QWERTY)) {
-        //if(IS_LAYER_ON(_QWERTY)){
-        //if(get_highest_layer(layer_state | default_layer_state) == _QWERTY ){
-          layer_off(_CMD);
-          layer_off(_NUM);
-          register_code(KC_LSFT);
+        if (record->event.pressed) {
+            cmd_pressed = true;
+            cmd_time = record->event.time;
+            cmd_layer_active = false;
+
+            // QWERTY中はまずShiftとして立ち上げる（即大文字）
+            if (top_is_qwerty_now()) {
+                cmd_shift_token = true;
+                shift_on_ref();
+            } else {
+                cmd_shift_token = false;
+            }
+        } else {
+            cmd_pressed = false;
+
+            // 長押し昇格で_CMDをONしていたならOFF
+            if (cmd_layer_active) {
+                layer_off(_CMD);
+                cmd_layer_active = false;
+            }
+
+            // Shiftを保持していたなら解除（タップ送信前に落とす）
+            if (cmd_shift_token) {
+                cmd_shift_token = false;
+                shift_off_ref();
+            }
+
+            // タップ判定：長押し昇格していない & TAPPING_TERM未満
+            if (timer_elapsed(cmd_time) < TAPPING_TERM && !cmd_layer_active) {
+                tap_code(KC_SPC);
+            }
+
+            // 「同時押しから片方を離したら残りのレイヤへ」は
+            // 残っている側の release 側でやるのではなく、
+            // 残っている側の scan 昇格に任せる方が安定します
         }
-      }else{
-        is_cmd_spc_pressed = false;
-        if(is_num_ent_pressed){
-          layer_on(_NUM);
-        }else {
-          layer_off(_CMD);
-        }
-        unregister_code(KC_LSFT);
-        if(timer_elapsed(cmd_spc_pressed_time) < TAPPING_TERM){
-          layer_off(_CMD);
-          tap_code(KC_SPC);
-        }
-      }
-      return false;
+        return false;
 
     case NUM_ENT:
-      if(record->event.pressed){
-        num_ent_pressed_time = record->event.time;
-        is_num_ent_pressed = true;
-        layer_on(_NUM);
-        update_tri_layer(_NUM, _CMD, _QWERTY);
-        if (layer_state_is(_QWERTY)) {
-        //if(IS_LAYER_ON(_QWERTY)){
-        //if(get_highest_layer(layer_state | default_layer_state) == _QWERTY ){
-          layer_off(_CMD);
-          layer_off(_NUM);
-          register_code(KC_LSFT);
-        }
-      }else{
-        is_num_ent_pressed = false;
-        if(is_cmd_spc_pressed){
-          layer_on(_CMD);
-        }else{
-          layer_off(_NUM);
-        }
-        unregister_code(KC_LSFT);
+        if (record->event.pressed) {
+            num_pressed = true;
+            num_time = record->event.time;
+            num_layer_active = false;
 
-        if(timer_elapsed(num_ent_pressed_time) < TAPPING_TERM){
-          layer_off(_NUM);
-          tap_code(KC_ENT);
-        }
-      }
-      return false;
+            if (top_is_qwerty_now()) {
+                num_shift_token = true;
+                shift_on_ref();
+            } else {
+                num_shift_token = false;
+            }
+        } else {
+            num_pressed = false;
 
+            if (num_layer_active) {
+                layer_off(_NUM);
+                num_layer_active = false;
+            }
+
+            if (num_shift_token) {
+                num_shift_token = false;
+                shift_off_ref();
+            }
+
+            if (timer_elapsed(num_time) < TAPPING_TERM && !num_layer_active) {
+                tap_code(KC_ENT);
+            }
+
+        }
+        return false;
+        
     case CTL_ALL:
       if(record->event.pressed){
         ctl_all_pressed_time = record->event.time;
@@ -338,16 +390,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-void matrix_scan_user(void){
-  if(ctl_all_state == PRESSED && timer_elapsed(ctl_all_pressed_time) > TAPPING_TERM){
-    register_code(KC_LCTL);
-    ctl_all_state = HOLDEN;
-  }/*
-  if(alt_save_state == PRESSED && timer_elapsed(alt_save_pressed_time) > TAPPING_TERM){
-    register_code(KC_LALT);
-    alt_save_state = HOLDEN;
-  }*/
+  void matrix_scan_user(void) {
+    // 既存のCTL_ALLホールド処理
+    if (ctl_all_state == PRESSED && timer_elapsed(ctl_all_pressed_time) > TAPPING_TERM) {
+        register_code(KC_LCTL);
+        ctl_all_state = HOLDEN;
+    }
+
+    // --- ここから追加：CMD_SPC / NUM_ENT の長押し昇格 ---
+
+    // 両方押されている間は「同時押しShift」なのでレイヤ昇格しない
+    bool chord = cmd_pressed && num_pressed;
+
+    // CMD_SPC：単体長押しなら_CMDへ昇格（QWERTY中はShift→レイヤへ切替）
+    if (cmd_pressed && !cmd_layer_active && timer_elapsed(cmd_time) > TAPPING_TERM) {
+        if (!chord) { // 同時押しでない（片方だけ）
+            // Shiftは落ちてOK（要件通り）
+            if (cmd_shift_token) {
+                cmd_shift_token = false;
+                shift_off_ref();
+            }
+            layer_on(_CMD);
+            cmd_layer_active = true;
+        }
+    }
+
+    // NUM_ENT：単体長押しなら_NUMへ昇格
+    if (num_pressed && !num_layer_active && timer_elapsed(num_time) > TAPPING_TERM) {
+        if (!chord) {
+            if (num_shift_token)  Yg{
+                num_shift_token = false;
+                shift_off_ref();
+            }
+            layer_on(_NUM);
+            num_layer_active = true;
+        }
+    }
 }
+
 
 float h_acm = 0.0;
 float v_acm = 0.0;
