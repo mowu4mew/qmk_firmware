@@ -36,6 +36,7 @@ enum key_state{
 //Declare Alias Mod Tap
 #define CTL_Z LCTL_T(KC_Z)
 #define SFT_V LSFT_T(KC_V)
+#define SFT_F LSFT_T(KC_F)
 #define ALT_SLSH LALT_T(JP_SLSH)
 #define GUI_DOT LGUI_T(JP_DOT)
 #define MOUSE_Q LT(_MOUSE, KC_Q)
@@ -44,7 +45,7 @@ enum key_state{
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
 #define QUIT A(KC_F4)         //apli quit
-#define RECVT G(ALT_SLSH)      //re convert ime
+//#define RECVT G(ALT_SLSH)      //re convert ime
 #define PG_TOP C(KC_HOME)     //go page top
 #define PG_BTM C(KC_END)      //go page bottom
 #define S_ENT S(KC_ENT)       //shift + enter
@@ -111,7 +112,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
+      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,   CTL_Z,    KC_X,    KC_C,   SFT_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  GUI_DOT,ALT_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -133,11 +134,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
+      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_K),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L,   RECVT, KC_RALT,XXXXXXX,
+      XXXXXXX, C(KC_Z), C(KC_X), C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,   INS_L, C(KC_K), KC_RALT,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -145,13 +146,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_MOUSE] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______, KC_F10,  KC_F11,   KC_F5,  _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
+      XXXXXXX, _______,  KC_F10,  KC_F11,   KC_F5, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______,   KC_F9,   KC_F8, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, KC_LCTL, _______, _______, KC_LSFT, _______,                    _______, _______, _______, KC_RGUI, KC_RALT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, S_ENT, XXXXXXX
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX,S(KC_ENT),XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
@@ -191,7 +192,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         cmd_spc_pressed_time = record->event.time;
         layer_on(_CMD);
         update_tri_layer(_NUM, _CMD, _QWERTY);
-        if(IS_LAYER_ON(_QWERTY)){
+        if (layer_state_is(_QWERTY)) {
+        //if(IS_LAYER_ON(_QWERTY)){
+        //if(get_highest_layer(layer_state | default_layer_state) == _QWERTY ){
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
@@ -217,7 +220,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         is_num_ent_pressed = true;
         layer_on(_NUM);
         update_tri_layer(_NUM, _CMD, _QWERTY);
-        if(IS_LAYER_ON(_QWERTY)){
+        if (layer_state_is(_QWERTY)) {
+        //if(IS_LAYER_ON(_QWERTY)){
+        //if(get_highest_layer(layer_state | default_layer_state) == _QWERTY ){
           layer_off(_CMD);
           layer_off(_NUM);
           register_code(KC_LSFT);
@@ -397,7 +402,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     return pointing_device_task_user(mouse_report);
 }
 
-/*
+
 layer_state_t layer_state_set_user(layer_state_t state){
   switch(get_highest_layer(state)){
     case _NUM:
@@ -409,7 +414,7 @@ layer_state_t layer_state_set_user(layer_state_t state){
   }
   return state;
 }
-*/
+
 
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
