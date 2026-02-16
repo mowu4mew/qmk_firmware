@@ -50,6 +50,9 @@ enum key_state{
 #define PG_BTM C(KC_END)      //go page bottom
 #define S_ENT S(KC_ENT)       //shift + enter
 
+//Declare Alias Tapping Term
+#define THUMB_LAYER_TERM 70  // まずは 120〜180 あたりで調整
+
 //Declare COMBO
 enum combos{
   I_O_DTRIGHT,
@@ -180,19 +183,25 @@ static uint16_t sft_find_pressed_time = 0;
 //static uint16_t num_ent_pressed_time = 0;
 
 //-----copilot
+
+// --- Thumb state for CMD_SPC / NUM_ENT ---
+
 static bool cmd_pressed = false;
 static bool num_pressed = false;
 
-static bool cmd_shift_token = false;  // CMD_SPCがShiftを保持しているか
-static bool num_shift_token = false;  // NUM_ENTがShiftを保持しているか
+static bool cmd_shift_token = false;  // CMD_SPC が Shift を保持中か
+static bool num_shift_token = false;  // NUM_ENT が Shift を保持中か
 
-static bool cmd_layer_active = false; // CMD_SPCが_CMDをONしているか（長押し昇格後）
-static bool num_layer_active = false; // NUM_ENTが_NUMをONしているか
+static bool cmd_layer_active = false; // CMD_SPC により _CMD を ON 中か
+static bool num_layer_active = false; // NUM_ENT により _NUM を ON 中か
+
+static bool cmd_chorded = false;      // 押下期間中に chord(同時押し)に参加したか
+static bool num_chorded = false;
 
 static uint16_t cmd_time = 0;
 static uint16_t num_time = 0;
 
-// Shift参照カウント（同時押しでもShiftが落ちないように）
+// Shift 参照カウント（同時押しでも Shift が落ちないように）
 static uint8_t shift_ref = 0;
 
 static inline void shift_on_ref(void) {
@@ -211,17 +220,89 @@ static inline void shift_off_ref(void) {
     }
 }
 
-// 「押した瞬間の最前面がQWERTYか」を default_layer_state も込みで見る
+// 「押した瞬間の最前面が QWERTY か」を default_layer_state も込みで判定
 static inline bool top_is_qwerty_now(void) {
     return get_highest_layer(layer_state | default_layer_state) == _QWERTY;
 }
+
+// 親指由来の Shift を全部落とす（昇格タイミングの 1文字目事故を潰す）
+static inline void drop_all_thumb_shift(void) {
+    if (cmd_shift_token) { cmd_shift_token = false; shift_off_ref(); }
+    if (num_shift_token) { num_shift_token = false; shift_off_ref(); }
+
+    // 念のため（環境により Shift が残るケース対策）
+#ifndef NO_ACTION_ONESHOT
+    clear_oneshot_mods();
+#endif
+    clear_weak_mods();
+    send_keyboard_report();
+}
+
+// chord 成立時：QWERTY文字入力(Shift)へ強制的に寄せる
+static inline void enter_chord_shift_mode(void) {
+    // chord 参加フラグ（タップ誤送信防止）
+    cmd_chorded = true;
+    num_chorded = true;
+
+    // _CMD/_NUM を落として QWERTY に寄せる（Aの要件）
+    if (cmd_layer_active) { layer_off(_CMD); cmd_layer_active = false; }
+    if (num_layer_active) { layer_off(_NUM); num_layer_active = false; }
+    layer_off(_CMD);
+    layer_off(_NUM);
+
+    // Shift を両方のキーが保持する扱いにする（参照カウントが崩れないよう token 管理）
+    if (!cmd_shift_token) { cmd_shift_token = true; shift_on_ref(); }
+    if (!num_shift_token) { num_shift_token = true; shift_on_ref(); }
+
+    send_keyboard_report();
+}
+
+// 長押し昇格（同時押し中は昇格しない）
+static void promote_thumb_layers_now(void) {
+    bool chord = cmd_pressed && num_pressed;
+
+    // 両方押し中は Shift 維持（レイヤ昇格しない）
+    if (chord) return;
+
+    // CMD_SPC：単体長押し → _CMD
+    if (cmd_pressed && !cmd_layer_active && timer_elapsed(cmd_time) >= THUMB_LAYER_TERM) {
+        drop_all_thumb_shift();     // ★ Shift は落ちてOK（要件通り）
+        layer_on(_CMD);
+        cmd_layer_active = true;
+    }
+
+    // NUM_ENT：単体長押し → _NUM
+    if (num_pressed && !num_layer_active && timer_elapsed(num_time) >= THUMB_LAYER_TERM) {
+        drop_all_thumb_shift();     // ★ Shift は落ちてOK（要件通り）
+        layer_on(_NUM);
+        num_layer_active = true;
+    }
+}
+
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        switch (keycode) {
+            case CMD_SPC:
+            case NUM_ENT:
+                // 自分自身の押下はここで昇格させない
+                break;
+            default:
+                // ★ 次キーが押された瞬間に、先に昇格を確定
+                promote_thumb_layers_now();
+                break;
+        }
+    }
+    return true;
+}
+
+
 //-------copilot
 
 enum key_state ctl_all_state = RELEASED;
 //enum key_state alt_save_state = RELEASED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  report_mouse_t currentReport = {};
+    report_mouse_t currentReport = {};
 
   switch (keycode) {
     case CMD_SPC:
@@ -229,37 +310,53 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             cmd_pressed = true;
             cmd_time = record->event.time;
             cmd_layer_active = false;
+            cmd_chorded = false;
 
-            // QWERTY中はまずShiftとして立ち上げる（即大文字）
+            // すでに NUM が押されているなら chord 開始：どのレイヤでも QWERTY+Shift へ
+            if (num_pressed) {
+                enter_chord_shift_mode();
+                return false;
+            }
+
+            // chord でない単体開始：QWERTY中なら押下直後は Shift（即大文字）
             if (top_is_qwerty_now()) {
                 cmd_shift_token = true;
                 shift_on_ref();
+                send_keyboard_report();
             } else {
                 cmd_shift_token = false;
             }
+
         } else {
             cmd_pressed = false;
 
-            // 長押し昇格で_CMDをONしていたならOFF
+            // chord 状態が崩れた瞬間、残り側を即昇格させたい（要件：片方離したら残りレイヤへ）
+            // ここで promote を呼ぶと、残り側が TAPPING_TERM を超えていれば即 _NUM/_CMD へ移行する
+            // （このキーを離した直後、まだ num_pressed が true の場合）
+            if (num_pressed) {
+                // 自分の Shift は落としてOK（要件通り）
+                if (cmd_shift_token) { cmd_shift_token = false; shift_off_ref(); }
+                send_keyboard_report();
+                promote_thumb_layers_now();
+            }
+
+            // _CMD を ON していたなら OFF（モメンタリ）
             if (cmd_layer_active) {
                 layer_off(_CMD);
                 cmd_layer_active = false;
             }
 
-            // Shiftを保持していたなら解除（タップ送信前に落とす）
+            // Shift を保持していたなら解除
             if (cmd_shift_token) {
                 cmd_shift_token = false;
                 shift_off_ref();
+                send_keyboard_report();
             }
 
-            // タップ判定：長押し昇格していない & TAPPING_TERM未満
-            if (timer_elapsed(cmd_time) < TAPPING_TERM && !cmd_layer_active) {
+            // タップ判定：chord 参加していない & 長押し昇格していない & TAPPING_TERM未満
+            if (!cmd_chorded && timer_elapsed(cmd_time) < TAPPING_TERM && !cmd_layer_active) {
                 tap_code(KC_SPC);
             }
-
-            // 「同時押しから片方を離したら残りのレイヤへ」は
-            // 残っている側の release 側でやるのではなく、
-            // 残っている側の scan 昇格に任せる方が安定します
         }
         return false;
 
@@ -268,30 +365,50 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             num_pressed = true;
             num_time = record->event.time;
             num_layer_active = false;
+            num_chorded = false;
 
+            // すでに CMD が押されているなら chord 開始：どのレイヤでも QWERTY+Shift へ
+            if (cmd_pressed) {
+                enter_chord_shift_mode();
+                return false;
+            }
+
+            // chord でない単体開始：QWERTY中なら押下直後は Shift（即大文字）
             if (top_is_qwerty_now()) {
                 num_shift_token = true;
                 shift_on_ref();
+                send_keyboard_report();
             } else {
                 num_shift_token = false;
             }
+
         } else {
             num_pressed = false;
 
+            // chord 崩壊：残り側を即昇格
+            if (cmd_pressed) {
+                if (num_shift_token) { num_shift_token = false; shift_off_ref(); }
+                send_keyboard_report();
+                promote_thumb_layers_now();
+            }
+
+            // _NUM を ON していたなら OFF
             if (num_layer_active) {
                 layer_off(_NUM);
                 num_layer_active = false;
             }
 
+            // Shift を保持していたなら解除
             if (num_shift_token) {
                 num_shift_token = false;
                 shift_off_ref();
+                send_keyboard_report();
             }
 
-            if (timer_elapsed(num_time) < TAPPING_TERM && !num_layer_active) {
+            // タップ判定：chord 不参加 & 昇格なし & TAPPING_TERM未満
+            if (!num_chorded && timer_elapsed(num_time) < TAPPING_TERM && !num_layer_active) {
                 tap_code(KC_ENT);
             }
-
         }
         return false;
         
@@ -396,36 +513,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         register_code(KC_LCTL);
         ctl_all_state = HOLDEN;
     }
-
-    // --- ここから追加：CMD_SPC / NUM_ENT の長押し昇格 ---
-
-    // 両方押されている間は「同時押しShift」なのでレイヤ昇格しない
-    bool chord = cmd_pressed && num_pressed;
-
-    // CMD_SPC：単体長押しなら_CMDへ昇格（QWERTY中はShift→レイヤへ切替）
-    if (cmd_pressed && !cmd_layer_active && timer_elapsed(cmd_time) > TAPPING_TERM) {
-        if (!chord) { // 同時押しでない（片方だけ）
-            // Shiftは落ちてOK（要件通り）
-            if (cmd_shift_token) {
-                cmd_shift_token = false;
-                shift_off_ref();
-            }
-            layer_on(_CMD);
-            cmd_layer_active = true;
-        }
-    }
-
-    // NUM_ENT：単体長押しなら_NUMへ昇格
-    if (num_pressed && !num_layer_active && timer_elapsed(num_time) > TAPPING_TERM) {
-        if (!chord) {
-            if (num_shift_token)  Yg{
-                num_shift_token = false;
-                shift_off_ref();
-            }
-            layer_on(_NUM);
-            num_layer_active = true;
-        }
-    }
+    promote_thumb_layers_now();
 }
 
 
