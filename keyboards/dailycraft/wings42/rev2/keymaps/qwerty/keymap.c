@@ -45,7 +45,6 @@ enum key_state{
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))   //print screen
 #define QUIT A(KC_F4)         //apli quit
-//#define RECVT G(ALT_SLSH)      //re convert ime
 #define PG_TOP C(KC_HOME)     //go page top
 #define PG_BTM C(KC_END)      //go page bottom
 #define S_ENT S(KC_ENT)       //shift + enter
@@ -88,7 +87,6 @@ combo_t key_combos[COMBO_COUNT] = {
   [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
 };
 
-
 //Override
 const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
 const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
@@ -104,7 +102,6 @@ const key_override_t *key_overrides[] = {
   &yensft_key_override,
   NULL
 };
-
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -134,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_K),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
+      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -148,7 +145,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, _______,  KC_F10,  KC_F11,   KC_F5, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______,   KC_F9,   KC_F8, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______,   KC_F9,   KC_F8, _______,                    _______,    SCRL, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, KC_LCTL, _______, _______, KC_LSFT, _______,                    _______, _______, _______, KC_RGUI, KC_RALT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -175,10 +172,10 @@ static uint16_t ctl_all_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 
 enum key_state ctl_all_state = RELEASED;
+
 // ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
 
-#define THUMB_LAYER_TERM 170   // QWERTY中：holdで_CMD/_NUMへ入る遅延
-#define THUMB_SHIFT_TERM 170   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
+#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
 
 static bool cmd_consumed = false; // その押下サイクルで tap を出さない
 static bool num_consumed = false;
@@ -275,31 +272,18 @@ static void thumb_update(void) {
 
     bool both_down = cmd_down && num_down;
 
-    // --- ① 追加ルール：QWERTY中に両方hold -> QWERTY+Shift ---
+    // --- ① QWERTY中に両方hold -> QWERTY+Shift ---
     // 両方とも「押し始めがQWERTY」だったときだけ発動
     if (both_down && cmd_started_in_qwerty && num_started_in_qwerty) {
-        if (timer_elapsed(cmd_time) >= THUMB_SHIFT_TERM &&
-            timer_elapsed(num_time) >= THUMB_SHIFT_TERM) {
-            // 両方holdは文字入力優先：CMD/NUMには入らない
+
+        // ★2本目に押した時刻（後から押された方）からの経過で判定
+        uint16_t second_press_time = (cmd_time > num_time) ? cmd_time : num_time;
+
+        if (timer_elapsed(second_press_time) >= THUMB_SHIFT_TERM) {
             qshift_start(QS_BOTH_IN_QWERTY);
         }
-        // 両方押している間はLTレイヤONは保留（片方を離してから単独で判断）
         return;
     }
-
-    // --- QWERTY中のLT：単体holdでレイヤON（遅延） ---
-//    if (cmd_down && cmd_started_in_qwerty && !cmd_layer_on &&
-//        timer_elapsed(cmd_time) >= THUMB_LAYER_TERM) {
-//        layer_on(_CMD);
-//        cmd_layer_on = true;
-//    }
-
-//    if (num_down && num_started_in_qwerty && !num_layer_on &&
-//        timer_elapsed(num_time) >= THUMB_LAYER_TERM) {
-//        layer_on(_NUM);
-//        num_layer_on = true;
-//    }
-
     // --- ② cross-hold：_CMD中にNUM_ENT hold -> QWERTY+Shift（遅延） ---
     if (cmd_layer_on && cmd_down && num_down &&
         timer_elapsed(num_time) >= THUMB_SHIFT_TERM) {
@@ -505,22 +489,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-
-                // ★保険：CMD親指が押されているのにQWERTYのX/C/Vが来たら、強制でCtrl+X/C/Vにする
+        // ===== 保険：CMD親指押下中の取りこぼし対策（ただし qshift / Shift中は除外）=====
+        case KC_D:
         case KC_X:
         case KC_C:
-        case KC_V: {
+        case SFT_V: {
             if (record->event.pressed) {
-                // CMD_SPCを押している最中なら、レイヤ確定ミスでもCtrl扱いにする
-                if (cmd_down) {
-                    cmd_consumed = true;  // Space誤爆も抑止
-                    if (keycode == KC_X) tap_code16(C(KC_X));
-                    if (keycode == KC_C) tap_code16(C(KC_C));
-                    if (keycode == KC_V) tap_code16(C(KC_V));
+                // ★qshift中（= QWERTY+Shiftモード）は「文字入力優先」なので変換しない
+                // ★また、物理Shift/他Shiftが入っている時も変換しない（X/C/Vを打てるように）
+                bool shift_active = (get_mods() & MOD_MASK_SHIFT) != 0;
+
+                if (cmd_down && !qshift_on && !shift_active) {
+                    cmd_consumed = true;  // Space誤爆抑制
+                    switch (keycode) {
+                        case KC_D: tap_code16(C(KC_V)); break;
+                        case KC_X: tap_code16(C(KC_X)); break;
+                        case KC_C: tap_code16(C(KC_C)); break;
+                        case SFT_V: tap_code16(C(KC_V)); break;
+                    }
                     return false; // 文字のx/c/vは送らない
                 }
             }
-            return true; // 通常のx/c/vはそのまま
+            return true;
         }
 
         default:{
@@ -591,17 +581,24 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     return pointing_device_task_user(mouse_report);
 }
 
-layer_state_t layer_state_set_user(layer_state_t state){
-  switch(get_highest_layer(state)){
-    case _NUM:
-      is_scroll_mode = true;
-      break;
-    default:
-      is_scroll_mode = false;
-      break;
-  }
-  return state;
+//layer_state_t layer_state_set_user(layer_state_t state){
+    //switch(get_highest_layer(state)){
+    //  case _NUM:
+    //    is_scroll_mode = true;
+    //    break;
+    //  default:
+    //    is_scroll_mode = false;
+    //    break;
+    //}
+    //return state;
+//}
+layer_state_t layer_state_set_user(layer_state_t state) {
+    // 最上位ではなく「NUMレイヤが有効かどうか」で判定する
+    // Auto Mouse Layer が上に載っても、NUMがONの限りスクロールを維持できる
+    is_scroll_mode = layer_state_cmp(state, _NUM);
+    return state;
 }
+
 
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
@@ -624,41 +621,6 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
   return is_mouse_record_user(keycode, record);
 }
 
-/*
-bool encoder_update_user(uint8_t index, bool clockwise) {
-    if (index != 0) {
-        return true;
-    }
-
-    layer_state_t layer = get_highest_layer(layer_state | default_layer_state);
-    uint16_t keycode;
-    if (clockwise) {
-        switch (layer) {
-            case 1:
-                keycode = MS_WHLD;
-                break;
-            case 2:
-                keycode = MS_WHLL;
-                break;
-            default:
-                return true; // encoder_update_kbに任せる
-        }
-    } else { // counter clockwise
-        switch (layer) {
-            case 1:
-                keycode = MS_WHLU;
-                break;
-            case 2:
-                keycode = MS_WHLR;
-                break;
-            default:
-                return true; // encoder_update_kbに任せる
-        }
-    }
-    tap_code16_delay(keycode, 10);
-    return false; // encoder_update_kbの処理をスキップ
-}
-*/
 bool encoder_update_user(uint8_t index, bool clockwise) {
     if (index == 0) { // First encoder 
         if (clockwise) {
