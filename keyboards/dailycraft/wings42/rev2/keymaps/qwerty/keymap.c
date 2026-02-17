@@ -177,8 +177,8 @@ static uint16_t sft_find_pressed_time = 0;
 enum key_state ctl_all_state = RELEASED;
 // ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
 
-#define THUMB_LAYER_TERM 170   // QWERTY中：holdで_CMD/_NUMへ入る遅延
-#define THUMB_SHIFT_TERM 170   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
+#define THUMB_LAYER_TERM 100   // QWERTY中：holdで_CMD/_NUMへ入る遅延
+#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
 
 static bool cmd_consumed = false; // その押下サイクルで tap を出さない
 static bool num_consumed = false;
