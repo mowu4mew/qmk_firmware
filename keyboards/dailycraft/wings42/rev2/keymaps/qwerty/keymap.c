@@ -177,8 +177,8 @@ static uint16_t sft_find_pressed_time = 0;
 enum key_state ctl_all_state = RELEASED;
 // ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
 
-#define THUMB_LAYER_TERM 100   // QWERTY中：holdで_CMD/_NUMへ入る遅延
-#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
+#define THUMB_LAYER_TERM 170   // QWERTY中：holdで_CMD/_NUMへ入る遅延
+#define THUMB_SHIFT_TERM 170   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
 
 static bool cmd_consumed = false; // その押下サイクルで tap を出さない
 static bool num_consumed = false;
@@ -288,17 +288,17 @@ static void thumb_update(void) {
     }
 
     // --- QWERTY中のLT：単体holdでレイヤON（遅延） ---
-    if (cmd_down && cmd_started_in_qwerty && !cmd_layer_on &&
-        timer_elapsed(cmd_time) >= THUMB_LAYER_TERM) {
-        layer_on(_CMD);
-        cmd_layer_on = true;
-    }
+//    if (cmd_down && cmd_started_in_qwerty && !cmd_layer_on &&
+//        timer_elapsed(cmd_time) >= THUMB_LAYER_TERM) {
+//        layer_on(_CMD);
+//        cmd_layer_on = true;
+//    }
 
-    if (num_down && num_started_in_qwerty && !num_layer_on &&
-        timer_elapsed(num_time) >= THUMB_LAYER_TERM) {
-        layer_on(_NUM);
-        num_layer_on = true;
-    }
+//    if (num_down && num_started_in_qwerty && !num_layer_on &&
+//        timer_elapsed(num_time) >= THUMB_LAYER_TERM) {
+//        layer_on(_NUM);
+//        num_layer_on = true;
+//    }
 
     // --- ② cross-hold：_CMD中にNUM_ENT hold -> QWERTY+Shift（遅延） ---
     if (cmd_layer_on && cmd_down && num_down &&
@@ -318,167 +318,215 @@ static void thumb_update(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     report_mouse_t currentReport = {};
 
-  switch (keycode) {
-    case CMD_SPC:{
-        if (record->event.pressed) {
-            cmd_down = true;
-            cmd_time = record->event.time;
-            cmd_started_in_qwerty = top_is_qwerty();
-            cmd_consumed = false;                 // ★押下開始でリセット
-            return false;
-        } else {
-            cmd_down = false;
-            // ★QWERTY+Shiftモード中なら復帰処理はqshift_stopに全部任せる
-            if (qshift_on) {
-                qshift_stop();
-            }
-
-            // ★自分のホールドレイヤが残っていたらOFF（モメンタリ解除）
-            if (cmd_layer_on) {
-                layer_off(_CMD);
-                cmd_layer_on = false;
-                cmd_consumed = true;              // tap誤送信を確実に防ぐ
-            }
-            // ★tap：Space（消費されていない時だけ）
-            if (!cmd_consumed && timer_elapsed(cmd_time) < TAPPING_TERM) {
-                tap_code(KC_SPC);
-            }
-            return false;
+    // ★親指が押されている間に他キーが押されたら、tap（Space/Enter）を出さない
+    if (record->event.pressed) {
+        if (cmd_down && keycode != CMD_SPC && keycode != NUM_ENT) {
+            cmd_consumed = true;
+        }
+        if (num_down && keycode != CMD_SPC && keycode != NUM_ENT) {
+            num_consumed = true;
         }
     }
 
-    case NUM_ENT:{
-        if (record->event.pressed) {
-            num_down = true;
-            num_time = record->event.time;
-            num_started_in_qwerty = top_is_qwerty();
-            num_consumed = false;                 // ★押下開始でリセット
+    switch (keycode) {
+        case CMD_SPC: {
+            if (record->event.pressed) {
+                cmd_down = true;
+                cmd_time = record->event.time;
+                cmd_started_in_qwerty = top_is_qwerty();
+                cmd_consumed = false;
+
+                // ★ここが肝：押した瞬間に_CMDをON（Hの1打目に間に合わせる）
+                if (cmd_started_in_qwerty && !qshift_on) {
+                    layer_on(_CMD);
+                    cmd_layer_on = true;
+                }
+
+                return false;
+            } else {
+                cmd_down = false;
+
+                // QWERTY+Shift中なら復帰はqshift_stopへ
+                if (qshift_on) {
+                    qshift_stop();
+                }
+
+                // 自分のホールドレイヤが残っていたらOFF
+                if (cmd_layer_on) {
+                    layer_off(_CMD);
+                    cmd_layer_on = false;
+                    // “ホールド扱い”だったなら tap(SPC) を抑制
+                    // ※ただし tap 判定でスペースを出す場合は cmd_consumed を使う
+                }
+
+                // ★tap：Space（消費されていない & タップ時間内のみ）
+                if (!cmd_consumed && timer_elapsed(cmd_time) < TAPPING_TERM) {
+                    tap_code(KC_SPC);
+                }
+
+                return false;
+            }
+        }
+
+        case NUM_ENT: {
+            if (record->event.pressed) {
+                num_down = true;
+                num_time = record->event.time;
+                num_started_in_qwerty = top_is_qwerty();
+                num_consumed = false;
+
+                // ★ここが肝：押した瞬間に_NUMをON（1打目取りこぼし防止）
+                if (num_started_in_qwerty && !qshift_on) {
+                    layer_on(_NUM);
+                    num_layer_on = true;
+                    // 早めに反映したい場合は次も有効（お好み）
+                    // send_keyboard_report();
+                }
+
+                return false;
+            } else {
+                num_down = false;
+
+                // QWERTY+Shift中なら復帰はqshift_stopへ
+                if (qshift_on) {
+                    qshift_stop();
+                }
+
+                // 自分のホールドレイヤが残っていたらOFF
+                if (num_layer_on) {
+                    layer_off(_NUM);
+                    num_layer_on = false;
+                    // ホールド扱いならtap(ENT)抑制は num_consumed で制御
+                }
+
+                // ★tap：Enter（消費されていない & タップ時間内のみ）
+                if (!num_consumed && timer_elapsed(num_time) < TAPPING_TERM) {
+                    tap_code(KC_ENT);
+                }
+
+                return false;
+            }
+        }
+
+        case CTL_ALL:{
+            if(record->event.pressed){
+            ctl_all_pressed_time = record->event.time;
+            ctl_all_state = PRESSED;
+            }else{
+            switch(ctl_all_state){
+                case PRESSED:
+                SEND_STRING(SS_LCTL(SS_TAP(X_A)));
+                break;
+                case HOLDEN:
+                unregister_code(KC_LCTL);
+                break;
+                case RELEASED:
+                break;
+            }
+            ctl_all_state = RELEASED;
+            }
             return false;
-        } else {
-            num_down = false;
+        }
 
-            // ★QWERTY+Shiftモード中なら復帰処理はqshift_stopに全部任せる
-            if (qshift_on) {
-                qshift_stop();
+        case SFT_FIND:{
+            if(record->event.pressed){
+            sft_find_pressed_time = record->event.time;
+            register_code(KC_LSFT);
+            }else{
+            unregister_code(KC_LSFT);
+            if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
+                SEND_STRING(SS_LCTL(SS_TAP(X_F)));
             }
-
-            // ★自分のホールドレイヤが残っていたらOFF（モメンタリ解除）
-            if (num_layer_on) {
-                layer_off(_NUM);
-                num_layer_on = false;
-                num_consumed = true;
-            }
-
-            // ★tap：Enter（消費されていない時だけ）
-            if (!num_consumed && timer_elapsed(num_time) < TAPPING_TERM) {
-                tap_code(KC_ENT);
             }
             return false;
         }
-    }
 
-    case CTL_ALL:{
-        if(record->event.pressed){
-        ctl_all_pressed_time = record->event.time;
-        ctl_all_state = PRESSED;
-        }else{
-        switch(ctl_all_state){
-            case PRESSED:
-            SEND_STRING(SS_LCTL(SS_TAP(X_A)));
-            break;
-            case HOLDEN:
-            unregister_code(KC_LCTL);
-            break;
-            case RELEASED:
-            break;
+        case KILL_E:{
+            if(record->event.pressed){
+                tap_code16(S(KC_END));
+                tap_code(KC_DEL);
+            }
+            return false;
         }
-        ctl_all_state = RELEASED;
-        }
-        return false;
-    }
 
-    case SFT_FIND:{
-        if(record->event.pressed){
-        sft_find_pressed_time = record->event.time;
-        register_code(KC_LSFT);
-        }else{
-        unregister_code(KC_LSFT);
-        if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
-            SEND_STRING(SS_LCTL(SS_TAP(X_F)));
-        }
-        }
-        return false;
-    }
-
-    case KILL_E:{
-        if(record->event.pressed){
-            tap_code16(S(KC_END));
+        case KILL_H:{
+            if(record->event.pressed){
+            tap_code16(S(KC_HOME));
             tap_code(KC_DEL);
+            }
+            return false;
         }
-        return false;
-    }
 
-    case KILL_H:{
-        if(record->event.pressed){
-        tap_code16(S(KC_HOME));
-        tap_code(KC_DEL);
+        case INS_L:{
+            if(record->event.pressed){
+            SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
+            }
+            return false;
         }
-        return false;
-    }
+            
+        case MBTN1:{
+            currentReport = pointing_device_get_report();
+            if (record->event.pressed) {
+            currentReport.buttons |= MOUSE_BTN1;
+            }else {
+            currentReport.buttons &= ~MOUSE_BTN1;
+            }
+            pointing_device_set_report(currentReport);
+            return false;
+        }
 
-    case INS_L:{
-        if(record->event.pressed){
-        SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
+        case MBTN2:{
+            currentReport = pointing_device_get_report();
+            if (record->event.pressed) {
+            currentReport.buttons |= MOUSE_BTN2;
+            }else {
+            currentReport.buttons &= ~MOUSE_BTN2;
+            }
+            pointing_device_set_report(currentReport);
+            return false;
         }
-        return false;
-    }
-      
-    case MBTN1:{
-        currentReport = pointing_device_get_report();
-        if (record->event.pressed) {
-        currentReport.buttons |= MOUSE_BTN1;
-        }else {
-        currentReport.buttons &= ~MOUSE_BTN1;
-        }
-        pointing_device_set_report(currentReport);
-        return false;
-    }
 
-    case MBTN2:{
-        currentReport = pointing_device_get_report();
-        if (record->event.pressed) {
-        currentReport.buttons |= MOUSE_BTN2;
-        }else {
-        currentReport.buttons &= ~MOUSE_BTN2;
+        case MBTN3:{
+            currentReport = pointing_device_get_report();
+            if (record->event.pressed) {
+            currentReport.buttons |= MOUSE_BTN3;
+            }else {
+            currentReport.buttons &= ~MOUSE_BTN3;
+            }
+            pointing_device_set_report(currentReport);
+            return false;
         }
-        pointing_device_set_report(currentReport);
-        return false;
-    }
 
-    case MBTN3:{
-        currentReport = pointing_device_get_report();
-        if (record->event.pressed) {
-        currentReport.buttons |= MOUSE_BTN3;
-        }else {
-        currentReport.buttons &= ~MOUSE_BTN3;
+        case SCRL:{
+            if (record->event.pressed){
+            is_scroll_mode = true;
+            }else{
+            is_scroll_mode = false;
+            }
+            return false;
         }
-        pointing_device_set_report(currentReport);
-        return false;
-    }
 
-    case SCRL:{
-        if (record->event.pressed){
-        is_scroll_mode = true;
-        }else{
-        is_scroll_mode = false;
+                // ★保険：CMD親指が押されているのにQWERTYのX/C/Vが来たら、強制でCtrl+X/C/Vにする
+        case KC_X:
+        case KC_C:
+        case KC_V: {
+            if (record->event.pressed) {
+                // CMD_SPCを押している最中なら、レイヤ確定ミスでもCtrl扱いにする
+                if (cmd_down) {
+                    cmd_consumed = true;  // Space誤爆も抑止
+                    if (keycode == KC_X) tap_code16(C(KC_X));
+                    if (keycode == KC_C) tap_code16(C(KC_C));
+                    if (keycode == KC_V) tap_code16(C(KC_V));
+                    return false; // 文字のx/c/vは送らない
+                }
+            }
+            return true; // 通常のx/c/vはそのまま
         }
-        return false;
-    }
 
-    default:{
-        return true;
+        default:{
+            return true;
+        }
     }
-  }
 }
 
   void matrix_scan_user(void) {
