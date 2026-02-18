@@ -39,15 +39,15 @@ enum key_state{
 #define SFT_F LSFT_T(KC_F)
 #define ALT_SLSH LALT_T(JP_SLSH)
 #define GUI_DOT LGUI_T(JP_DOT)
-#define MOUSE_Q LT(_MOUSE, KC_Q)
-#define FNC_MINS LT(_FNC, JP_MINS)
+#define FNC_Q LT(_FNC, KC_Q)
+//#define FNC_MINS LT(_FNC, JP_MINS)
 
 //Declare Alias Short Cut
-#define MCPRTSCR G(S(KC_S))   //print screen
-#define QUIT A(KC_F4)         //apli quit
-#define PG_TOP C(KC_HOME)     //go page top
-#define PG_BTM C(KC_END)      //go page bottom
-#define S_ENT S(KC_ENT)       //shift + enter
+#define MCPRTSCR G(S(KC_S))     //print screen
+#define FNC_QUIT LT(_FNC, A(KC_F4)) //apli QUIT or go _FNC
+#define PG_TOP C(KC_HOME)       //go page top
+#define PG_BTM C(KC_END)        //go page bottom
+#define S_ENT S(KC_ENT)         //shift + enter
 
 //Declare COMBO
 enum combos{
@@ -107,7 +107,7 @@ const key_override_t *key_overrides[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, MOUSE_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
+      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -131,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,    QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
+      XXXXXXX,FNC_QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -141,23 +141,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
-  [_MOUSE] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______,  KC_F10,  KC_F11,   KC_F5, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______,   KC_F9,   KC_F8, _______,                    _______,    SCRL, _______, _______, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, KC_LCTL, _______, _______, KC_LSFT, _______,                    _______, _______, _______, KC_RGUI, KC_RALT, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX,S(KC_ENT),XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
-
   [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,  KC_F11, KC_F12,S(KC_TAB),  KC_F13,  KC_F14,                     KC_F15, XXXXXXX,  PG_TOP, XXXXXXX, QK_BOOT, XXXXXXX,
+      XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5,  KC_F13,                     KC_F14,  KC_F15,  PG_TOP, XXXXXXX, QK_BOOT, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______,  KILL_E,   KC_F3, XXXXXXX,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+      XXXXXXX,  KC_F11,  KC_F12,  KILL_E,   KC_F3, XXXXXXX,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -165,6 +153,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //                           `--------+--------+--------'                  `--------+--------+--------'
   ),
 
+  [_MOUSE] = LAYOUT_split_3x6_3_2(
+  //,-----------------------------------------------------|                  |-----------------------------------------------------.
+      XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX, _______, _______, _______, _______, _______,                    _______,    SCRL, _______, _______, _______, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______,XXXXXXX
+  //                           `--------+--------+--------'                  `--------+--------+--------'
+  ),
 };
 
 static bool is_scroll_mode = false;
@@ -188,13 +187,20 @@ static bool num_down = false;
 static uint16_t cmd_time = 0;
 static uint16_t num_time = 0;
 
-// 押下開始時にQWERTYがトップだったか（LT判定に使う）
-static bool cmd_started_in_qwerty = false;
-static bool num_started_in_qwerty = false;
+// 押下開始時にQWERTY or MOUSE
+static bool cmd_started_in_typing = false;
+static bool num_started_in_typing = false;
 
 // 親指ホールドで有効化しているレイヤ（モメンタリ）
 static bool cmd_layer_on = false; // CMD_SPC hold -> _CMD
 static bool num_layer_on = false; // NUM_ENT hold -> _NUM
+
+
+// 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
+static inline bool is_typing_context(void) {
+    uint8_t top = get_highest_layer(layer_state | default_layer_state);
+    return (top == _QWERTY) || (top == _MOUSE);
+}
 
 // QWERTY+Shiftモードの発生源
 typedef enum {
@@ -204,14 +210,9 @@ typedef enum {
     QS_BOTH_IN_QWERTY   // QWERTY中に 両方hold
 } qshift_src_t;
 
-static bool qshift_on = false;
 static qshift_src_t qshift_src = QS_NONE;
-
-// 現在トップがQWERTYか（default含む）
-static inline bool top_is_qwerty(void) {
-    return get_highest_layer(layer_state | default_layer_state) == _QWERTY;
-}
 static bool qshift_added_shift = false;
+static bool qshift_on = false;
 
 static inline void qshift_start(qshift_src_t src) {
     if (qshift_on) return;
@@ -274,7 +275,7 @@ static void thumb_update(void) {
 
     // --- ① QWERTY中に両方hold -> QWERTY+Shift ---
     // 両方とも「押し始めがQWERTY」だったときだけ発動
-    if (both_down && cmd_started_in_qwerty && num_started_in_qwerty) {
+    if (both_down && cmd_started_in_typing && num_started_in_typing) {
 
         // ★2本目に押した時刻（後から押された方）からの経過で判定
         uint16_t second_press_time = (cmd_time > num_time) ? cmd_time : num_time;
@@ -284,15 +285,15 @@ static void thumb_update(void) {
         }
         return;
     }
-    // --- ② cross-hold：_CMD中にNUM_ENT hold -> QWERTY+Shift（遅延） ---
-    if (cmd_layer_on && cmd_down && num_down &&
+
+        // cross-holdは「文字入力コンテキストで押し始めた時だけ」qshift許可（作業レイヤ中の事故を減らす）
+    if (cmd_layer_on && cmd_down && num_down && cmd_started_in_typing &&
         timer_elapsed(num_time) >= THUMB_SHIFT_TERM) {
         qshift_start(QS_FROM_CMD);
         return;
     }
 
-    // --- ② cross-hold：_NUM中にCMD_SPC hold -> QWERTY+Shift（遅延） ---
-    if (num_layer_on && num_down && cmd_down &&
+    if (num_layer_on && num_down && cmd_down && num_started_in_typing &&
         timer_elapsed(cmd_time) >= THUMB_SHIFT_TERM) {
         qshift_start(QS_FROM_NUM);
         return;
@@ -317,11 +318,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 cmd_down = true;
                 cmd_time = record->event.time;
-                cmd_started_in_qwerty = top_is_qwerty();
+                cmd_started_in_typing = is_typing_context();
                 cmd_consumed = false;
 
                 // ★ここが肝：押した瞬間に_CMDをON（Hの1打目に間に合わせる）
-                if (cmd_started_in_qwerty && !qshift_on) {
+                if (!qshift_on) {
                     layer_on(_CMD);
                     cmd_layer_on = true;
                 }
@@ -356,11 +357,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 num_down = true;
                 num_time = record->event.time;
-                num_started_in_qwerty = top_is_qwerty();
+                num_started_in_typing = is_typing_context();
                 num_consumed = false;
 
                 // ★ここが肝：押した瞬間に_NUMをON（1打目取りこぼし防止）
-                if (num_started_in_qwerty && !qshift_on) {
+                if (!qshift_on) {
                     layer_on(_NUM);
                     num_layer_on = true;
                     // 早めに反映したい場合は次も有効（お好み）
