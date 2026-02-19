@@ -157,7 +157,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, _______, _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______, _______, _______, _______,                    _______,    SCRL, _______, _______, _______, XXXXXXX,
+      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -167,6 +167,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 static bool is_scroll_mode = false;
+static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
 static uint16_t ctl_all_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
 
@@ -234,9 +235,16 @@ static inline void qshift_start(qshift_src_t src) {
 
     // consumed処理は今のままでOK
     switch (src) {
-        case QS_BOTH_IN_QWERTY: cmd_consumed = true; num_consumed = true; break;
-        case QS_FROM_CMD:       num_consumed = true; break;
-        case QS_FROM_NUM:       cmd_consumed = true; break;
+        case QS_BOTH_IN_QWERTY: 
+            cmd_consumed = true; 
+            num_consumed = true; 
+            break;
+        case QS_FROM_CMD:
+            num_consumed = true; 
+            break;
+        case QS_FROM_NUM:
+            cmd_consumed = true; 
+            break;
         default: break;
     }
 }
@@ -259,8 +267,12 @@ static inline void qshift_stop(void) {
     cmd_layer_on = false;
     num_layer_on = false;
 
-    if (cmd_down && !num_down) { layer_on(_CMD); cmd_layer_on = true; }
-    else if (num_down && !cmd_down) { layer_on(_NUM); num_layer_on = true; }
+    if (cmd_down && !num_down) { 
+        layer_on(_CMD); 
+        cmd_layer_on = true; 
+    } else if (num_down && !cmd_down) { 
+        layer_on(_NUM); 
+        num_layer_on = true; }
 
     send_keyboard_report();
 }
@@ -313,6 +325,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    // --- CTL_ALLを押している間に他キーが押されたら「修飾として使った」扱いにする ---
+    if (record->event.pressed) {
+        if (ctl_all_state != RELEASED && keycode != CTL_ALL) {
+            if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND) {
+                ctl_all_used = true;
+            }
+        }
+    }
+ 
     switch (keycode) {
         case CMD_SPC: {
             if (record->event.pressed) {
@@ -393,28 +414,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
 
-        case CTL_ALL:{
-            if(record->event.pressed){
-            ctl_all_pressed_time = record->event.time;
-            ctl_all_state = PRESSED;
-            }else{
-            switch(ctl_all_state){
-                case PRESSED:
-                SEND_STRING(SS_LCTL(SS_TAP(X_A)));
-                break;
-                case HOLDEN:
+        case CTL_ALL: {
+            if (record->event.pressed) {
+                ctl_all_pressed_time = record->event.time;
+                ctl_all_state = PRESSED;
+                ctl_all_used = false;
+
+                // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
+                register_code(KC_LCTL);
+                return false;
+            } else {
+                // ★まずCtrlを離す（単体タップでCtrl+Aを送る前に必須）
                 unregister_code(KC_LCTL);
-                break;
-                case RELEASED:
-                break;
+
+                // 「単体タップ」判定：他キーを押していない＆タップ時間内
+                if (!ctl_all_used && timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM) {
+                    // Ctrlはすでに離しているので、ここでCtrl+Aを送ってOK
+                    SEND_STRING(SS_LCTL(SS_TAP(X_A)));
+                }
+
+                ctl_all_state = RELEASED;
+                return false;
             }
-            ctl_all_state = RELEASED;
-            }
-            return false;
         }
 
         case SFT_FIND:{
-            if(record->event.pressed){
+            if (record->event.pressed){
             sft_find_pressed_time = record->event.time;
             register_code(KC_LSFT);
             }else{
@@ -427,7 +452,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
 
         case KILL_E:{
-            if(record->event.pressed){
+            if (record->event.pressed){
                 tap_code16(S(KC_END));
                 tap_code(KC_DEL);
             }
@@ -435,7 +460,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
 
         case KILL_H:{
-            if(record->event.pressed){
+            if (record->event.pressed){
             tap_code16(S(KC_HOME));
             tap_code(KC_DEL);
             }
@@ -443,7 +468,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
 
         case INS_L:{
-            if(record->event.pressed){
+            if (record->event.pressed){
             SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
             }
             return false;
@@ -521,11 +546,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
   void matrix_scan_user(void) {
-    // 既存のCTL_ALLホールド処理
-    if (ctl_all_state == PRESSED && timer_elapsed(ctl_all_pressed_time) > TAPPING_TERM) {
-        register_code(KC_LCTL);
-        ctl_all_state = HOLDEN;
-    }
     thumb_update();
 }
 
