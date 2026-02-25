@@ -185,8 +185,8 @@ static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押され�
 static bool ctl_all_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
 
+// ===== SFT_FIND =====
 static uint16_t sft_find_pressed_time = 0;
-
 
 // ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
 #define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
@@ -197,22 +197,10 @@ static inline bool is_typing_context(void) {
     return (top == _QWERTY) || (top == _MOUSE);
 }
 
-// QWERTY+Shiftモードの発生源
-//typedef enum {
-//    QS_NONE = 0,
-//    QS_FROM_CMD,        // _CMD中に NUM_ENT hold
-//    QS_FROM_NUM,        // _NUM中に CMD_SPC hold
-//    QS_BOTH_IN_QWERTY   // QWERTY中に 両方hold
-//} qshift_src_t;
-
-//static qshift_src_t qshift_src = QS_NONE;
-
 static inline void qshift_start(void) {
-//static inline void qshift_start(qshift_src_t src) {
     if (qshift_on) return;
 
     qshift_on = true;
-    //qshift_src = src;
 
     layer_off(_CMD);
     layer_off(_NUM);
@@ -229,20 +217,6 @@ static inline void qshift_start(void) {
         qshift_added_shift = false;
     }
 
-    // consumed処理は今のままでOK
-    //switch (src) {
-    //    case QS_BOTH_IN_QWERTY: 
-    //        cmd_consumed = true; 
-    //        num_consumed = true; 
-    //        break;
-    //    case QS_FROM_CMD:
-    //        num_consumed = true; 
-    //        break;
-    //    case QS_FROM_NUM:
-    //        cmd_consumed = true; 
-    //        break;
-    //    default: break;
-    //}
     cmd_layer_on = false;
     num_layer_on = false;
 }
@@ -325,7 +299,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // --- CTL_ALLを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
-        if (!ctl_all_pressed && keycode != CTL_ALL) {
+        if (ctl_all_pressed && keycode != CTL_ALL) {
             if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND) {
                 ctl_all_used = true;
             }
