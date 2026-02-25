@@ -158,34 +158,38 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 static bool is_scroll_mode = false;
-static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
-static uint16_t ctl_all_pressed_time = 0;
-static uint16_t sft_find_pressed_time = 0;
-static bool ctl_all_pressed = false;
 
-// ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
-
-#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
-
-static bool cmd_consumed = false; // その押下サイクルで tap を出さない
-static bool num_consumed = false;
-
+// ===== Thumb (CMD/NUM) =====
 // 物理押下状態
 static bool cmd_down = false;
 static bool num_down = false;
 
+static bool cmd_consumed = false; 
+static bool num_consumed = false;
 // 押下開始時刻
 static uint16_t cmd_time = 0;
 static uint16_t num_time = 0;
-
 // 押下開始時にQWERTY or MOUSE
 static bool cmd_started_in_typing = false;
 static bool num_started_in_typing = false;
-
 // 親指ホールドで有効化しているレイヤ（モメンタリ）
 static bool cmd_layer_on = false; // CMD_SPC hold -> _CMD
 static bool num_layer_on = false; // NUM_ENT hold -> _NUM
 
+// ===== qshift =====
+static bool qshift_added_shift = false;
+static bool qshift_on = false;
+
+// ===== CTL_ALL =====
+static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
+static bool ctl_all_pressed = false;
+static uint16_t ctl_all_pressed_time = 0;
+
+static uint16_t sft_find_pressed_time = 0;
+
+
+// ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
+#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
 
 // 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
 static inline bool is_typing_context(void) {
@@ -194,22 +198,21 @@ static inline bool is_typing_context(void) {
 }
 
 // QWERTY+Shiftモードの発生源
-typedef enum {
-    QS_NONE = 0,
-    QS_FROM_CMD,        // _CMD中に NUM_ENT hold
-    QS_FROM_NUM,        // _NUM中に CMD_SPC hold
-    QS_BOTH_IN_QWERTY   // QWERTY中に 両方hold
-} qshift_src_t;
+//typedef enum {
+//    QS_NONE = 0,
+//    QS_FROM_CMD,        // _CMD中に NUM_ENT hold
+//    QS_FROM_NUM,        // _NUM中に CMD_SPC hold
+//    QS_BOTH_IN_QWERTY   // QWERTY中に 両方hold
+//} qshift_src_t;
 
-static qshift_src_t qshift_src = QS_NONE;
-static bool qshift_added_shift = false;
-static bool qshift_on = false;
+//static qshift_src_t qshift_src = QS_NONE;
 
-static inline void qshift_start(qshift_src_t src) {
+static inline void qshift_start(void) {
+//static inline void qshift_start(qshift_src_t src) {
     if (qshift_on) return;
 
     qshift_on = true;
-    qshift_src = src;
+    //qshift_src = src;
 
     layer_off(_CMD);
     layer_off(_NUM);
@@ -255,7 +258,7 @@ static inline void qshift_stop(void) {
     }
 
     qshift_on  = false;
-    qshift_src = QS_NONE;
+    //qshift_src = QS_NONE;
 
     layer_off(_CMD);
     layer_off(_NUM);
@@ -288,7 +291,7 @@ static void thumb_update(void) {
         uint16_t second_press_time = (cmd_time > num_time) ? cmd_time : num_time;
 
         if (timer_elapsed(second_press_time) >= THUMB_SHIFT_TERM) {
-            qshift_start(QS_BOTH_IN_QWERTY);
+            qshift_start();
         }
         return;
     }
@@ -296,13 +299,13 @@ static void thumb_update(void) {
         // cross-holdは「文字入力コンテキストで押し始めた時だけ」qshift許可（作業レイヤ中の事故を減らす）
     if (cmd_layer_on && cmd_down && num_down && cmd_started_in_typing &&
         timer_elapsed(num_time) >= THUMB_SHIFT_TERM) {
-        qshift_start(QS_FROM_CMD);
+        qshift_start();
         return;
     }
 
     if (num_layer_on && num_down && cmd_down && num_started_in_typing &&
         timer_elapsed(cmd_time) >= THUMB_SHIFT_TERM) {
-        qshift_start(QS_FROM_NUM);
+        qshift_start();
         return;
     }
 }
@@ -338,7 +341,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 cmd_consumed = false;
 
                 if (num_down && num_started_in_typing && cmd_started_in_typing) {
-                    qshift_start(QS_FROM_NUM);
+                    qshift_start();
                     return false;
                 }
      
@@ -382,7 +385,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 num_consumed = false;
 
                 if (cmd_down && cmd_started_in_typing && num_started_in_typing) {
-                    qshift_start(QS_FROM_CMD);
+                    qshift_start();
                     return false;
                 }
 
