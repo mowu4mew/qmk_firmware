@@ -26,13 +26,6 @@ enum custom_keycodes {
   SCRL
 };
 
-//Declare key state
-enum key_state{
-  RELEASED,
-  PRESSED,
-  HOLDEN
-};
-
 //Declare Alias Mod Tap
 #define CTL_Z LCTL_T(KC_Z)
 #define SFT_V LSFT_T(KC_V)
@@ -44,10 +37,8 @@ enum key_state{
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
-#define FNC_QUIT LT(_FNC, A(KC_F4)) //apli QUIT or go _FNC
 #define PG_TOP C(KC_HOME)       //go page top
 #define PG_BTM C(KC_END)        //go page bottom
-#define S_ENT S(KC_ENT)         //shift + enter
 
 //Declare COMBO
 enum combos{
@@ -131,7 +122,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_CMD] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX,FNC_QUIT, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
+      XXXXXXX,A(KC_F4), C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, KC_PGUP,   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -170,8 +161,7 @@ static bool is_scroll_mode = false;
 static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
 static uint16_t ctl_all_pressed_time = 0;
 static uint16_t sft_find_pressed_time = 0;
-
-enum key_state ctl_all_state = RELEASED;
+static bool ctl_all_pressed = false;
 
 // ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
 
@@ -224,6 +214,9 @@ static inline void qshift_start(qshift_src_t src) {
     layer_off(_CMD);
     layer_off(_NUM);
 
+    cmd_consumed = true;
+    num_consumed = true;
+
     // もともとShiftが入っていなければ、ここで追加する
     if (!(get_mods() & MOD_BIT(KC_LSFT))) {
         add_mods(MOD_BIT(KC_LSFT));
@@ -234,19 +227,21 @@ static inline void qshift_start(qshift_src_t src) {
     }
 
     // consumed処理は今のままでOK
-    switch (src) {
-        case QS_BOTH_IN_QWERTY: 
-            cmd_consumed = true; 
-            num_consumed = true; 
-            break;
-        case QS_FROM_CMD:
-            num_consumed = true; 
-            break;
-        case QS_FROM_NUM:
-            cmd_consumed = true; 
-            break;
-        default: break;
-    }
+    //switch (src) {
+    //    case QS_BOTH_IN_QWERTY: 
+    //        cmd_consumed = true; 
+    //        num_consumed = true; 
+    //        break;
+    //    case QS_FROM_CMD:
+    //        num_consumed = true; 
+    //        break;
+    //    case QS_FROM_NUM:
+    //        cmd_consumed = true; 
+    //        break;
+    //    default: break;
+    //}
+    cmd_layer_on = false;
+    num_layer_on = false;
 }
 
 static inline void qshift_stop(void) {
@@ -327,7 +322,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // --- CTL_ALLを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
-        if (ctl_all_state != RELEASED && keycode != CTL_ALL) {
+        if (!ctl_all_pressed && keycode != CTL_ALL) {
             if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND) {
                 ctl_all_used = true;
             }
@@ -339,9 +334,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 cmd_down = true;
                 cmd_time = record->event.time;
-                cmd_started_in_typing = is_typing_context();
+                cmd_started_in_typing = is_typing_context() || (num_down && num_started_in_typing);
                 cmd_consumed = false;
 
+                if (num_down && num_started_in_typing && cmd_started_in_typing) {
+                    qshift_start(QS_FROM_NUM);
+                    return false;
+                }
+     
                 // ★ここが肝：押した瞬間に_CMDをON（Hの1打目に間に合わせる）
                 if (!qshift_on) {
                     layer_on(_CMD);
@@ -378,8 +378,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 num_down = true;
                 num_time = record->event.time;
-                num_started_in_typing = is_typing_context();
+                num_started_in_typing = is_typing_context() || (cmd_down && cmd_started_in_typing);
                 num_consumed = false;
+
+                if (cmd_down && cmd_started_in_typing && num_started_in_typing) {
+                    qshift_start(QS_FROM_CMD);
+                    return false;
+                }
 
                 // ★ここが肝：押した瞬間に_NUMをON（1打目取りこぼし防止）
                 if (!qshift_on) {
@@ -417,7 +422,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CTL_ALL: {
             if (record->event.pressed) {
                 ctl_all_pressed_time = record->event.time;
-                ctl_all_state = PRESSED;
+                ctl_all_pressed = true;
                 ctl_all_used = false;
 
                 // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
@@ -433,11 +438,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     SEND_STRING(SS_LCTL(SS_TAP(X_A)));
                 }
 
-                ctl_all_state = RELEASED;
+                ctl_all_pressed = false;
                 return false;
             }
         }
-
+       
         case SFT_FIND:{
             if (record->event.pressed){
             sft_find_pressed_time = record->event.time;
