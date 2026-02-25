@@ -22,8 +22,7 @@ enum custom_keycodes {
   INS_L,
   MBTN1,          //Left click
   MBTN2,          //Right click
-  MBTN3,          //Center click
-  SCRL
+  MBTN3           //Center click
 };
 
 //Declare Alias Mod Tap
@@ -33,7 +32,6 @@ enum custom_keycodes {
 #define ALT_SLSH LALT_T(JP_SLSH)
 #define GUI_DOT LGUI_T(JP_DOT)
 #define FNC_Q LT(_FNC, KC_Q)
-//#define FNC_MINS LT(_FNC, JP_MINS)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -157,13 +155,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
-static bool is_scroll_mode = false;
-
 // ===== Thumb (CMD/NUM) =====
 // 物理押下状態
 static bool cmd_down = false;
 static bool num_down = false;
-
+// リリース時のタップ可否を判定。
 static bool cmd_consumed = false; 
 static bool num_consumed = false;
 // 押下開始時刻
@@ -188,13 +184,15 @@ static uint16_t ctl_all_pressed_time = 0;
 // ===== SFT_FIND =====
 static uint16_t sft_find_pressed_time = 0;
 
-// ===== Thumb LT + Delayed Cross-QWERTY+Shift (simple, 0-base) =====
-#define THUMB_SHIFT_TERM 100   // cross-hold / 両ホールド：QWERTY+Shiftになる遅延
-
 // 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
 static inline bool is_typing_context(void) {
     uint8_t top = get_highest_layer(layer_state | default_layer_state);
     return (top == _QWERTY) || (top == _MOUSE);
+}
+
+static inline bool should_qshift_now(void) {
+    // 「typingから入った親指レイヤ保持中は、2本押しで常にQWERTY+Shift」
+    return cmd_down && num_down && cmd_started_in_typing && num_started_in_typing && !qshift_on;
 }
 
 static inline void qshift_start(void) {
@@ -249,43 +247,17 @@ static inline void qshift_stop(void) {
     send_keyboard_report();
 }
 
-// 毎scanで更新：LT遅延レイヤON、cross/両ホールド遅延Shift
-static void thumb_update(void) {
-
-    // すでにQWERTY+Shiftモードなら、ここでは何もしない
-    if (qshift_on) return;
-
-    bool both_down = cmd_down && num_down;
-
-    // --- ① QWERTY中に両方hold -> QWERTY+Shift ---
-    // 両方とも「押し始めがQWERTY」だったときだけ発動
-    if (both_down && cmd_started_in_typing && num_started_in_typing) {
-
-        // ★2本目に押した時刻（後から押された方）からの経過で判定
-        uint16_t second_press_time = (cmd_time > num_time) ? cmd_time : num_time;
-
-        if (timer_elapsed(second_press_time) >= THUMB_SHIFT_TERM) {
-            qshift_start();
-        }
-        return;
+static inline void mouse_button(uint8_t mask, bool pressed) {
+    report_mouse_t r = pointing_device_get_report();
+    if (pressed) {
+        r.buttons |= mask;
+    } else {
+        r.buttons &= ~mask;
     }
-
-        // cross-holdは「文字入力コンテキストで押し始めた時だけ」qshift許可（作業レイヤ中の事故を減らす）
-    if (cmd_layer_on && cmd_down && num_down && cmd_started_in_typing &&
-        timer_elapsed(num_time) >= THUMB_SHIFT_TERM) {
-        qshift_start();
-        return;
-    }
-
-    if (num_layer_on && num_down && cmd_down && num_started_in_typing &&
-        timer_elapsed(cmd_time) >= THUMB_SHIFT_TERM) {
-        qshift_start();
-        return;
-    }
+    pointing_device_set_report(r);
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    report_mouse_t currentReport = {};
 
     // ★親指が押されている間に他キーが押されたら、tap（Space/Enter）を出さない
     if (record->event.pressed) {
@@ -314,7 +286,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 cmd_started_in_typing = is_typing_context() || (num_down && num_started_in_typing);
                 cmd_consumed = false;
 
-                if (num_down && num_started_in_typing && cmd_started_in_typing) {
+                if (should_qshift_now()) {
                     qshift_start();
                     return false;
                 }
@@ -358,7 +330,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 num_started_in_typing = is_typing_context() || (cmd_down && cmd_started_in_typing);
                 num_consumed = false;
 
-                if (cmd_down && cmd_started_in_typing && num_started_in_typing) {
+                if (should_qshift_now()) {
                     qshift_start();
                     return false;
                 }
@@ -457,46 +429,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
             
         case MBTN1:{
-            currentReport = pointing_device_get_report();
-            if (record->event.pressed) {
-            currentReport.buttons |= MOUSE_BTN1;
-            }else {
-            currentReport.buttons &= ~MOUSE_BTN1;
-            }
-            pointing_device_set_report(currentReport);
+            mouse_button(MOUSE_BTN1, record->event.pressed);
             return false;
         }
 
         case MBTN2:{
-            currentReport = pointing_device_get_report();
-            if (record->event.pressed) {
-            currentReport.buttons |= MOUSE_BTN2;
-            }else {
-            currentReport.buttons &= ~MOUSE_BTN2;
-            }
-            pointing_device_set_report(currentReport);
+            mouse_button(MOUSE_BTN2, record->event.pressed);
             return false;
         }
 
         case MBTN3:{
-            currentReport = pointing_device_get_report();
-            if (record->event.pressed) {
-            currentReport.buttons |= MOUSE_BTN3;
-            }else {
-            currentReport.buttons &= ~MOUSE_BTN3;
-            }
-            pointing_device_set_report(currentReport);
+            mouse_button(MOUSE_BTN3, record->event.pressed);
             return false;
         }
 
-        case SCRL:{
-            if (record->event.pressed){
-            is_scroll_mode = true;
-            }else{
-            is_scroll_mode = false;
-            }
-            return false;
-        }
         // ===== 保険：CMD親指押下中の取りこぼし対策（ただし qshift / Shift中は除外）=====
         case KC_D:
         case KC_X:
@@ -527,14 +473,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
-  void matrix_scan_user(void) {
-    thumb_update();
-}
-
 float h_acm = 0.0;
 float v_acm = 0.0;
 
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
+
+    bool is_scroll_mode = layer_state_is(_NUM);
 
     double rad = 45 * (M_PI / 180) * -1;
     int8_t x_rev =  + mouse_report.x * cos(rad) - mouse_report.y * sin(rad);
@@ -584,25 +528,6 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     return pointing_device_task_user(mouse_report);
 }
 
-//layer_state_t layer_state_set_user(layer_state_t state){
-    //switch(get_highest_layer(state)){
-    //  case _NUM:
-    //    is_scroll_mode = true;
-    //    break;
-    //  default:
-    //    is_scroll_mode = false;
-    //    break;
-    //}
-    //return state;
-//}
-layer_state_t layer_state_set_user(layer_state_t state) {
-    // 最上位ではなく「NUMレイヤが有効かどうか」で判定する
-    // Auto Mouse Layer が上に載っても、NUMがONの限りスクロールを維持できる
-    is_scroll_mode = layer_state_cmp(state, _NUM);
-    return state;
-}
-
-
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
     set_auto_mouse_enable(true);
@@ -611,12 +536,8 @@ void pointing_device_init_user(void) {
 bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
   switch(keycode){
     case MBTN1:
-      return true;
     case MBTN2:
-      return true;
     case MBTN3:
-      return true;
-    case SCRL:
       return true;
     default:
       return false;
