@@ -15,30 +15,46 @@ enum layer_number {
 enum custom_keycodes {
   CMD_SPC = SAFE_RANGE,
   NUM_ENT,
-  CTL_ALL,
+//  CTL_ALL,
   CTL_UNDO,
+  ALT_CUT,
   FNC_C_G,
   SFT_FIND,
-  SFT_PST,
+//  SFT_PST,
   KILL_E,
   KILL_H,
-  INS_L,
+//  INS_L,
   MBTN1,          //Left click
   MBTN2,          //Right click
   MBTN3           //Center click
 };
 
 //Declare Alias Mod Tap
-#define CTL_Z LCTL_T(KC_Z)
-#define CTL_TLD LCTL_T(JP_TILD)
-#define SFT_V LSFT_T(KC_V)
 #define SFT_F LSFT_T(KC_F)
+#define SFT_J RSFT_T(KC_J)
 #define SFT_F3 LSFT_T(KC_F3)
-#define ALT_SLSH LALT_T(JP_SLSH)
-#define GUI_DOT LGUI_T(JP_DOT)
+
+#define CTL_Z LCTL_T(KC_Z)
+#define CTL_SLSH RCTL_T(JP_SLSH)
+#define CTL_1 LCTL_T(KC_1)
+#define CTL_0 RCTL_T(KC_0)
+#define CTL_F1 LCTL_T(KC_F1)
+#define CTL_F10 RCTL_T(KC_F10)
+
+#define ALT_X LALT_T(KC_X)
+#define ALT_DOT RALT_T(JP_DOT)
+#define ALT_2 LALT_T(KC_2)
+#define ALT_9 RALT_T(KC_9)
+#define ALT_UP RALT_T(KC_PGUP)
+#define ALT_F2 LALT_T(KC_F2)
+#define ALT_F9 RALT_T(KC_F9)
+
+#define GUI_COM RGUI_T(JP_COMM)
+#define GUI_8 RGUI_T(KC_8)
+#define GUI_F8 RGUI_T(KC_F8)
+
 #define FNC_Q LT(_FNC, KC_Q)
 #define FNC_P LT(_FNC, KC_P)
-#define FNC_ESC LT(_FNC, KC_ESC)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -67,7 +83,7 @@ const uint16_t PROGMEM k_j_combo[] = {KC_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dwn_lft_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM d_f_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM del_fnd_combo[] = {KC_DEL, SFT_FIND, COMBO_END};
-const uint16_t PROGMEM dt_cm_combo[] = {GUI_DOT, JP_COMM, COMBO_END};
+const uint16_t PROGMEM dt_cm_combo[] = {ALT_DOT, JP_COMM, COMBO_END};
 const uint16_t PROGMEM x_c_combo[] = {KC_X, KC_C, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -103,11 +119,11 @@ const key_override_t *key_overrides[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
+      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,   FNC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
+      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_Z,    KC_X,    KC_C,   SFT_V,    KC_B,                       KC_N,    KC_M, JP_COMM,  GUI_DOT,ALT_SLSH, XXXXXXX,
+      XXXXXXX,   CTL_Z,   ALT_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, GUI_COM, ALT_DOT, CTL_SLSH, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -117,9 +133,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR, JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, CTL_TLD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0, XXXXXXX,
+      XXXXXXX,   CTL_1,   ALT_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,   GUI_8,   ALT_9,   CTL_0, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //  	                       `--------+--------+--------'                  `--------+--------+--------'
@@ -129,9 +145,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------
       XXXXXXX, FNC_C_G, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, CTL_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+      XXXXXXX, C(KC_A), C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,CTL_UNDO, C(KC_X), C(KC_C), SFT_PST, C(KC_Y),                    C(KC_N),KC_PGDN,C(JP_COMM),KC_PGUP, KC_RALT,XXXXXXX,
+      XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N),KC_PGDN,C(JP_COMM), ALT_UP, KC_RCTL,XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -143,7 +159,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3, XXXXXXX,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10, XXXXXXX,
+      XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9,  KC_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -183,15 +199,20 @@ static bool num_layer_on = false; // NUM_ENT hold -> _NUM
 static bool qshift_added_shift = false;
 static bool qshift_on = false;
 
-// ===== CTL_ALL =====
+/*// ===== CTL_ALL =====
 static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
 static bool ctl_all_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
-
+*/
 // ===== CTL_UNDO =====
 static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
 static bool ctl_undo_pressed = false;
 static uint16_t ctl_undo_pressed_time = 0;
+
+// ===== ALT_CUT =====
+static bool alt_cut_used = false;   // CTL_undo押下中に他キーが押されたか
+static bool alt_cut_pressed = false;
+static uint16_t alt_cut_pressed_time = 0;
 
 // ===== FNC_C_G =====
 static bool fnc_c_g_used = false;
@@ -200,10 +221,10 @@ static uint16_t fnc_c_g_pressed_time = 0;
 
 // ===== SFT_FIND =====
 static uint16_t sft_find_pressed_time = 0;
-
+/*
 // ===== SFT_PASTE =====
 static uint16_t sft_pst_pressed_time = 0;
-
+*/
 // 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
 static inline bool is_typing_context(void) {
     uint8_t top = get_highest_layer(layer_state | default_layer_state);
@@ -288,7 +309,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             num_consumed = true;
         }
     }
-
+/*
     // --- CTL_ALLを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
         if (ctl_all_pressed && keycode != CTL_ALL) {
@@ -297,7 +318,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
     }
-
+*/
     // --- CTL_UNDOを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
         if (ctl_undo_pressed && keycode != CTL_UNDO) {
@@ -396,7 +417,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-
+/*
         case CTL_ALL: {
             if (record->event.pressed) {
                 ctl_all_pressed_time = record->event.time;
@@ -420,7 +441,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-        
+*/      
         case CTL_UNDO: {
             if (record->event.pressed) {
                 ctl_undo_pressed_time = record->event.time;
@@ -441,6 +462,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
 
                 ctl_undo_pressed = false;
+                return false;
+            }
+        }
+
+        case ALT_CUT: {
+            if (record->event.pressed) {
+                alt_cut_pressed_time = record->event.time;
+                alt_cut_pressed = true;
+                alt_cut_used = false;
+
+                // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
+                register_code(KC_LALT);
+                return false;
+            } else {
+                // ★まずCtrlを離す（単体タップでCtrl+Aを送る前に必須）
+                unregister_code(KC_LALT);
+
+                // 「単体タップ」判定：他キーを押していない＆タップ時間内
+                if (!alt_cut_used && timer_elapsed(alt_cut_pressed_time) < TAPPING_TERM) {
+                    // Ctrlはすでに離しているので、ここでCtrl+Aを送ってOK
+                    SEND_STRING(SS_LCTL(SS_TAP(X_X)));
+                }
+
+                alt_cut_pressed = false;
                 return false;
             }
         }
@@ -477,7 +522,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-
+/*
         case SFT_PST:{
             if (record->event.pressed){
             sft_pst_pressed_time = record->event.time;
@@ -490,7 +535,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-
+*/
         case KILL_E:{
             if (record->event.pressed){
                 tap_code16(S(KC_END));
@@ -506,14 +551,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-
+/*
         case INS_L:{
             if (record->event.pressed){
             SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
             }
             return false;
         }
-            
+*/
         case MBTN1:{
             mouse_button(MOUSE_BTN1, record->event.pressed);
             return false;
@@ -531,9 +576,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         // ===== 保険：CMD親指押下中の取りこぼし対策（ただし qshift / Shift中は除外）=====
         case KC_D:
-        case KC_X:
+        case ALT_X:
         case KC_C:
-        case SFT_V: {
+        case KC_V: {
             if (record->event.pressed) {
                 // ★qshift中（= QWERTY+Shiftモード）は「文字入力優先」なので変換しない
                 // ★また、物理Shift/他Shiftが入っている時も変換しない（X/C/Vを打てるように）
@@ -545,7 +590,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                         case KC_D: tap_code16(C(KC_V)); break;
                         case KC_X: tap_code16(C(KC_X)); break;
                         case KC_C: tap_code16(C(KC_C)); break;
-                        case SFT_V: tap_code16(C(KC_V)); break;
+                        case KC_V: tap_code16(C(KC_V)); break;
                     }
                     return false; // 文字のx/c/vは送らない
                 }
