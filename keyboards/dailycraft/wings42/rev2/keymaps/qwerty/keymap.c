@@ -17,7 +17,7 @@ enum custom_keycodes {
   NUM_ENT,
 //  CTL_ALL,
   CTL_UNDO,
-  FNC_C_G,
+//  FNC_C_G,
   SFT_FIND,
 //  SFT_PST,
   KILL_E,
@@ -55,7 +55,10 @@ enum custom_keycodes {
 #define FNC_Q LT(_FNC, KC_Q)
 #define FNC_P LT(_FNC, KC_P)
 
-#define ALT_CUT LCTL_T(C(KC_X))
+#define ALT_CUT RALT_T(C(KC_X))
+//#define SFT_FIND LSFT_T(C(KC_F))
+//#define CTL_UNDO LCTL_T(C(KC_Z))
+#define FNC_C_G LT(_FNC, C(KC_G))
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -200,28 +203,28 @@ static bool num_layer_on = false; // NUM_ENT hold -> _NUM
 static bool qshift_added_shift = false;
 static bool qshift_on = false;
 
-/*// ===== CTL_ALL =====
-static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
-static bool ctl_all_pressed = false;
-static uint16_t ctl_all_pressed_time = 0;
-*/
+// ===== SFT_FIND =====
+static uint16_t sft_find_pressed_time = 0;
 
 // ===== CTL_UNDO =====
 static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
 static bool ctl_undo_pressed = false;
 static uint16_t ctl_undo_pressed_time = 0;
 
+/*// ===== CTL_ALL =====
+static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
+static bool ctl_all_pressed = false;
+static uint16_t ctl_all_pressed_time = 0;
+
 // ===== FNC_C_G =====
 static bool fnc_c_g_used = false;
 static bool fnc_c_g_pressed = false;
 static uint16_t fnc_c_g_pressed_time = 0;
 
-// ===== SFT_FIND =====
-static uint16_t sft_find_pressed_time = 0;
-/*
 // ===== SFT_PASTE =====
 static uint16_t sft_pst_pressed_time = 0;
 */
+
 // 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
 static inline bool is_typing_context(void) {
     uint8_t top = get_highest_layer(layer_state | default_layer_state);
@@ -438,7 +441,64 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
+
+        case FNC_C_G: {
+            if (record->event.pressed) {
+                fnc_c_g_pressed_time = record->event.time;
+                fnc_c_g_pressed = true;
+                fnc_c_g_used = false;
+
+                layer_on(_FNC);
+                return false;
+            } else {
+                layer_off(_FNC);
+
+                if (!fnc_c_g_used && timer_elapsed(fnc_c_g_pressed_time) < TAPPING_TERM){
+                    SEND_STRING(SS_LCTL(SS_TAP(X_G)));
+                }
+
+                fnc_c_g_pressed = false;
+                return false;
+            }
+        }
+
+        case SFT_PST:{
+            if (record->event.pressed){
+            sft_pst_pressed_time = record->event.time;
+            register_code(KC_LSFT);
+            }else{
+            unregister_code(KC_LSFT);
+            if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
+                SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+            }
+            }
+            return false;
+        }
+
+        case INS_L:{
+            if (record->event.pressed){
+            SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
+            }
+            return false;
+        }
+
+        case SFT_FIND:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_));
+                return false;
+            }
+        }
+
+        case CTL_UNDO:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_Z));
+                return false;
+            }
+        }
+
+
 */
+
         case CTL_UNDO: {
             if (record->event.pressed) {
                 ctl_undo_pressed_time = record->event.time;
@@ -463,33 +523,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
 
-        case ALT_CUT:{
-            if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_X));
-                return false;
-            }
-        }
-
-        case FNC_C_G: {
-            if (record->event.pressed) {
-                fnc_c_g_pressed_time = record->event.time;
-                fnc_c_g_pressed = true;
-                fnc_c_g_used = false;
-
-                layer_on(_FNC);
-                return false;
-            } else {
-                layer_off(_FNC);
-
-                if (!fnc_c_g_used && timer_elapsed(fnc_c_g_pressed_time) < TAPPING_TERM){
-                    SEND_STRING(SS_LCTL(SS_TAP(X_G)));
-                }
-
-                fnc_c_g_pressed = false;
-                return false;
-            }
-        }
-       
         case SFT_FIND:{
             if (record->event.pressed){
                 sft_find_pressed_time = record->event.time;
@@ -502,20 +535,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-/*
-        case SFT_PST:{
-            if (record->event.pressed){
-            sft_pst_pressed_time = record->event.time;
-            register_code(KC_LSFT);
-            }else{
-            unregister_code(KC_LSFT);
-            if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
-                SEND_STRING(SS_LCTL(SS_TAP(X_V)));
+
+        case ALT_CUT:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_X));
+                return false;
             }
-            }
-            return false;
         }
-*/
+
+        case FNC_C_G:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_G));
+                return false;
+            }
+        }
+
         case KILL_E:{
             if (record->event.pressed){
                 tap_code16(S(KC_END));
@@ -531,14 +565,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         }
-/*
-        case INS_L:{
-            if (record->event.pressed){
-            SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
-            }
-            return false;
-        }
-*/
+
         case MBTN1:{
             mouse_button(MOUSE_BTN1, record->event.pressed);
             return false;
