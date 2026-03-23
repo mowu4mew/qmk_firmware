@@ -17,7 +17,6 @@ enum custom_keycodes {
   NUM_ENT,
 //  CTL_ALL,
   CTL_UNDO,
-  ALT_CUT,
   FNC_C_G,
   SFT_FIND,
 //  SFT_PST,
@@ -56,6 +55,8 @@ enum custom_keycodes {
 #define FNC_Q LT(_FNC, KC_Q)
 #define FNC_P LT(_FNC, KC_P)
 
+#define ALT_CUT LCTL_T(C(KC_X))
+
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
 #define PG_TOP C(KC_HOME)       //go page top
@@ -83,8 +84,8 @@ const uint16_t PROGMEM k_j_combo[] = {KC_K, KC_J, COMBO_END};
 const uint16_t PROGMEM dwn_lft_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM d_f_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM del_fnd_combo[] = {KC_DEL, SFT_FIND, COMBO_END};
-const uint16_t PROGMEM dt_cm_combo[] = {ALT_DOT, JP_COMM, COMBO_END};
-const uint16_t PROGMEM x_c_combo[] = {KC_X, KC_C, COMBO_END};
+const uint16_t PROGMEM dt_cm_combo[] = {ALT_DOT, GUI_COM, COMBO_END};
+const uint16_t PROGMEM x_c_combo[] = {ALT_X, KC_C, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [I_O_DTRIGHT] = COMBO(i_o_combo, C(G(KC_RIGHT))),
@@ -93,8 +94,8 @@ combo_t key_combos[COMBO_COUNT] = {
   [S_D_MHEN] = COMBO(s_d_combo, JP_MHEN),
   [K_J_TAB] = COMBO(k_j_combo, KC_TAB),
   [DWN_LFT_TAB] = COMBO(dwn_lft_combo, KC_TAB),
-  [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
   [D_F_ESC] = COMBO(d_f_combo, KC_ESC),
+  [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
   [DT_CM_MBTN3] = COMBO(dt_cm_combo, MBTN3),
   [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
 };
@@ -119,7 +120,7 @@ const key_override_t *key_overrides[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_QWERTY] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,   FNC_P, XXXXXXX,
+      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -155,11 +156,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_FNC] = LAYOUT_split_3x6_3_2(
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    _______, _______,  PG_TOP, KC_RSFT, QK_BOOT, XXXXXXX,
+      XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3, XXXXXXX,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9,  KC_F10, XXXXXXX,
+      XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                  XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
   //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -204,15 +205,11 @@ static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押され�
 static bool ctl_all_pressed = false;
 static uint16_t ctl_all_pressed_time = 0;
 */
+
 // ===== CTL_UNDO =====
 static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
 static bool ctl_undo_pressed = false;
 static uint16_t ctl_undo_pressed_time = 0;
-
-// ===== ALT_CUT =====
-static bool alt_cut_used = false;   // CTL_undo押下中に他キーが押されたか
-static bool alt_cut_pressed = false;
-static uint16_t alt_cut_pressed_time = 0;
 
 // ===== FNC_C_G =====
 static bool fnc_c_g_used = false;
@@ -322,7 +319,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     // --- CTL_UNDOを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
         if (ctl_undo_pressed && keycode != CTL_UNDO) {
-            if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND || keycode == KC_TAB) {
+            if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND || keycode == KC_TAB || keycode == KC_O ) {
                 ctl_undo_used = true;
             }
         }
@@ -441,7 +438,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-*/      
+*/
         case CTL_UNDO: {
             if (record->event.pressed) {
                 ctl_undo_pressed_time = record->event.time;
@@ -466,26 +463,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
 
-        case ALT_CUT: {
-            if (record->event.pressed) {
-                alt_cut_pressed_time = record->event.time;
-                alt_cut_pressed = true;
-                alt_cut_used = false;
-
-                // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
-                register_code(KC_LALT);
-                return false;
-            } else {
-                // ★まずCtrlを離す（単体タップでCtrl+Aを送る前に必須）
-                unregister_code(KC_LALT);
-
-                // 「単体タップ」判定：他キーを押していない＆タップ時間内
-                if (!alt_cut_used && timer_elapsed(alt_cut_pressed_time) < TAPPING_TERM) {
-                    // Ctrlはすでに離しているので、ここでCtrl+Aを送ってOK
-                    SEND_STRING(SS_LCTL(SS_TAP(X_X)));
-                }
-
-                alt_cut_pressed = false;
+        case ALT_CUT:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_X));
                 return false;
             }
         }
@@ -512,13 +492,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
        
         case SFT_FIND:{
             if (record->event.pressed){
-            sft_find_pressed_time = record->event.time;
-            register_code(KC_LSFT);
+                sft_find_pressed_time = record->event.time;
+                register_code(KC_LSFT);
             }else{
-            unregister_code(KC_LSFT);
-            if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
-                SEND_STRING(SS_LCTL(SS_TAP(X_F)));
-            }
+                unregister_code(KC_LSFT);
+                if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
+                    SEND_STRING(SS_LCTL(SS_TAP(X_F)));
+                }
             }
             return false;
         }
@@ -739,4 +719,17 @@ uint16_t keycode_config(uint16_t keycode) {
 
 uint8_t mod_config(uint8_t mod) {
   return mod;
+}
+
+void housekeeping_task_user(void) {
+    static bool idle_ime_sent = false;
+
+    if (last_input_activity_elapsed() > 10000) {  // 10秒
+        if (!idle_ime_sent) {
+            tap_code(JP_MHEN);  // 英数キー（IME OFF）
+            idle_ime_sent = true;
+        }
+    } else {
+        idle_ime_sent = false;
+    }
 }
