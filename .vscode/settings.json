@@ -35,30 +35,8 @@
     "[json]": {
         "editor.formatOnSave": false
     },
-<<<<<<< HEAD
     "clangd.arguments": [
         "--header-insertion=never"
     ],
     "C_Cpp.errorSquiggles": "disabled"
-=======
-    "clangd.arguments": ["--header-insertion=never"],
-    "json.schemas": [
-        {
-            "fileMatch": ["qmk.json"],
-            "url": "./data/schemas/user_repo_v1_1.jsonschema"
-        },
-        {
-            "fileMatch": ["qmk_module.json"],
-            "url": "./data/schemas/community_module.jsonschema"
-        },
-        {
-            "fileMatch": ["keyboard.json", "info.json"],
-            "url": "./data/schemas/keyboard.jsonschema"
-        },
-        {
-            "fileMatch": ["keymap.json"],
-            "url": "./data/schemas/keymap.jsonschema"
-        }
-    ]
->>>>>>> 1646000c9b4da8e73cf4c7d1d160cefaf8ab7cb0
 }

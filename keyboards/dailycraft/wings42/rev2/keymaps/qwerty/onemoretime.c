@@ -42,7 +42,7 @@
 #endif
 
 // ring buffer
-static uint8_t one_more_time_buffer[ONE_MORE_TIME_BUFFER_SIZE];
+static uint16_t one_more_time_buffer[ONE_MORE_TIME_BUFFER_SIZE];
 static uint8_t one_more_time_buffer_index = 0;
 
 #ifdef CONSOLE_ENABLE
@@ -148,8 +148,11 @@ bool one_more_time_play(void) {
 #ifdef CONSOLE_ENABLE
             uprintf("register: key=%d\n", one_more_time_buffer[nn]);
 #endif
+            /*
             register_code(one_more_time_buffer[nn]);
             unregister_code(one_more_time_buffer[nn]);
+            */
+           tap_code16(one_more_time_buffer[nn]);
         }
 
         // restore modifiers

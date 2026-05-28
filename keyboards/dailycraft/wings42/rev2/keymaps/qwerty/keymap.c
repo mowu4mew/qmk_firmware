@@ -1,6 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device.h"
 #include "keymap_japanese.h"
+#include "onemoretime.c"
 
 //Declare layers
 enum layer_number {
@@ -14,6 +15,7 @@ enum layer_number {
 //Declare custum keycodes
 enum custom_keycodes {
   CMD_SPC = SAFE_RANGE,
+  OMT,
   NUM_ENT,
 //  CTL_ALL,
   CTL_UNDO,
@@ -55,11 +57,12 @@ enum custom_keycodes {
 #define FNC_Q LT(_FNC, KC_Q)
 #define FNC_P LT(_FNC, KC_P)
 
-#define ALT_CUT RALT_T(C(KC_X))
+#define ALT_CUT RALT_T(KC_X)
+#define FNC_C_G LT(_FNC, KC_G)
+//#define ALT_CUT RALT_T(C(KC_X))
+//#define FNC_C_G LT(_FNC, C(KC_G))
 //#define SFT_FIND LSFT_T(C(KC_F))
 //#define CTL_UNDO LCTL_T(C(KC_Z))
-#define FNC_C_G LT(_FNC, C(KC_G))
-
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
 #define PG_TOP C(KC_HOME)       //go page top
@@ -161,7 +164,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------|                  |-----------------------------------------------------.
       XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3, XXXXXXX,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+      XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
       XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -328,6 +331,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    // ===== OneMoreTime: 記録（押下のみ）=====
+    // 安全のため：custom keycode(SAFE_RANGE〜)は除外
+    // さらにレイヤ操作系は除外（必要なら後で広げる）
+    if (record->event.pressed) {
+        if (keycode == OMT || keycode == FNC_Q || keycode == FNC_P) {
+            // skip
+        } else {
+       
+            // ここで record() する
+            one_more_time_record(keycode, record);
+        }
+    }
+    
+    // ===== OneMoreTime: 再生トリガ =====
+    if (record->event.pressed && keycode == OMT) {
+        if (one_more_time_play()) {
+            return false; // 再生できたら OMT 自体は送らない
+        }
+        return false;     // 再生できなくても OMT は送らない（好みで true にしてもOK）
+    }
+    
     switch (keycode) {
         case CMD_SPC: {
             if (record->event.pressed) {
@@ -541,6 +565,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(C(KC_X));
                 return false;
             }
+            return true;
         }
 
         case FNC_C_G:{
@@ -548,6 +573,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(C(KC_G));
                 return false;
             }
+            return true;
         }
 
         case KILL_E:{

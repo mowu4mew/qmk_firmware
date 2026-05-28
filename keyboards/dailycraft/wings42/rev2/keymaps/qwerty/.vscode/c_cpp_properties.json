@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/nobio/qmk_firmware/quantum/pointing_device",
+                "/home/nobio/qmk_firmware/quantum/keymap_extras",
+                "/home/nobio/qmk_firmware/quantum",
+                "/home/nobio/qmk_firmware/tmk_core/protocol"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
