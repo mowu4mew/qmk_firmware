@@ -14,15 +14,15 @@ enum layer_number {
 
 //Declare custum keycodes
 enum custom_keycodes {
-  CMD_SPC = SAFE_RANGE,
-  OMT,
-  NUM_ENT,
-  SFT_FIND,
-  KILL_E,
-  KILL_H,
-  MBTN1,          //Left click
-  MBTN2,          //Right click
-  MBTN3           //Center click
+    CMD_SPC = SAFE_RANGE,
+    OMT,
+    NUM_ENT,
+    SFT_FIND,
+    KILL_E,
+    KILL_H,
+    MBTN1,          //Left click
+    MBTN2,          //Right click
+    MBTN3           //Center click
 };
 
 //Declare Alias Mod Tap
@@ -61,16 +61,16 @@ enum custom_keycodes {
 
 //Declare COMBO
 enum combos{
-  I_O_DTRIGHT,
-  W_E_DTLEFT,
-  L_K_HENK,
-  S_D_MHEN,
-  K_J_TAB,
-  DWN_LFT_TAB,
-  D_F_ESC,
-  DEL_FND_ESC,
-  DT_CM_MBTN3,
-  X_C_PRTSCN
+    I_O_DTRIGHT,
+    W_E_DTLEFT,
+    L_K_HENK,
+    S_D_MHEN,
+    K_J_TAB,
+    DWN_LFT_TAB,
+    D_F_ESC,
+    DEL_FND_ESC,
+    DT_CM_MBTN3,
+    X_C_PRTSCN
 };
 
 const uint16_t PROGMEM i_o_combo[] = {KC_I, KC_O, COMBO_END};
@@ -85,16 +85,16 @@ const uint16_t PROGMEM dt_cm_combo[] = {ALT_DOT, GUI_COM, COMBO_END};
 const uint16_t PROGMEM x_c_combo[] = {ALT_X, KC_C, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-  [I_O_DTRIGHT] = COMBO(i_o_combo, C(G(KC_RIGHT))),
-  [W_E_DTLEFT] = COMBO(w_e_combo, C(G(KC_LEFT))),
-  [L_K_HENK] = COMBO(l_k_combo, JP_HENK),
-  [S_D_MHEN] = COMBO(s_d_combo, JP_MHEN),
-  [K_J_TAB] = COMBO(k_j_combo, KC_TAB),
-  [DWN_LFT_TAB] = COMBO(dwn_lft_combo, KC_TAB),
-  [D_F_ESC] = COMBO(d_f_combo, KC_ESC),
-  [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
-  [DT_CM_MBTN3] = COMBO(dt_cm_combo, MBTN3),
-  [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
+    [I_O_DTRIGHT] = COMBO(i_o_combo, C(G(KC_RIGHT))),
+    [W_E_DTLEFT] = COMBO(w_e_combo, C(G(KC_LEFT))),
+    [L_K_HENK] = COMBO(l_k_combo, JP_HENK),
+    [S_D_MHEN] = COMBO(s_d_combo, JP_MHEN),
+    [K_J_TAB] = COMBO(k_j_combo, KC_TAB),
+    [DWN_LFT_TAB] = COMBO(dwn_lft_combo, KC_TAB),
+    [D_F_ESC] = COMBO(d_f_combo, KC_ESC),
+    [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
+    [DT_CM_MBTN3] = COMBO(dt_cm_combo, MBTN3),
+    [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
 };
 
 //Override
@@ -105,75 +105,75 @@ const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TIL
 const key_override_t yensft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);      //\[SHIFT & JP_YEN]
 
 const key_override_t *key_overrides[] = {
-  &undssft_key_override,
-  &dquosft_key_override,
-  &colnsft_key_override,
-  &tildsft_key_override,
-  &yensft_key_override,
-  NULL
+    &undssft_key_override,
+    &dquosft_key_override,
+    &colnsft_key_override,
+    &tildsft_key_override,
+    &yensft_key_override,
+    NULL
 };
 
 //keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-  [_QWERTY] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_Z,   ALT_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, GUI_COM, ALT_DOT, CTL_SLSH, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
+    [_QWERTY] = LAYOUT_split_3x6_3_2(
+    //,-----------------------------------------------------|                  |-----------------------------------------------------.
+        XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,   CTL_Z,   ALT_X,    KC_C,    KC_V,    KC_B,                       KC_N,    KC_M, GUI_COM, ALT_DOT, CTL_SLSH, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                    XXXXXXX, CMD_SPC, XXXXXXX,                    XXXXXXX, NUM_ENT, XXXXXXX
+    //                           `--------+--------+--------'                  `--------+--------+--------'
+    ),
 
-  [_NUM] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR, JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,   CTL_1,   ALT_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,   GUI_8,   ALT_9,   CTL_0, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
-  //  	                       `--------+--------+--------'                  `--------+--------+--------'
-  ),
+    [_NUM] = LAYOUT_split_3x6_3_2(
+    //,-----------------------------------------------------|                  |-----------------------------------------------------.
+        XXXXXXX, JP_EXLM,   JP_AT, JP_HASH,  JP_DLR, JP_PERC,                    JP_CIRC, JP_AMPR, JP_ASTR, JP_PLUS,  JP_EQL, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX, JP_TILD, JP_QUOT, JP_LBRC, KC_LSFT, JP_LPRN,                    JP_RPRN, KC_RSFT, JP_RBRC, JP_SCLN,  JP_YEN, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,   CTL_1,   ALT_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,   GUI_8,   ALT_9,   CTL_0, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+    //  	                       `--------+--------+--------'                  `--------+--------+--------'
+    ),
 
-  [_CMD] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------
-      XXXXXXX, FNC_C_G, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, C(KC_A), C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N),KC_PGDN,C(JP_COMM), ALT_UP, KC_RCTL,XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
+    [_CMD] = LAYOUT_split_3x6_3_2(
+    //,-----------------------------------------------------|                  |-----------------------------------------------------
+        XXXXXXX, FNC_C_G, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX, C(KC_A), C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N),KC_PGDN,C(JP_COMM), ALT_UP, KC_RCTL,XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+    //                           `--------+--------+--------'                  `--------+--------+--------'
+    ),
 
-  [_FNC] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
+    [_FNC] = LAYOUT_split_3x6_3_2(
+    //,-----------------------------------------------------|                  |-----------------------------------------------------.
+        XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
+    //                           `--------+--------+--------'                  `--------+--------+--------'
+    ),
 
-  [_MOUSE] = LAYOUT_split_3x6_3_2(
-  //,-----------------------------------------------------|                  |-----------------------------------------------------.
-      XXXXXXX,MO(_FNC), _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-      XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
-  //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                 XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______,XXXXXXX
-  //                           `--------+--------+--------'                  `--------+--------+--------'
-  ),
+    [_MOUSE] = LAYOUT_split_3x6_3_2(
+    //,-----------------------------------------------------|                  |-----------------------------------------------------.
+        XXXXXXX,MO(_FNC), _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+        XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
+    //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
+                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______,XXXXXXX
+    //                           `--------+--------+--------'                  `--------+--------+--------'
+    ),
 };
 
 // ===== Thumb (CMD/NUM) =====
