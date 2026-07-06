@@ -17,14 +17,9 @@ enum custom_keycodes {
   CMD_SPC = SAFE_RANGE,
   OMT,
   NUM_ENT,
-//  CTL_ALL,
-//  CTL_UNDO,
-//  FNC_C_G,
   SFT_FIND,
-//  SFT_PST,
   KILL_E,
   KILL_H,
-//  INS_L,
   MBTN1,          //Left click
   MBTN2,          //Right click
   MBTN3           //Center click
@@ -39,6 +34,7 @@ enum custom_keycodes {
 #define CTL_SLSH RCTL_T(JP_SLSH)
 #define CTL_1 LCTL_T(KC_1)
 #define CTL_0 RCTL_T(KC_0)
+#define CTL_UNDO LCTL_T(KC_NO)
 #define CTL_F1 LCTL_T(KC_F1)
 #define CTL_F10 RCTL_T(KC_F10)
 
@@ -47,6 +43,7 @@ enum custom_keycodes {
 #define ALT_2 LALT_T(KC_2)
 #define ALT_9 RALT_T(KC_9)
 #define ALT_UP RALT_T(KC_PGUP)
+#define ALT_CUT RALT_T(KC_X)
 #define ALT_F2 LALT_T(KC_F2)
 #define ALT_F9 RALT_T(KC_F9)
 
@@ -55,14 +52,7 @@ enum custom_keycodes {
 #define GUI_F8 RGUI_T(KC_F8)
 
 #define FNC_Q LT(_FNC, KC_Q)
-#define FNC_P LT(_FNC, KC_P)
-
-#define ALT_CUT RALT_T(KC_X)
 #define FNC_C_G LT(_FNC, KC_G)
-//#define ALT_CUT RALT_T(C(KC_X))
-//#define FNC_C_G LT(_FNC, C(KC_G))
-//#define SFT_FIND LSFT_T(C(KC_F))
-#define CTL_UNDO LCTL_T(KC_NO)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -210,25 +200,6 @@ static bool qshift_on = false;
 // ===== SFT_FIND =====
 static uint16_t sft_find_pressed_time = 0;
 
-// ===== CTL_UNDO =====
-//static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
-//static bool ctl_undo_pressed = false;
-//static uint16_t ctl_undo_pressed_time = 0;
-
-/*// ===== CTL_ALL =====
-static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
-static bool ctl_all_pressed = false;
-static uint16_t ctl_all_pressed_time = 0;
-
-// ===== FNC_C_G =====
-static bool fnc_c_g_used = false;
-static bool fnc_c_g_pressed = false;
-static uint16_t fnc_c_g_pressed_time = 0;
-
-// ===== SFT_PASTE =====
-static uint16_t sft_pst_pressed_time = 0;
-*/
-
 // 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
 static inline bool is_typing_context(void) {
     uint8_t top = get_highest_layer(layer_state | default_layer_state);
@@ -313,30 +284,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             num_consumed = true;
         }
     }
-/*
-    // --- CTL_ALLを押している間に他キーが押されたら「修飾として使った」扱いにする ---
-    if (record->event.pressed) {
-        if (ctl_all_pressed && keycode != CTL_ALL) {
-            if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND || keycode == KC_TAB) {
-                ctl_all_used = true;
-            }
-        }
-    }
 
-    // --- CTL_UNDOを押している間に他キーが押されたら「修飾として使った」扱いにする ---
-    if (record->event.pressed) {
-        if (ctl_undo_pressed && keycode != CTL_UNDO) {
-            if (keycode == KC_BSPC || keycode == KC_LEFT || keycode == KC_RGHT || keycode == SFT_FIND || keycode == KC_TAB || keycode == KC_O ) {
-                ctl_undo_used = true;
-            }
-        }
-    }
-*/
-    // ===== OneMoreTime: 記録（押下のみ）=====
+     // ===== OneMoreTime: 記録（押下のみ）=====
     // 安全のため：custom keycode(SAFE_RANGE〜)は除外
     // さらにレイヤ操作系は除外（必要なら後で広げる）
     if (record->event.pressed) {
-        if (keycode == OMT || keycode == FNC_Q || keycode == FNC_P) {
+        if (keycode == OMT || keycode == FNC_Q) {
             // skip
         } else {
        
@@ -442,104 +395,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-/*
-        case CTL_ALL: {
-            if (record->event.pressed) {
-                ctl_all_pressed_time = record->event.time;
-                ctl_all_pressed = true;
-                ctl_all_used = false;
 
-                // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
-                register_code(KC_LCTL);
-                return false;
-            } else {
-                // ★まずCtrlを離す（単体タップでCtrl+Aを送る前に必須）
-                unregister_code(KC_LCTL);
-
-                // 「単体タップ」判定：他キーを押していない＆タップ時間内
-                if (!ctl_all_used && timer_elapsed(ctl_all_pressed_time) < TAPPING_TERM) {
-                    // Ctrlはすでに離しているので、ここでCtrl+Aを送ってOK
-                    SEND_STRING(SS_LCTL(SS_TAP(X_A)));
-                }
-
-                ctl_all_pressed = false;
-                return false;
-            }
-        }
-
-        case FNC_C_G: {
-            if (record->event.pressed) {
-                fnc_c_g_pressed_time = record->event.time;
-                fnc_c_g_pressed = true;
-                fnc_c_g_used = false;
-
-                layer_on(_FNC);
-                return false;
-            } else {
-                layer_off(_FNC);
-
-                if (!fnc_c_g_used && timer_elapsed(fnc_c_g_pressed_time) < TAPPING_TERM){
-                    SEND_STRING(SS_LCTL(SS_TAP(X_G)));
-                }
-
-                fnc_c_g_pressed = false;
-                return false;
-            }
-        }
-
-        case SFT_PST:{
-            if (record->event.pressed){
-            sft_pst_pressed_time = record->event.time;
-            register_code(KC_LSFT);
-            }else{
-            unregister_code(KC_LSFT);
-            if(timer_elapsed(sft_pst_pressed_time) < TAPPING_TERM){
-                SEND_STRING(SS_LCTL(SS_TAP(X_V)));
-            }
-            }
-            return false;
-        }
-
-        case INS_L:{
-            if (record->event.pressed){
-            SEND_STRING(SS_TAP(X_HOME) SS_TAP(X_ENT) SS_TAP(X_UP));
-            }
-            return false;
-        }
-
-        case SFT_FIND:{
-            if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_));
-                return false;
-            }
-        }
-
-        
-
-        case CTL_UNDO: {
-            if (record->event.pressed) {
-                ctl_undo_pressed_time = record->event.time;
-                ctl_undo_pressed = true;
-                ctl_undo_used = false;
-
-                // ★押した瞬間にCtrlを押す：矢印/BSとの同時に絶対間に合う
-                register_code(KC_LCTL);
-                return false;
-            } else {
-                // ★まずCtrlを離す（単体タップでCtrl+Aを送る前に必須）
-                unregister_code(KC_LCTL);
-
-                // 「単体タップ」判定：他キーを押していない＆タップ時間内
-                if (!ctl_undo_used && timer_elapsed(ctl_undo_pressed_time) < TAPPING_TERM) {
-                    // Ctrlはすでに離しているので、ここでCtrl+Aを送ってOK
-                    SEND_STRING(SS_LCTL(SS_TAP(X_Z)));
-                }
-
-                ctl_undo_pressed = false;
-                return false;
-            }
-        }
-*/
         case SFT_FIND:{
             if (record->event.pressed){
                 sft_find_pressed_time = record->event.time;
@@ -774,17 +630,3 @@ uint16_t keycode_config(uint16_t keycode) {
 uint8_t mod_config(uint8_t mod) {
   return mod;
 }
-/*
-void housekeeping_task_user(void) {
-    static bool idle_ime_sent = false;
-
-    if (last_input_activity_elapsed() > 10000) {  // 10秒
-        if (!idle_ime_sent) {
-            tap_code(JP_MHEN);  // 英数キー（IME OFF）
-            idle_ime_sent = true;
-        }
-    } else {
-        idle_ime_sent = false;
-    }
-}
-*/
