@@ -5,11 +5,11 @@
 
 //Declare layers
 enum layer_number {
-  _QWERTY = 0,
-  _NUM,
-  _CMD,
-  _MOUSE,
-  _FNC,
+    _QWERTY = 0,
+    _NUM,
+    _CMD,
+    _FNC,
+    _MOUSE,
 };
 
 //Declare custum keycodes
