@@ -62,7 +62,7 @@ enum custom_keycodes {
 //#define ALT_CUT RALT_T(C(KC_X))
 //#define FNC_C_G LT(_FNC, C(KC_G))
 //#define SFT_FIND LSFT_T(C(KC_F))
-#define CTL_UNDO LCTL_T(KC_Z)
+#define CTL_UNDO LCTL_T(KC_NO)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -513,15 +513,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-*/
-        case CTL_UNDO:{
-            if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_Z));
-                return false;
-            }
-            return true;
-        }
-/*
+
+        
+
         case CTL_UNDO: {
             if (record->event.pressed) {
                 ctl_undo_pressed_time = record->event.time;
@@ -567,6 +561,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return true;
         }
 
+        case CTL_UNDO:{
+            if (record->tap.count && record->event.pressed){
+                tap_code16(C(KC_Z));
+                return false;
+            }
+            return true;
+        }
+        
         case FNC_C_G:{
             if (record->tap.count && record->event.pressed){
                 tap_code16(C(KC_G));
@@ -772,7 +774,7 @@ uint16_t keycode_config(uint16_t keycode) {
 uint8_t mod_config(uint8_t mod) {
   return mod;
 }
-
+/*
 void housekeeping_task_user(void) {
     static bool idle_ime_sent = false;
 
@@ -785,3 +787,4 @@ void housekeeping_task_user(void) {
         idle_ime_sent = false;
     }
 }
+*/
