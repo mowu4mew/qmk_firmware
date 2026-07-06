@@ -18,7 +18,7 @@ enum custom_keycodes {
   OMT,
   NUM_ENT,
 //  CTL_ALL,
-  CTL_UNDO,
+//  CTL_UNDO,
 //  FNC_C_G,
   SFT_FIND,
 //  SFT_PST,
@@ -62,7 +62,8 @@ enum custom_keycodes {
 //#define ALT_CUT RALT_T(C(KC_X))
 //#define FNC_C_G LT(_FNC, C(KC_G))
 //#define SFT_FIND LSFT_T(C(KC_F))
-//#define CTL_UNDO LCTL_T(C(KC_Z))
+#define CTL_UNDO LCTL_T(KC_Z)
+
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
 #define PG_TOP C(KC_HOME)       //go page top
@@ -210,9 +211,9 @@ static bool qshift_on = false;
 static uint16_t sft_find_pressed_time = 0;
 
 // ===== CTL_UNDO =====
-static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
-static bool ctl_undo_pressed = false;
-static uint16_t ctl_undo_pressed_time = 0;
+//static bool ctl_undo_used = false;   // CTL_undo押下中に他キーが押されたか
+//static bool ctl_undo_pressed = false;
+//static uint16_t ctl_undo_pressed_time = 0;
 
 /*// ===== CTL_ALL =====
 static bool ctl_all_used = false;   // CTL_ALL押下中に他キーが押されたか
@@ -321,7 +322,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
     }
-*/
+
     // --- CTL_UNDOを押している間に他キーが押されたら「修飾として使った」扱いにする ---
     if (record->event.pressed) {
         if (ctl_undo_pressed && keycode != CTL_UNDO) {
@@ -330,7 +331,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
         }
     }
-
+*/
     // ===== OneMoreTime: 記録（押下のみ）=====
     // 安全のため：custom keycode(SAFE_RANGE〜)は除外
     // さらにレイヤ操作系は除外（必要なら後で広げる）
@@ -512,17 +513,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-
+*/
         case CTL_UNDO:{
             if (record->tap.count && record->event.pressed){
                 tap_code16(C(KC_Z));
                 return false;
             }
+            return true;
         }
-
-
-*/
-
+/*
         case CTL_UNDO: {
             if (record->event.pressed) {
                 ctl_undo_pressed_time = record->event.time;
@@ -546,7 +545,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
         }
-
+*/
         case SFT_FIND:{
             if (record->event.pressed){
                 sft_find_pressed_time = record->event.time;
