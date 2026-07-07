@@ -44,7 +44,7 @@
 // ring buffer
 static uint16_t one_more_time_buffer[ONE_MORE_TIME_BUFFER_SIZE];
 static uint8_t one_more_time_buffer_index = 0;
-
+/*
 #ifdef CONSOLE_ENABLE
 static void one_more_time_dump(void) {
     uprintf("  idx=%u\n", one_more_time_buffer_index);
@@ -57,9 +57,14 @@ static void one_more_time_dump(void) {
     }
 }
 #endif
-
+*/
 static void one_more_time_record(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
+
+#ifdef CONSOLE_ENABLE
+        uprintf("record key=%u\n", keycode);
+#endif
+
         one_more_time_buffer[one_more_time_buffer_index] = keycode;
         one_more_time_buffer_index = (one_more_time_buffer_index + 1) % ONE_MORE_TIME_BUFFER_SIZE;
     }
@@ -122,7 +127,7 @@ bool one_more_time_play(void) {
     int16_t n = check_duplication(modifiers);
 
 #ifdef CONSOLE_ENABLE
-        uprintf("Play: n=%u modifiers=%u\n", n, modifiers);
+        uprintf("Play: n=%d modifiers=%u\n", n, modifiers);
 #endif
 
     if (n >= 0) {
