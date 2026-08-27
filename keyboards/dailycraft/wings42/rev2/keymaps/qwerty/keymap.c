@@ -3,6 +3,11 @@
 #include "keymap_japanese.h"
 #include "onemoretime.c"
 
+// OneMoreTime interfaces (implementation is compiled separately)
+void one_more_time_record(uint16_t keycode, keyrecord_t *record);
+bool one_more_time_play(void);
+bool is_modifier_key(uint16_t keycode);
+
 //Declare layers
 enum layer_number {
     _QWERTY = 0,
