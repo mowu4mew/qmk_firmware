@@ -1,7 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device.h"
 #include "keymap_japanese.h"
-#include "onemoretime.c"
 
 // OneMoreTime interfaces (implementation is compiled separately)
 void one_more_time_record(uint16_t keycode, keyrecord_t *record);
@@ -58,7 +57,6 @@ enum custom_keycodes {
 
 #define FNC_Q LT(_FNC, KC_Q)
 #define FNC_C_G LT(_FNC, KC_G)
-#define FNC_ALL LT(_FNC, KC_NO)
 
 //Declare Alias Short Cut
 #define MCPRTSCR G(S(KC_S))     //print screen
@@ -149,19 +147,19 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //,-----------------------------------------------------|                  |-----------------------------------------------------
         XXXXXXX, FNC_C_G, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX,FNC_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+        XXXXXXX, C(KC_A), C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,     OMT,  ALT_UP, KC_RCTL,XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                     XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
     //                           `--------+--------+--------'                  `--------+--------+--------'
     ),
-
+/*C(JP_COMM)*/
     [_FNC] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
         XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX, _______,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+        XXXXXXX,  KC_F11,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -285,64 +283,6 @@ static void omt_record_key(uint16_t keycode) {
     one_more_time_record(keycode, &fake_record);
 }
 
-static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t *resolved) {
-    switch (keycode) {
-        case ALT_CUT:
-        case CTL_UNDO:
-        case FNC_ALL:
-        case FNC_C_G:
-            return false;
-    }
-
-    if (IS_QK_MOD_TAP(keycode)) {
-        if (!record->tap.count) {
-            return false;
-        }
-        keycode = QK_MOD_TAP_GET_TAP_KEYCODE(keycode);
-    } else if (IS_QK_LAYER_TAP(keycode)) {
-        if (!record->tap.count) {
-            return false;
-        }
-        keycode = QK_LAYER_TAP_GET_TAP_KEYCODE(keycode);
-    } else if (!IS_QK_BASIC(keycode) && !IS_QK_MODS(keycode)) {
-        return false;
-    }
-
-    if (is_modifier_key(keycode)) {
-        return false;
-    }
-
-    uint8_t mods = get_mods() | get_weak_mods();
-#ifndef NO_ACTION_ONESHOT
-    mods |= get_oneshot_mods();
-#endif
-
-    if (mods & MOD_MASK_SHIFT) {
-        switch (keycode) {
-            case JP_MINS:
-                *resolved = JP_UNDS;
-                return true;
-            case JP_QUOT:
-                *resolved = JP_DQUO;
-                return true;
-            case JP_SCLN:
-                *resolved = JP_COLN;
-                return true;
-            case JP_TILD:
-                *resolved = JP_GRV;
-                return true;
-            case JP_YEN:
-                *resolved = JP_PIPE;
-                return true;
-        }
-
-        keycode = S(keycode);
-    }
-
-    *resolved = keycode;
-    return true;
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // ★親指が押されている間に他キーが押されたら、tap（Space/Enter）を出さない
@@ -375,9 +315,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     */
     if (record->event.pressed) {
-        uint16_t resolved;
-        if (omt_resolve_keycode(keycode, record, &resolved)) {
-            omt_record_key(resolved);
+        if (keycode < SAFE_RANGE && !is_modifier_key(keycode)) {
+
+            uint8_t mods = get_mods();
+
+            if ((mods & MOD_MASK_SHIFT) && keycode >= KC_A && keycode <= KC_Z) {
+                omt_record_key(S(keycode));
+            } else {
+                omt_record_key(keycode);
+            }
         }
     }
 
@@ -474,7 +420,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // ★tap：Enter（消費されていない & タップ時間内のみ）
                 if (!num_consumed && timer_elapsed(num_time) < TAPPING_TERM) {
                     tap_code(KC_ENT);
-                    omt_record_key(KC_ENT);
+                    omt_record_key(KC_SPC);
                 }
 
                 return false;
@@ -507,25 +453,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case CTL_UNDO:{
             if (record->tap.count && record->event.pressed){
                 tap_code16(C(KC_Z));
-                omt_record_key(C(KC_Z));
                 return false;
             }
             return true;
         }
         
-        case FNC_ALL:{
-            if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_A));
-                omt_record_key(C(KC_A));
-                return false;
-            }
-            return true;
-        }
-
         case FNC_C_G:{
             if (record->tap.count && record->event.pressed){
                 tap_code16(C(KC_G));
-                omt_record_key(C(KC_G));
                 return false;
             }
             return true;
@@ -561,7 +496,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             mouse_button(MOUSE_BTN3, record->event.pressed);
             return false;
         }
-/*
+
         // ===== 保険：CMD親指押下中の取りこぼし対策（ただし qshift / Shift中は除外）=====
         case KC_D:
         case ALT_X:
@@ -599,7 +534,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false; // 文字のx/c/vは送らない
             }
         }
-*/
         return true;
     
 
