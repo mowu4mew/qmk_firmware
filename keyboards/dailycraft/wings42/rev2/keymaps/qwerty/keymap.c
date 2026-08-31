@@ -1,12 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "pointing_device.h"
 #include "keymap_japanese.h"
-#include "onemoretime.c"
-
-// OneMoreTime interfaces (implementation is compiled separately)
-void one_more_time_record(uint16_t keycode, keyrecord_t *record);
-bool one_more_time_play(void);
-bool is_modifier_key(uint16_t keycode);
+#include "onemoretime.h"
 
 //Declare layers
 enum layer_number {
@@ -21,12 +16,8 @@ enum layer_number {
 enum custom_keycodes {
     CMD_SPC = SAFE_RANGE,
     NUM_ENT,
-    SFT_FIND,
     KILL_E,
     KILL_H,
-    MBTN1,          //Left click
-    MBTN2,          //Right click
-    MBTN3,          //Center click
     OMT
 };
 
@@ -34,6 +25,7 @@ enum custom_keycodes {
 #define SFT_F LSFT_T(KC_F)
 #define SFT_J RSFT_T(KC_J)
 #define SFT_F3 LSFT_T(KC_F3)
+#define SFT_FIND RSFT_T(KC_NO)
 
 #define CTL_Z LCTL_T(KC_Z)
 #define CTL_SLSH RCTL_T(JP_SLSH)
@@ -56,8 +48,6 @@ enum custom_keycodes {
 #define GUI_8 RGUI_T(KC_8)
 #define GUI_F8 RGUI_T(KC_F8)
 
-#define FNC_Q LT(_FNC, KC_Q)
-#define FNC_C_G LT(_FNC, KC_G)
 #define FNC_ALL LT(_FNC, KC_NO)
 
 //Declare Alias Short Cut
@@ -75,7 +65,7 @@ enum combos{
     DWN_LFT_TAB,
     D_F_ESC,
     DEL_FND_ESC,
-    DT_CM_MBTN3,
+    DT_CM_BTN3,
     X_C_PRTSCN
 };
 
@@ -99,7 +89,7 @@ combo_t key_combos[COMBO_COUNT] = {
     [DWN_LFT_TAB] = COMBO(dwn_lft_combo, KC_TAB),
     [D_F_ESC] = COMBO(d_f_combo, KC_ESC),
     [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
-    [DT_CM_MBTN3] = COMBO(dt_cm_combo, MBTN3),
+    [DT_CM_BTN3] = COMBO(dt_cm_combo, MS_BTN3),
     [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
 };
 
@@ -123,7 +113,7 @@ const key_override_t *key_overrides[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
-        XXXXXXX,   FNC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
+        XXXXXXX,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,   KC_U,     KC_I,    KC_O,    KC_P, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,    KC_A,    KC_S,    KC_D,   SFT_F,    KC_G,                       KC_H,   SFT_J,    KC_K,    KC_L, JP_MINS, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -147,9 +137,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_CMD] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------
-        XXXXXXX, FNC_C_G, C(KC_W),  KC_TAB, C(KC_H), C(KC_T),                      MBTN1,   MBTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
+        XXXXXXX, C(KC_W), C(KC_G),  KC_TAB, C(KC_H), C(KC_T),                    MS_BTN1, MS_BTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX,FNC_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+        XXXXXXX, FNC_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,     OMT,  ALT_UP, KC_RCTL,XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -159,9 +149,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FNC] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
-        XXXXXXX, _______,   KC_F8,  KC_F11,   KC_F5, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
+        XXXXXXX, _______,  KC_F12,S(KC_TAB),  KC_F3, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX, _______,  KC_F12,  KILL_E,  SFT_F3,     OMT,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+        XXXXXXX, _______,  KC_F11,  KILL_E,  SFT_F3,  KC_ESC,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -171,7 +161,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_MOUSE] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
-        XXXXXXX,MO(_FNC), _______, _______, _______, _______,                      MBTN1,   MBTN2, _______, _______, _______, XXXXXXX,
+        XXXXXXX, _______, _______, _______, _______, _______,                    MS_BTN1, MS_BTN2, _______, _______, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -188,9 +178,7 @@ typedef struct {
     uint16_t tap_keycode;
     uint16_t pressed_at;
     bool     down;
-    bool     consumed;
-    bool     started_in_typing;
-    bool     layer_on;
+    bool     interrupted;
 } thumb_key_state_t;
 
 static thumb_key_state_t cmd_thumb = {
@@ -203,88 +191,39 @@ static thumb_key_state_t num_thumb = {
     .tap_keycode = KC_ENT,
 };
 
-// ===== qshift =====
-static bool qshift_added_shift = false;
-static bool qshift_on = false;
+static bool thumb_shift_on    = false;
+static bool thumb_shift_added = false;
 
-// ===== SFT_FIND =====
-static uint16_t sft_find_pressed_time = 0;
-
-// QWERTYまたはAuto Mouseレイヤを文字入力コンテキストとして判定する。
-static inline bool is_typing_context(void) {
-    uint8_t top = get_highest_layer(layer_state | default_layer_state);
-    return (top == _QWERTY) || (top == _MOUSE);
-}
-
-// 両親指キーの同時押しでQWERTY+Shiftへ移行できるか判定する。
-static inline bool should_qshift_now(void) {
-    // 「typingから入った親指レイヤ保持中は、2本押しで常にQWERTY+Shift」
-    return cmd_thumb.down && num_thumb.down && cmd_thumb.started_in_typing && num_thumb.started_in_typing && !qshift_on;
-}
-
-// 親指レイヤを解除し、QWERTY+Shift状態を開始する。
-static inline void qshift_start(void) {
-    if (qshift_on) return;
-
-    qshift_on = true;
-
+// 両親指のレイヤを解除し、Shift同時押し状態を開始する。
+static void start_thumb_shift(void) {
     layer_off(_CMD);
     layer_off(_NUM);
+    cmd_thumb.interrupted = true;
+    num_thumb.interrupted = true;
+    thumb_shift_on        = true;
 
-    cmd_thumb.consumed = true;
-    num_thumb.consumed = true;
-
-    // もともとShiftが入っていなければ、ここで追加する
-    if (!(get_mods() & MOD_BIT(KC_LSFT))) {
+    if (!(get_mods() & MOD_MASK_SHIFT)) {
         add_mods(MOD_BIT(KC_LSFT));
-        qshift_added_shift = true;
+        thumb_shift_added = true;
         send_keyboard_report();
-    } else {
-        qshift_added_shift = false;
     }
-
-    cmd_thumb.layer_on = false;
-    num_thumb.layer_on = false;
 }
 
-// QWERTY+Shift状態を終了し、押下中の親指レイヤを復元する。
-static inline void qshift_stop(void) {
-    if (!qshift_on) return;
-
-    // qshiftが追加した分だけ戻す（他のShiftを巻き込まない）
-    if (qshift_added_shift) {
+// Shift同時押し状態を終了し、残っている親指のレイヤを有効にする。
+static void stop_thumb_shift(void) {
+    if (thumb_shift_added) {
         del_mods(MOD_BIT(KC_LSFT));
         send_keyboard_report();
-        qshift_added_shift = false;
+        thumb_shift_added = false;
     }
 
-    qshift_on  = false;
+    thumb_shift_on = false;
 
-    layer_off(_CMD);
-    layer_off(_NUM);
-    cmd_thumb.layer_on = false;
-    num_thumb.layer_on = false;
-
-    if (cmd_thumb.down && !num_thumb.down) {
-        layer_on(_CMD); 
-        cmd_thumb.layer_on = true;
-    } else if (num_thumb.down && !cmd_thumb.down) {
-        layer_on(_NUM); 
-        num_thumb.layer_on = true;
+    if (cmd_thumb.down) {
+        layer_on(cmd_thumb.layer);
+    } else if (num_thumb.down) {
+        layer_on(num_thumb.layer);
     }
-
-    send_keyboard_report();
-}
-
-// ポインティングデバイスの指定ボタンを押下または解放する。
-static inline void mouse_button(uint8_t mask, bool pressed) {
-    report_mouse_t r = pointing_device_get_report();
-    if (pressed) {
-        r.buttons |= mask;
-    } else {
-        r.buttons &= ~mask;
-    }
-    pointing_device_set_report(r);
 }
 
 // OneMoreTimeへ押下イベントとしてキーコードを記録する。
@@ -294,35 +233,41 @@ static void omt_record_key(uint16_t keycode) {
     one_more_time_record(keycode, &fake_record);
 }
 
+// キーをタップし、同じキーコードをOneMoreTimeへ記録する。
+static void tap_and_record(uint16_t keycode) {
+    tap_code16(keycode);
+    omt_record_key(keycode);
+}
+
+// 現在位置から行頭または行末までを選択して削除する。
+static void delete_to_line_edge(uint16_t edge_keycode) {
+    tap_and_record(S(edge_keycode));
+    tap_and_record(KC_DEL);
+}
+
 // 親指キーの押下・解放、レイヤ切替、タップ送信を共通処理する。
 static void process_thumb_key(thumb_key_state_t *thumb, thumb_key_state_t *other, keyrecord_t *record) {
     if (record->event.pressed) {
-        thumb->down              = true;
-        thumb->pressed_at        = record->event.time;
-        thumb->started_in_typing = is_typing_context() || (other->down && other->started_in_typing);
-        thumb->consumed          = false;
+        thumb->down        = true;
+        thumb->pressed_at  = record->event.time;
+        thumb->interrupted = false;
 
-        if (should_qshift_now()) {
-            qshift_start();
-        } else if (!qshift_on) {
+        if (other->down) {
+            start_thumb_shift();
+        } else {
             layer_on(thumb->layer);
-            thumb->layer_on = true;
         }
         return;
     }
 
     thumb->down = false;
+    layer_off(thumb->layer);
 
-    if (qshift_on) {
-        qshift_stop();
+    if (thumb_shift_on) {
+        stop_thumb_shift();
     }
 
-    if (thumb->layer_on) {
-        layer_off(thumb->layer);
-        thumb->layer_on = false;
-    }
-
-    if (!thumb->consumed && timer_elapsed(thumb->pressed_at) < TAPPING_TERM) {
+    if (!thumb->interrupted && timer_elapsed(thumb->pressed_at) < TAPPING_TERM) {
         tap_code(thumb->tap_keycode);
         omt_record_key(thumb->tap_keycode);
     }
@@ -330,11 +275,15 @@ static void process_thumb_key(thumb_key_state_t *thumb, thumb_key_state_t *other
 
 // 入力キーをOneMoreTimeで再生可能な最終キーコードへ変換する。
 static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t *resolved) {
+    if (IS_MOUSEKEY(keycode)) {
+        return false;
+    }
+
     switch (keycode) {
+        case SFT_FIND:
         case ALT_CUT:
         case CTL_UNDO:
         case FNC_ALL:
-        case FNC_C_G:
             return false;
     }
 
@@ -390,35 +339,16 @@ static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t 
 // キーイベントを処理し、レイヤ制御、独自キー、OneMoreTime記録を行う。
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
-    // ★親指が押されている間に他キーが押されたら、tap（Space/Enter）を出さない
-    if (record->event.pressed) {
-        if (cmd_thumb.down && keycode != CMD_SPC && keycode != NUM_ENT) {
-            cmd_thumb.consumed = true;
+    // 親指キーと同時に別のキーを使った場合は、親指キーのタップを抑制する。
+    if (record->event.pressed && keycode != CMD_SPC && keycode != NUM_ENT) {
+        if (cmd_thumb.down) {
+            cmd_thumb.interrupted = true;
         }
-        if (num_thumb.down && keycode != CMD_SPC && keycode != NUM_ENT) {
-            num_thumb.consumed = true;
+        if (num_thumb.down) {
+            num_thumb.interrupted = true;
         }
     }
 
-    // ===== OneMoreTime: 記録（押下のみ）=====
-    // 安全のため：custom keycode(SAFE_RANGE〜)は除外
-    // さらにレイヤ操作系は除外（必要なら後で広げる）
-    /*
-    if (record->event.pressed && keycode < SAFE_RANGE){
-        one_more_time_record(keycode ,record);
-    }
-    
-    if (record->event.pressed) {
-        if (keycode == OMT || keycode == FNC_Q || keycode == CMD_SPC) {
-            uprintf("OMT keycode=%u\n", keycode);
-            // skip
-        } else {
-       
-            // ここで record() する
-            one_more_time_record(keycode, record);
-        }
-    }
-    */
     if (record->event.pressed) {
         uint16_t resolved;
         if (omt_resolve_keycode(keycode, record, &resolved)) {
@@ -444,23 +374,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
 
         case SFT_FIND:{
-            if (record->event.pressed){
-                sft_find_pressed_time = record->event.time;
-                register_code(KC_LSFT);
-                one_more_time_record(KC_LSFT, record);
-            }else{
-                unregister_code(KC_LSFT);
-                if(timer_elapsed(sft_find_pressed_time) < TAPPING_TERM){
-                    SEND_STRING(SS_LCTL(SS_TAP(X_F)));
-                }
+            if (record->tap.count && record->event.pressed) {
+                tap_and_record(C(KC_F));
+                return false;
             }
-            return false;
+            return true;
         }
 
         case ALT_CUT:{
             if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_X));
-                omt_record_key(C(KC_X));
+                tap_and_record(C(KC_X));
                 return false;
             }
             return true;
@@ -468,8 +391,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case CTL_UNDO:{
             if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_Z));
-                omt_record_key(C(KC_Z));
+                tap_and_record(C(KC_Z));
                 return false;
             }
             return true;
@@ -477,17 +399,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         
         case FNC_ALL:{
             if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_A));
-                omt_record_key(C(KC_A));
-                return false;
-            }
-            return true;
-        }
-
-        case FNC_C_G:{
-            if (record->tap.count && record->event.pressed){
-                tap_code16(C(KC_G));
-                omt_record_key(C(KC_G));
+                tap_and_record(C(KC_A));
                 return false;
             }
             return true;
@@ -495,40 +407,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case KILL_E:{
             if (record->event.pressed){
-                tap_code16(S(KC_END));
-                tap_code(KC_DEL);
+                delete_to_line_edge(KC_END);
             }
             return false;
         }
 
         case KILL_H:{
             if (record->event.pressed){
-            tap_code16(S(KC_HOME));
-            tap_code(KC_DEL);
+                delete_to_line_edge(KC_HOME);
             }
             return false;
         }
 
-        case MBTN1:{
-            mouse_button(MOUSE_BTN1, record->event.pressed);
-            return false;
-        }
-
-        case MBTN2:{
-            mouse_button(MOUSE_BTN2, record->event.pressed);
-            return false;
-        }
-
-        case MBTN3:{
-            mouse_button(MOUSE_BTN3, record->event.pressed);
-            return false;
-        }
-        return true;
-    
-
-        default:{
+        default:
             return true;
-        }
+
     }
 }
 
@@ -612,66 +505,17 @@ void pointing_device_init_user(void) {
     set_auto_mouse_enable(true);
 }
 
-// 独自マウスボタンをAuto Mouse対象のキーとして判定する。
-bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
-  switch(keycode){
-    case MBTN1:
-    case MBTN2:
-    case MBTN3:
-      return true;
-    default:
-      return false;
-  }
-  return is_mouse_record_user(keycode, record);
-}
-
 // エンコーダーの回転を垂直または水平スクロールへ変換する。
 bool encoder_update_user(uint8_t index, bool clockwise) {
+    (void)index;
 
     uint8_t layer = get_highest_layer(layer_state | default_layer_state);
 
-    if (index == 0) { // First encoder 
-        // _CMDの時：水平スクロール（ホイール左右）
-        if (layer == _CMD){
-            if (clockwise) {
-                tap_code(MS_WHLR);//右へ
-            } else {
-                tap_code(MS_WHLL);//左へ
-            }
-            return false;
-        }
-
-        if (clockwise) {
-            tap_code(MS_WHLD);
-        } else {
-            tap_code(MS_WHLU);
-        }
-    } else if (index == 1) { // Second encoder
-        // _CMDの時：水平スクロール（ホイール左右）
-        if (layer == _CMD){
-            if (clockwise) {
-                tap_code(MS_WHLR);//右へ
-            } else {
-                tap_code(MS_WHLL);//左へ
-            }
-            return false;
-        }
-
-        if (clockwise) {
-            tap_code(MS_WHLD);
-        } else {
-            tap_code(MS_WHLU);
-        }
+    if (layer == _CMD) {
+        tap_code(clockwise ? MS_WHLR : MS_WHLL);
+    } else {
+        tap_code(clockwise ? MS_WHLD : MS_WHLU);
     }
+
     return false;
-}
-
-// QMKへ渡すキーコードを変更せず返す。
-uint16_t keycode_config(uint16_t keycode) {
-  return keycode;
-}
-
-// QMKへ渡す修飾キー状態を変更せず返す。
-uint8_t mod_config(uint8_t mod) {
-  return mod;
 }

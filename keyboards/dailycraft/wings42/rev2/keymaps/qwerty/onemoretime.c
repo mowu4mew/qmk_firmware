@@ -26,7 +26,7 @@
  */
 #include <stdint.h>
 #include <string.h>
-#include "quantum.h"
+#include "onemoretime.h"
 
 #ifdef CONSOLE_ENABLE
   #include <print.h>
@@ -58,7 +58,7 @@ static void one_more_time_dump(void) {
 }
 #endif
 */
-static void one_more_time_record(uint16_t keycode, keyrecord_t *record) {
+void one_more_time_record(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
 
 #ifdef CONSOLE_ENABLE
