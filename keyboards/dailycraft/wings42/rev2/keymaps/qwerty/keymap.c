@@ -183,21 +183,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 // ===== Thumb (CMD/NUM) =====
-// 物理押下状態
-static bool cmd_down = false;
-static bool num_down = false;
-// リリース時のタップ可否を判定。
-static bool cmd_consumed = false; 
-static bool num_consumed = false;
-// 押下開始時刻
-static uint16_t cmd_time = 0;
-static uint16_t num_time = 0;
-// 押下開始時にQWERTY or MOUSE
-static bool cmd_started_in_typing = false;
-static bool num_started_in_typing = false;
-// 親指ホールドで有効化しているレイヤ（モメンタリ）
-static bool cmd_layer_on = false; // CMD_SPC hold -> _CMD
-static bool num_layer_on = false; // NUM_ENT hold -> _NUM
+typedef struct {
+    uint8_t  layer;
+    uint16_t tap_keycode;
+    uint16_t pressed_at;
+    bool     down;
+    bool     consumed;
+    bool     started_in_typing;
+    bool     layer_on;
+} thumb_key_state_t;
+
+static thumb_key_state_t cmd_thumb = {
+    .layer       = _CMD,
+    .tap_keycode = KC_SPC,
+};
+
+static thumb_key_state_t num_thumb = {
+    .layer       = _NUM,
+    .tap_keycode = KC_ENT,
+};
 
 // ===== qshift =====
 static bool qshift_added_shift = false;
@@ -206,17 +210,19 @@ static bool qshift_on = false;
 // ===== SFT_FIND =====
 static uint16_t sft_find_pressed_time = 0;
 
-// 「文字入力コンテキスト」判定：QWERTY もしくは AutoMouse で一時的に MOUSE が載っている状態
+// QWERTYまたはAuto Mouseレイヤを文字入力コンテキストとして判定する。
 static inline bool is_typing_context(void) {
     uint8_t top = get_highest_layer(layer_state | default_layer_state);
     return (top == _QWERTY) || (top == _MOUSE);
 }
 
+// 両親指キーの同時押しでQWERTY+Shiftへ移行できるか判定する。
 static inline bool should_qshift_now(void) {
     // 「typingから入った親指レイヤ保持中は、2本押しで常にQWERTY+Shift」
-    return cmd_down && num_down && cmd_started_in_typing && num_started_in_typing && !qshift_on;
+    return cmd_thumb.down && num_thumb.down && cmd_thumb.started_in_typing && num_thumb.started_in_typing && !qshift_on;
 }
 
+// 親指レイヤを解除し、QWERTY+Shift状態を開始する。
 static inline void qshift_start(void) {
     if (qshift_on) return;
 
@@ -225,8 +231,8 @@ static inline void qshift_start(void) {
     layer_off(_CMD);
     layer_off(_NUM);
 
-    cmd_consumed = true;
-    num_consumed = true;
+    cmd_thumb.consumed = true;
+    num_thumb.consumed = true;
 
     // もともとShiftが入っていなければ、ここで追加する
     if (!(get_mods() & MOD_BIT(KC_LSFT))) {
@@ -237,10 +243,11 @@ static inline void qshift_start(void) {
         qshift_added_shift = false;
     }
 
-    cmd_layer_on = false;
-    num_layer_on = false;
+    cmd_thumb.layer_on = false;
+    num_thumb.layer_on = false;
 }
 
+// QWERTY+Shift状態を終了し、押下中の親指レイヤを復元する。
 static inline void qshift_stop(void) {
     if (!qshift_on) return;
 
@@ -252,23 +259,24 @@ static inline void qshift_stop(void) {
     }
 
     qshift_on  = false;
-    //qshift_src = QS_NONE;
 
     layer_off(_CMD);
     layer_off(_NUM);
-    cmd_layer_on = false;
-    num_layer_on = false;
+    cmd_thumb.layer_on = false;
+    num_thumb.layer_on = false;
 
-    if (cmd_down && !num_down) { 
+    if (cmd_thumb.down && !num_thumb.down) {
         layer_on(_CMD); 
-        cmd_layer_on = true; 
-    } else if (num_down && !cmd_down) { 
+        cmd_thumb.layer_on = true;
+    } else if (num_thumb.down && !cmd_thumb.down) {
         layer_on(_NUM); 
-        num_layer_on = true; }
+        num_thumb.layer_on = true;
+    }
 
     send_keyboard_report();
 }
 
+// ポインティングデバイスの指定ボタンを押下または解放する。
 static inline void mouse_button(uint8_t mask, bool pressed) {
     report_mouse_t r = pointing_device_get_report();
     if (pressed) {
@@ -279,12 +287,48 @@ static inline void mouse_button(uint8_t mask, bool pressed) {
     pointing_device_set_report(r);
 }
 
+// OneMoreTimeへ押下イベントとしてキーコードを記録する。
 static void omt_record_key(uint16_t keycode) {
     keyrecord_t fake_record = {0};
     fake_record.event.pressed = true;
     one_more_time_record(keycode, &fake_record);
 }
 
+// 親指キーの押下・解放、レイヤ切替、タップ送信を共通処理する。
+static void process_thumb_key(thumb_key_state_t *thumb, thumb_key_state_t *other, keyrecord_t *record) {
+    if (record->event.pressed) {
+        thumb->down              = true;
+        thumb->pressed_at        = record->event.time;
+        thumb->started_in_typing = is_typing_context() || (other->down && other->started_in_typing);
+        thumb->consumed          = false;
+
+        if (should_qshift_now()) {
+            qshift_start();
+        } else if (!qshift_on) {
+            layer_on(thumb->layer);
+            thumb->layer_on = true;
+        }
+        return;
+    }
+
+    thumb->down = false;
+
+    if (qshift_on) {
+        qshift_stop();
+    }
+
+    if (thumb->layer_on) {
+        layer_off(thumb->layer);
+        thumb->layer_on = false;
+    }
+
+    if (!thumb->consumed && timer_elapsed(thumb->pressed_at) < TAPPING_TERM) {
+        tap_code(thumb->tap_keycode);
+        omt_record_key(thumb->tap_keycode);
+    }
+}
+
+// 入力キーをOneMoreTimeで再生可能な最終キーコードへ変換する。
 static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t *resolved) {
     switch (keycode) {
         case ALT_CUT:
@@ -343,15 +387,16 @@ static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t 
     return true;
 }
 
+// キーイベントを処理し、レイヤ制御、独自キー、OneMoreTime記録を行う。
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     // ★親指が押されている間に他キーが押されたら、tap（Space/Enter）を出さない
     if (record->event.pressed) {
-        if (cmd_down && keycode != CMD_SPC && keycode != NUM_ENT) {
-            cmd_consumed = true;
+        if (cmd_thumb.down && keycode != CMD_SPC && keycode != NUM_ENT) {
+            cmd_thumb.consumed = true;
         }
-        if (num_down && keycode != CMD_SPC && keycode != NUM_ENT) {
-            num_consumed = true;
+        if (num_thumb.down && keycode != CMD_SPC && keycode != NUM_ENT) {
+            num_thumb.consumed = true;
         }
     }
 
@@ -390,96 +435,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     
     switch (keycode) {
-        case CMD_SPC: {
-            if (record->event.pressed) {
-                cmd_down = true;
-                cmd_time = record->event.time;
-                cmd_started_in_typing = is_typing_context() || (num_down && num_started_in_typing);
-                cmd_consumed = false;
+        case CMD_SPC:
+            process_thumb_key(&cmd_thumb, &num_thumb, record);
+            return false;
 
-                if (should_qshift_now()) {
-                    qshift_start();
-                    return false;
-                }
-     
-                // ★ここが肝：押した瞬間に_CMDをON（Hの1打目に間に合わせる）
-                if (!qshift_on) {
-                    layer_on(_CMD);
-                    cmd_layer_on = true;
-                }
-
-                return false;
-            } else {
-                cmd_down = false;
-
-                // QWERTY+Shift中なら復帰はqshift_stopへ
-                if (qshift_on) {
-                    qshift_stop();
-                }
-
-                // 自分のホールドレイヤが残っていたらOFF
-                if (cmd_layer_on) {
-                    layer_off(_CMD);
-                    cmd_layer_on = false;
-                    // “ホールド扱い”だったなら tap(SPC) を抑制
-                    // ※ただし tap 判定でスペースを出す場合は cmd_consumed を使う
-                }
-
-                // ★tap：Space（消費されていない & タップ時間内のみ）
-                if (!cmd_consumed && timer_elapsed(cmd_time) < TAPPING_TERM) {
-                    tap_code(KC_SPC);
-                    omt_record_key(KC_SPC);
-                }
-
-                return false;
-            }
-        }
-
-        case NUM_ENT: {
-            if (record->event.pressed) {
-                num_down = true;
-                num_time = record->event.time;
-                num_started_in_typing = is_typing_context() || (cmd_down && cmd_started_in_typing);
-                num_consumed = false;
-
-                if (should_qshift_now()) {
-                    qshift_start();
-                    return false;
-                }
-
-                // ★ここが肝：押した瞬間に_NUMをON（1打目取りこぼし防止）
-                if (!qshift_on) {
-                    layer_on(_NUM);
-                    num_layer_on = true;
-                    // 早めに反映したい場合は次も有効（お好み）
-                    // send_keyboard_report();
-                }
-
-                return false;
-            } else {
-                num_down = false; 
-
-                // QWERTY+Shift中なら復帰はqshift_stopへ
-                if (qshift_on) {
-                    qshift_stop();
-                }
-
-                // 自分のホールドレイヤが残っていたらOFF
-                if (num_layer_on) {
-                    layer_off(_NUM);
-                    num_layer_on = false;
-                    // ホールド扱いならtap(ENT)抑制は num_consumed で制御
-                }
-
-                // ★tap：Enter（消費されていない & タップ時間内のみ）
-                if (!num_consumed && timer_elapsed(num_time) < TAPPING_TERM) {
-                    tap_code(KC_ENT);
-                    omt_record_key(KC_ENT);
-                }
-
-                return false;
-            }
-        }
+        case NUM_ENT:
+            process_thumb_key(&num_thumb, &cmd_thumb, record);
+            return false;
 
         case SFT_FIND:{
             if (record->event.pressed){
@@ -561,45 +523,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             mouse_button(MOUSE_BTN3, record->event.pressed);
             return false;
         }
-/*
-        // ===== 保険：CMD親指押下中の取りこぼし対策（ただし qshift / Shift中は除外）=====
-        case KC_D:
-        case ALT_X:
-        case KC_C:
-        case KC_V: {
-            if (record->event.pressed) {
-                // ★qshift中（= QWERTY+Shiftモード）は「文字入力優先」なので変換しない
-                // ★また、物理Shift/他Shiftが入っている時も変換しない（X/C/Vを打てるように）
-                bool shift_active = (get_mods() & MOD_MASK_SHIFT) != 0;
-
-                if (cmd_down && !qshift_on && !shift_active) {
-                    cmd_consumed = true;  // Space誤爆抑制
-                    switch (keycode) {
-                        case KC_D:
-                            tap_code16(C(KC_V));
-                            omt_record_key(C(KC_V));
-                            break;
-
-                        case ALT_X:
-                            tap_code16(C(KC_X));
-                            omt_record_key(C(KC_X));
-                            break;
-
-                        case KC_C:
-                            tap_code16(C(KC_C));
-                            omt_record_key(C(KC_C));
-                            break;
-
-                        case KC_V:
-                            tap_code16(C(KC_V));
-                            omt_record_key(C(KC_V));
-                            break;
-                    }
-                }
-                return false; // 文字のx/c/vは送らない
-            }
-        }
-*/
         return true;
     
 
@@ -613,6 +536,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 float h_acm = 0.0;
 float v_acm = 0.0;
 
+// トラックボール入力を回転補正し、レイヤに応じてカーソル移動またはスクロールへ変換する。
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
 
     bool is_scroll_mode = layer_state_is(_NUM);
@@ -682,11 +606,13 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     return pointing_device_task_user(mouse_report);
 }
 
+// Auto Mouseで使用するレイヤを設定し、機能を有効化する。
 void pointing_device_init_user(void) {
     set_auto_mouse_layer(_MOUSE);
     set_auto_mouse_enable(true);
 }
 
+// 独自マウスボタンをAuto Mouse対象のキーとして判定する。
 bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
   switch(keycode){
     case MBTN1:
@@ -699,6 +625,7 @@ bool is_mouse_record_kb(uint16_t keycode, keyrecord_t* record){
   return is_mouse_record_user(keycode, record);
 }
 
+// エンコーダーの回転を垂直または水平スクロールへ変換する。
 bool encoder_update_user(uint8_t index, bool clockwise) {
 
     uint8_t layer = get_highest_layer(layer_state | default_layer_state);
@@ -739,10 +666,12 @@ bool encoder_update_user(uint8_t index, bool clockwise) {
     return false;
 }
 
+// QMKへ渡すキーコードを変更せず返す。
 uint16_t keycode_config(uint16_t keycode) {
   return keycode;
 }
 
+// QMKへ渡す修飾キー状態を変更せず返す。
 uint8_t mod_config(uint8_t mod) {
   return mod;
 }
