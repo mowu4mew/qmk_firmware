@@ -58,31 +58,28 @@ static void one_more_time_dump(void) {
 }
 #endif
 */
-void one_more_time_record(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-
+void one_more_time_record(uint16_t keycode) {
 #ifdef CONSOLE_ENABLE
-        uprintf("record key=%u\n", keycode);
+    uprintf("record key=%u\n", keycode);
 #endif
 
-        one_more_time_buffer[one_more_time_buffer_index] = keycode;
-        one_more_time_buffer_index = (one_more_time_buffer_index + 1) % ONE_MORE_TIME_BUFFER_SIZE;
-    }
+    one_more_time_buffer[one_more_time_buffer_index] = keycode;
+    one_more_time_buffer_index = (one_more_time_buffer_index + 1) % ONE_MORE_TIME_BUFFER_SIZE;
 }
 
-static bool is_duplicated(int i, int8_t modifiers_cnt) {
-    for (int j=0; j<i; j++) {
-        int nn = one_more_time_buffer_index-modifiers_cnt-1-j;
-        if (nn<0) {
-            nn += ONE_MORE_TIME_BUFFER_SIZE;
+static bool is_duplicated(int length) {
+    for (int offset = 0; offset < length; offset++) {
+        int recent = one_more_time_buffer_index - 1 - offset;
+        if (recent < 0) {
+            recent += ONE_MORE_TIME_BUFFER_SIZE;
         }
-        int mm = one_more_time_buffer_index-modifiers_cnt-1-i-j;
-        if (mm<0) {
-            mm += ONE_MORE_TIME_BUFFER_SIZE;
+        int previous = one_more_time_buffer_index - 1 - length - offset;
+        if (previous < 0) {
+            previous += ONE_MORE_TIME_BUFFER_SIZE;
         }
-        bool result = one_more_time_buffer[nn] == one_more_time_buffer[mm];
+        bool result = one_more_time_buffer[recent] == one_more_time_buffer[previous];
 #ifdef CONSOLE_ENABLE
-        uprintf("   i=%d j=%d idx=%d nn=%d mm=%d x=%d y=%d result=%d\n", i, j, one_more_time_buffer_index, nn, mm, one_more_time_buffer[nn], one_more_time_buffer[mm], result ? 1 : 0);
+        uprintf("length=%d offset=%d recent=%d previous=%d result=%d\n", length, offset, recent, previous, result ? 1 : 0);
 #endif
         if (!result) {
             return false;
@@ -91,92 +88,38 @@ static bool is_duplicated(int i, int8_t modifiers_cnt) {
     return true;
 }
 
-bool is_modifier_key(uint16_t keycode) {
-    return (keycode >= KC_LCTL && keycode <= KC_RGUI);
-}
-
-
-static int16_t check_duplication(uint8_t modifiers_cnt) {
-    for (int i=(ONE_MORE_TIME_BUFFER_SIZE-modifiers_cnt)/2; i>0; i--) {
-        if (is_duplicated(i, modifiers_cnt)) {
-            return i;
+static int16_t check_duplication(void) {
+    for (int length = ONE_MORE_TIME_BUFFER_SIZE / 2; length > 0; length--) {
+        if (is_duplicated(length)) {
+            return length;
         }
     }
     return -1; // no dups
 }
 
-static uint8_t count_modifiers(void) {
-    uint8_t modifiers_cnt = 0;
-    for (int i = 1; i < ONE_MORE_TIME_BUFFER_SIZE/2; i++) {
-        int nn = one_more_time_buffer_index - i;
-        if (nn < 0) {
-            nn += ONE_MORE_TIME_BUFFER_SIZE;
-        }
-
-        if (is_modifier_key(one_more_time_buffer[nn])) {
-            modifiers_cnt++;
-        } else {
-            break;
-        }
-    }
-    return modifiers_cnt;
-}
-
 bool one_more_time_play(void) {
-    uint8_t modifiers = count_modifiers();
-    int16_t n = check_duplication(modifiers);
+    int16_t length = check_duplication();
 
 #ifdef CONSOLE_ENABLE
-        uprintf("Play: n=%d modifiers=%u\n", n, modifiers);
+    uprintf("Play: length=%d\n", length);
 #endif
 
-    if (n >= 0) {
-        // unregister modifiers
-        for (int j = modifiers-1; j >= 0; j--) {
-            int nn = one_more_time_buffer_index-1-j;
-            if (nn < 0) {
-                nn += ONE_MORE_TIME_BUFFER_SIZE;
-            }
-
-#ifdef CONSOLE_ENABLE
-            uprintf("unregister modifier: key=%d\n", one_more_time_buffer[nn]);
-#endif
-            unregister_code(one_more_time_buffer[nn]);
-        }
-
-        for (int j = n-1; j >= 0; j--) {
-            int nn = one_more_time_buffer_index-modifiers-1-j;
-            if (nn < 0) {
-                nn += ONE_MORE_TIME_BUFFER_SIZE;
-            }
-
-#ifdef CONSOLE_ENABLE
-            uprintf("register: key=%d\n", one_more_time_buffer[nn]);
-#endif
-            /*
-            register_code(one_more_time_buffer[nn]);
-            unregister_code(one_more_time_buffer[nn]);
-            */
-           tap_code16(one_more_time_buffer[nn]);
-        }
-
-        // restore modifiers
-        for (int j = modifiers-1; j >= 0; j--) {
-            int nn = one_more_time_buffer_index-1-j;
-            if (nn < 0) {
-                nn += ONE_MORE_TIME_BUFFER_SIZE;
-            }
-
-#ifdef CONSOLE_ENABLE
-            uprintf("unregister modifier: key=%d\n", one_more_time_buffer[nn]);
-#endif
-            register_code(one_more_time_buffer[nn]);
-        }
-
-        return true;
-    } else {
+    if (length < 0) {
         return false;
     }
+
+    for (int offset = length - 1; offset >= 0; offset--) {
+        int index = one_more_time_buffer_index - 1 - offset;
+        if (index < 0) {
+            index += ONE_MORE_TIME_BUFFER_SIZE;
+        }
+#ifdef CONSOLE_ENABLE
+        uprintf("play: key=%d\n", one_more_time_buffer[index]);
+#endif
+        tap_code16(one_more_time_buffer[index]);
+    }
+
+    return true;
 }
 
 #ifdef ONE_MORE_TIME_TEST
@@ -204,12 +147,11 @@ void unregister_code(uint8_t keycode) {
 
 void run_test(uint16_t test_sequence[], int sequence_length, int expected_result) {
     for (int i = 0; i < sequence_length; i++) {
-        one_more_time_record(test_sequence[i], &(keyrecord_t){ .event = { .pressed = true } });
+        one_more_time_record(test_sequence[i]);
     }
-    int modifiers = count_modifiers();
-    int n = check_duplication(modifiers);
-    printf("n=%d modifiers=%d\n", n, modifiers);
-    assert(n == expected_result);
+    int length = check_duplication();
+    printf("length=%d\n", length);
+    assert(length == expected_result);
 
     one_more_time_play();
 }
@@ -226,14 +168,12 @@ void test_one_more_time_play() {
     uint16_t test_sequence3[] = { KC_E, KC_N, KC_B, KC_C, KC_B, KC_C };
     TEST(test_sequence3, 2);
 
-    uint16_t test_sequence4[] = { KC_E, KC_N, KC_B, KC_C, KC_B, KC_C, KC_LCTL };
+    uint16_t test_sequence4[] = { C(KC_B), C(KC_C), C(KC_B), C(KC_C) };
     TEST(test_sequence4, 2);
 
     uint16_t test_sequence6[] = { KC_A, KC_B, KC_C, KC_A, KC_Z, KC_Z };
     TEST(test_sequence6, 1);
 
-    uint16_t test_sequence5[] = { KC_E, KC_N, KC_B, KC_C, KC_B, KC_C, KC_LCTL, KC_LCTL };
-    TEST(test_sequence5, 2);
 }
 
 

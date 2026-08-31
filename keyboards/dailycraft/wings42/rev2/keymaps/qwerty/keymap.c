@@ -3,8 +3,8 @@
 #include "keymap_japanese.h"
 #include "onemoretime.h"
 
-//Declare layers
-enum layer_number {
+// レイヤー定義。
+enum layer_names {
     _QWERTY = 0,
     _NUM,
     _CMD,
@@ -12,104 +12,111 @@ enum layer_number {
     _MOUSE,
 };
 
-//Declare custum keycodes
+// カスタムキーコード定義。
 enum custom_keycodes {
     CMD_SPC = SAFE_RANGE,
     NUM_ENT,
     KILL_E,
     KILL_H,
-    OMT
+    OMT,
 };
 
-//Declare Alias Mod Tap
-#define SFT_F LSFT_T(KC_F)
-#define SFT_J RSFT_T(KC_J)
-#define SFT_F3 LSFT_T(KC_F3)
-#define SFT_FIND RSFT_T(KC_NO)
+// トラックボールの回転角、移動速度、スクロール速度、レポート上限。
+#define TRACKBALL_ROTATION_RADIANS (-45.0 * (M_PI / 180.0))
+#define CURSOR_GAIN               3
+#define FINE_CURSOR_DIVISOR       3
+#define SCROLL_DIVISOR            6.0
+#define REPORT_LIMIT              127
 
-#define CTL_Z LCTL_T(KC_Z)
-#define CTL_SLSH RCTL_T(JP_SLSH)
-#define CTL_1 LCTL_T(KC_1)
-#define CTL_0 RCTL_T(KC_0)
-#define CTL_UNDO LCTL_T(KC_NO)
-#define CTL_F1 LCTL_T(KC_F1)
-#define CTL_F10 RCTL_T(KC_F10)
+// Mod-Tapエイリアス。
+#define SFT_F       LSFT_T(KC_F)
+#define SFT_J       RSFT_T(KC_J)
+#define SFT_F3      LSFT_T(KC_F3)
+#define SFT_FIND    RSFT_T(KC_NO)
 
-#define ALT_X LALT_T(KC_X)
-#define ALT_DOT RALT_T(JP_DOT)
-#define ALT_2 LALT_T(KC_2)
-#define ALT_9 RALT_T(KC_9)
-#define ALT_UP RALT_T(KC_PGUP)
-#define ALT_CUT RALT_T(KC_X)
-#define ALT_F2 LALT_T(KC_F2)
-#define ALT_F9 RALT_T(KC_F9)
+#define CTL_Z       LCTL_T(KC_Z)
+#define CTL_SLSH    RCTL_T(JP_SLSH)
+#define CTL_1       LCTL_T(KC_1)
+#define CTL_0       RCTL_T(KC_0)
+#define CTL_UNDO    LCTL_T(KC_NO)
+#define CTL_F1      LCTL_T(KC_F1)
+#define CTL_F10     RCTL_T(KC_F10)
 
-#define GUI_COM RGUI_T(JP_COMM)
-#define GUI_8 RGUI_T(KC_8)
-#define GUI_F8 RGUI_T(KC_F8)
+#define ALT_X       LALT_T(KC_X)
+#define ALT_DOT     RALT_T(JP_DOT)
+#define ALT_2       LALT_T(KC_2)
+#define ALT_9       RALT_T(KC_9)
+#define ALT_UP      RALT_T(KC_PGUP)
+#define ALT_CUT     RALT_T(KC_X)
+#define ALT_F2      LALT_T(KC_F2)
+#define ALT_F9      RALT_T(KC_F9)
 
-#define FNC_ALL LT(_FNC, KC_NO)
+#define GUI_COM     RGUI_T(JP_COMM)
+#define GUI_8       RGUI_T(KC_8)
+#define GUI_F8      RGUI_T(KC_F8)
 
-//Declare Alias Short Cut
-#define MCPRTSCR G(S(KC_S))     //print screen
-#define PG_TOP C(KC_HOME)       //go page top
-#define PG_BTM C(KC_END)        //go page bottom
+#define FNC_ALL     LT(_FNC, KC_NO)
 
-//Declare COMBO
-enum combos{
-    I_O_DTRIGHT,
-    W_E_DTLEFT,
-    L_K_HENK,
-    S_D_MHEN,
-    K_J_TAB,
-    DWN_LFT_TAB,
-    D_F_ESC,
-    DEL_FND_ESC,
-    DT_CM_BTN3,
-    X_C_PRTSCN
+// ショートカットエイリアス。
+#define PRINT_SCREEN G(S(KC_S))
+#define PAGE_TOP     C(KC_HOME)
+#define PAGE_BOTTOM  C(KC_END)
+
+// コンボ定義。
+enum combo_names {
+    COMBO_DESKTOP_RIGHT,
+    COMBO_DESKTOP_LEFT,
+    COMBO_HENKAN,
+    COMBO_MUHENKAN,
+    COMBO_TAB,
+    COMBO_ARROW_TAB,
+    COMBO_ESCAPE,
+    COMBO_DELETE_ESCAPE,
+    COMBO_MOUSE_BUTTON_3,
+    COMBO_PRINT_SCREEN,
 };
 
-const uint16_t PROGMEM i_o_combo[] = {KC_I, KC_O, COMBO_END};
-const uint16_t PROGMEM w_e_combo[] = {KC_W, KC_E, COMBO_END};
-const uint16_t PROGMEM l_k_combo[] = {KC_L, KC_K ,COMBO_END};
-const uint16_t PROGMEM s_d_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM k_j_combo[] = {KC_K, KC_J, COMBO_END};
-const uint16_t PROGMEM dwn_lft_combo[] = {KC_DOWN, KC_LEFT, COMBO_END};
-const uint16_t PROGMEM d_f_combo[] = {KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM del_fnd_combo[] = {KC_DEL, SFT_FIND, COMBO_END};
-const uint16_t PROGMEM dt_cm_combo[] = {ALT_DOT, GUI_COM, COMBO_END};
-const uint16_t PROGMEM x_c_combo[] = {ALT_X, KC_C, COMBO_END};
+const uint16_t PROGMEM desktop_right_combo[]    = {KC_I, KC_O, COMBO_END};
+const uint16_t PROGMEM desktop_left_combo[]     = {KC_W, KC_E, COMBO_END};
+const uint16_t PROGMEM henkan_combo[]           = {KC_L, KC_K, COMBO_END};
+const uint16_t PROGMEM muhenkan_combo[]         = {KC_S, KC_D, COMBO_END};
+const uint16_t PROGMEM tab_combo[]              = {KC_K, KC_J, COMBO_END};
+const uint16_t PROGMEM arrow_tab_combo[]        = {KC_DOWN, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM escape_combo[]           = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM delete_escape_combo[]    = {KC_DEL, SFT_FIND, COMBO_END};
+const uint16_t PROGMEM mouse_button_3_combo[]   = {ALT_DOT, GUI_COM, COMBO_END};
+const uint16_t PROGMEM print_screen_combo[]     = {ALT_X, KC_C, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    [I_O_DTRIGHT] = COMBO(i_o_combo, C(G(KC_RIGHT))),
-    [W_E_DTLEFT] = COMBO(w_e_combo, C(G(KC_LEFT))),
-    [L_K_HENK] = COMBO(l_k_combo, JP_HENK),
-    [S_D_MHEN] = COMBO(s_d_combo, JP_MHEN),
-    [K_J_TAB] = COMBO(k_j_combo, KC_TAB),
-    [DWN_LFT_TAB] = COMBO(dwn_lft_combo, KC_TAB),
-    [D_F_ESC] = COMBO(d_f_combo, KC_ESC),
-    [DEL_FND_ESC] = COMBO(del_fnd_combo, KC_ESC),
-    [DT_CM_BTN3] = COMBO(dt_cm_combo, MS_BTN3),
-    [X_C_PRTSCN] = COMBO(x_c_combo, MCPRTSCR)
+    [COMBO_DESKTOP_RIGHT]   = COMBO(desktop_right_combo, C(G(KC_RIGHT))),
+    [COMBO_DESKTOP_LEFT]    = COMBO(desktop_left_combo, C(G(KC_LEFT))),
+    [COMBO_HENKAN]          = COMBO(henkan_combo, JP_HENK),
+    [COMBO_MUHENKAN]        = COMBO(muhenkan_combo, JP_MHEN),
+    [COMBO_TAB]             = COMBO(tab_combo, KC_TAB),
+    [COMBO_ARROW_TAB]       = COMBO(arrow_tab_combo, KC_TAB),
+    [COMBO_ESCAPE]          = COMBO(escape_combo, KC_ESC),
+    [COMBO_DELETE_ESCAPE]   = COMBO(delete_escape_combo, KC_ESC),
+    [COMBO_MOUSE_BUTTON_3]  = COMBO(mouse_button_3_combo, MS_BTN3),
+    [COMBO_PRINT_SCREEN]    = COMBO(print_screen_combo, PRINT_SCREEN),
 };
 
-//Override
-const key_override_t undssft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);	//_[SHIFT & JP_MINS]
-const key_override_t dquosft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);    //"[SHIFT & JP_QUOT]
-const key_override_t colnsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);    //:[SHIFT & JP_SCLN]
-const key_override_t tildsft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);     //`[SHIFT & JP_TILD]
-const key_override_t yensft_key_override = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);      //\[SHIFT & JP_YEN]
+// 日本語配列向けShiftオーバーライド。
+const key_override_t underscore_shift_override      = ko_make_basic(MOD_MASK_SHIFT, JP_MINS, JP_UNDS);
+const key_override_t double_quote_shift_override    = ko_make_basic(MOD_MASK_SHIFT, JP_QUOT, JP_DQUO);
+const key_override_t colon_shift_override           = ko_make_basic(MOD_MASK_SHIFT, JP_SCLN, JP_COLN);
+const key_override_t grave_shift_override           = ko_make_basic(MOD_MASK_SHIFT, JP_TILD, JP_GRV);
+const key_override_t pipe_shift_override            = ko_make_basic(MOD_MASK_SHIFT, JP_YEN, JP_PIPE);
 
 const key_override_t *key_overrides[] = {
-    &undssft_key_override,
-    &dquosft_key_override,
-    &colnsft_key_override,
-    &tildsft_key_override,
-    &yensft_key_override,
-    NULL
+    &underscore_shift_override,
+    &double_quote_shift_override,
+    &colon_shift_override,
+    &grave_shift_override,
+    &pipe_shift_override,
+    NULL,
 };
 
-//keymap
+// キーマップ定義。
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_QWERTY] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
@@ -139,9 +146,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //,-----------------------------------------------------|                  |-----------------------------------------------------
         XXXXXXX, C(KC_W), C(KC_G),  KC_TAB, C(KC_H), C(KC_T),                    MS_BTN1, MS_BTN2,   KC_UP, C(KC_O),   KC_F2, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX, FNC_ALL, C(KC_S),  KC_DEL,SFT_FIND,  KC_ESC,                    KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT,MO(_FNC), XXXXXXX,
+        XXXXXXX, FNC_ALL, C(KC_S),  KC_DEL, SFT_FIND,  KC_ESC,                  KC_BSPC, KC_LEFT, KC_DOWN, KC_RGHT, MO(_FNC), XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX,CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                    C(KC_N), KC_PGDN,     OMT,  ALT_UP, KC_RCTL,XXXXXXX,
+        XXXXXXX, CTL_UNDO, ALT_CUT, C(KC_C), C(KC_V), C(KC_Y),                   C(KC_N), KC_PGDN,     OMT,  ALT_UP, KC_RCTL, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
                                     XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
     //                           `--------+--------+--------'                  `--------+--------+--------'
@@ -149,9 +156,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_FNC] = LAYOUT_split_3x6_3_2(
     //,-----------------------------------------------------|                  |-----------------------------------------------------.
-        XXXXXXX, _______,  KC_F12,S(KC_TAB),  KC_F3, C(KC_K),                    QK_BOOT, _______,  PG_TOP, KC_RSFT, _______, XXXXXXX,
+        XXXXXXX, _______,  KC_F12, S(KC_TAB), KC_F3, C(KC_K),                    QK_BOOT, _______, PAGE_TOP, KC_RSFT, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-        XXXXXXX, _______,  KC_F11,  KILL_E,  SFT_F3,  KC_ESC,                     KILL_H, KC_HOME,  PG_BTM,  KC_END, _______, XXXXXXX,
+        XXXXXXX, _______,  KC_F11,  KILL_E,  SFT_F3,  KC_ESC,                     KILL_H, KC_HOME, PAGE_BOTTOM, KC_END, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX,  CTL_F1,  ALT_F2,   KC_F3,   KC_F4,   KC_F5,                      KC_F6,   KC_F7,  GUI_F8,  ALT_F9, CTL_F10, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
@@ -167,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
         XXXXXXX, _______, _______, _______, _______, _______,                    _______, _______, _______, _______, _______, XXXXXXX,
     //|--------+--------+--------+--------+--------+--------|                  |--------+--------+--------+--------+--------+--------|
-                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______,XXXXXXX
+                                    XXXXXXX, _______, XXXXXXX,                    XXXXXXX, _______, XXXXXXX
     //                           `--------+--------+--------'                  `--------+--------+--------'
     ),
 };
@@ -191,8 +198,7 @@ static thumb_key_state_t num_thumb = {
     .tap_keycode = KC_ENT,
 };
 
-static bool thumb_shift_on    = false;
-static bool thumb_shift_added = false;
+static bool thumb_shift_on = false;
 
 // 両親指のレイヤを解除し、Shift同時押し状態を開始する。
 static void start_thumb_shift(void) {
@@ -201,22 +207,14 @@ static void start_thumb_shift(void) {
     cmd_thumb.interrupted = true;
     num_thumb.interrupted = true;
     thumb_shift_on        = true;
-
-    if (!(get_mods() & MOD_MASK_SHIFT)) {
-        add_mods(MOD_BIT(KC_LSFT));
-        thumb_shift_added = true;
-        send_keyboard_report();
-    }
+    add_weak_mods(MOD_BIT(KC_LSFT));
+    send_keyboard_report();
 }
 
 // Shift同時押し状態を終了し、残っている親指のレイヤを有効にする。
 static void stop_thumb_shift(void) {
-    if (thumb_shift_added) {
-        del_mods(MOD_BIT(KC_LSFT));
-        send_keyboard_report();
-        thumb_shift_added = false;
-    }
-
+    del_weak_mods(MOD_BIT(KC_LSFT));
+    send_keyboard_report();
     thumb_shift_on = false;
 
     if (cmd_thumb.down) {
@@ -226,23 +224,10 @@ static void stop_thumb_shift(void) {
     }
 }
 
-// OneMoreTimeへ押下イベントとしてキーコードを記録する。
-static void omt_record_key(uint16_t keycode) {
-    keyrecord_t fake_record = {0};
-    fake_record.event.pressed = true;
-    one_more_time_record(keycode, &fake_record);
-}
-
 // キーをタップし、同じキーコードをOneMoreTimeへ記録する。
 static void tap_and_record(uint16_t keycode) {
     tap_code16(keycode);
-    omt_record_key(keycode);
-}
-
-// 現在位置から行頭または行末までを選択して削除する。
-static void delete_to_line_edge(uint16_t edge_keycode) {
-    tap_and_record(S(edge_keycode));
-    tap_and_record(KC_DEL);
+    one_more_time_record(keycode);
 }
 
 // 親指キーの押下・解放、レイヤ切替、タップ送信を共通処理する。
@@ -269,7 +254,7 @@ static void process_thumb_key(thumb_key_state_t *thumb, thumb_key_state_t *other
 
     if (!thumb->interrupted && timer_elapsed(thumb->pressed_at) < TAPPING_TERM) {
         tap_code(thumb->tap_keycode);
-        omt_record_key(thumb->tap_keycode);
+        one_more_time_record(thumb->tap_keycode);
     }
 }
 
@@ -301,7 +286,7 @@ static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t 
         return false;
     }
 
-    if (is_modifier_key(keycode)) {
+    if (IS_MODIFIER_KEYCODE(keycode)) {
         return false;
     }
 
@@ -313,32 +298,70 @@ static bool omt_resolve_keycode(uint16_t keycode, keyrecord_t *record, uint16_t 
     if (mods & MOD_MASK_SHIFT) {
         switch (keycode) {
             case JP_MINS:
-                *resolved = JP_UNDS;
-                return true;
+                keycode = JP_UNDS;
+                break;
             case JP_QUOT:
-                *resolved = JP_DQUO;
-                return true;
+                keycode = JP_DQUO;
+                break;
             case JP_SCLN:
-                *resolved = JP_COLN;
-                return true;
+                keycode = JP_COLN;
+                break;
             case JP_TILD:
-                *resolved = JP_GRV;
-                return true;
+                keycode = JP_GRV;
+                break;
             case JP_YEN:
-                *resolved = JP_PIPE;
-                return true;
+                keycode = JP_PIPE;
+                break;
+            default:
+                keycode |= QK_LSFT;
+                break;
         }
+    }
 
-        keycode = S(keycode);
+    if (mods & MOD_MASK_CTRL) {
+        keycode |= QK_LCTL;
+    }
+    if (mods & MOD_MASK_ALT) {
+        keycode |= QK_LALT;
+    }
+    if (mods & MOD_MASK_GUI) {
+        keycode |= QK_LGUI;
     }
 
     *resolved = keycode;
     return true;
 }
 
+// Mod-Tap/Layer-Tapのタップ時に指定キーを送信・記録する。
+static bool process_macro_tap(keyrecord_t *record, uint16_t keycode) {
+    if (record->tap.count && record->event.pressed) {
+        tap_and_record(keycode);
+        return false;
+    }
+
+    return true;
+}
+
+// QMKがキー押下前にクリアする親指ShiftのWeak Modsを復元する。
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    (void)keycode;
+    (void)record;
+
+    if (thumb_shift_on) {
+        add_weak_mods(MOD_BIT(KC_LSFT));
+    }
+
+    return true;
+}
+
+// 現在位置から行頭または行末までを選択して削除する。
+static void delete_to_line_edge(uint16_t edge_keycode) {
+    tap_and_record(S(edge_keycode));
+    tap_and_record(KC_DEL);
+}
+
 // キーイベントを処理し、レイヤ制御、独自キー、OneMoreTime記録を行う。
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-
     // 親指キーと同時に別のキーを使った場合は、親指キーのタップを抑制する。
     if (record->event.pressed && keycode != CMD_SPC && keycode != NUM_ENT) {
         if (cmd_thumb.down) {
@@ -352,19 +375,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         uint16_t resolved;
         if (omt_resolve_keycode(keycode, record, &resolved)) {
-            omt_record_key(resolved);
+            one_more_time_record(resolved);
         }
     }
 
-    // ===== OneMoreTime: 再生トリガ =====
-    if (record->event.pressed && keycode == OMT) {
-        if (one_more_time_play()) {
-            return false; // 再生できたら OMT 自体は送らない
-        }
-        return false;     // 再生できなくても OMT は送らない（好みで true にしてもOK）
-    }
-    
     switch (keycode) {
+        case OMT:
+            if (record->event.pressed) {
+                one_more_time_play();
+            }
+            return false;
+
         case CMD_SPC:
             process_thumb_key(&cmd_thumb, &num_thumb, record);
             return false;
@@ -373,127 +394,109 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             process_thumb_key(&num_thumb, &cmd_thumb, record);
             return false;
 
-        case SFT_FIND:{
-            if (record->tap.count && record->event.pressed) {
-                tap_and_record(C(KC_F));
-                return false;
+        case JP_MINS:
+            if (!thumb_shift_on) {
+                return true;
             }
-            return true;
-        }
-
-        case ALT_CUT:{
-            if (record->tap.count && record->event.pressed){
-                tap_and_record(C(KC_X));
-                return false;
-            }
-            return true;
-        }
-
-        case CTL_UNDO:{
-            if (record->tap.count && record->event.pressed){
-                tap_and_record(C(KC_Z));
-                return false;
-            }
-            return true;
-        }
-        
-        case FNC_ALL:{
-            if (record->tap.count && record->event.pressed){
-                tap_and_record(C(KC_A));
-                return false;
-            }
-            return true;
-        }
-
-        case KILL_E:{
-            if (record->event.pressed){
-                delete_to_line_edge(KC_END);
+            if (record->event.pressed) {
+                tap_code16(JP_UNDS);
             }
             return false;
-        }
 
-        case KILL_H:{
-            if (record->event.pressed){
-                delete_to_line_edge(KC_HOME);
+        case SFT_FIND:
+            return process_macro_tap(record, C(KC_F));
+
+        case ALT_CUT:
+            return process_macro_tap(record, C(KC_X));
+
+        case CTL_UNDO:
+            return process_macro_tap(record, C(KC_Z));
+
+        case FNC_ALL:
+            return process_macro_tap(record, C(KC_A));
+
+        case KILL_E:
+        case KILL_H:
+            if (record->event.pressed) {
+                delete_to_line_edge(keycode == KILL_E ? KC_END : KC_HOME);
             }
             return false;
-        }
 
         default:
             return true;
-
     }
 }
 
+static float horizontal_scroll_accumulator = 0.0;
+static float vertical_scroll_accumulator   = 0.0;
 
-float h_acm = 0.0;
-float v_acm = 0.0;
+// マウスレポートの範囲に値を制限する。
+static int8_t clamp_report_value(int16_t value) {
+    if (value > REPORT_LIMIT) {
+        return REPORT_LIMIT;
+    }
+    if (value < -REPORT_LIMIT) {
+        return -REPORT_LIMIT;
+    }
+    return (int8_t)value;
+}
+
+// センサー座標をキーボードの取り付け角度に合わせて回転する。
+static void rotate_trackball(int8_t x, int8_t y, int16_t *rotated_x, int16_t *rotated_y) {
+    *rotated_x = x * cos(TRACKBALL_ROTATION_RADIANS) - y * sin(TRACKBALL_ROTATION_RADIANS);
+    *rotated_y = x * sin(TRACKBALL_ROTATION_RADIANS) + y * cos(TRACKBALL_ROTATION_RADIANS);
+}
+
+// 蓄積したスクロール量から今回送信できる量を取り出す。
+static int8_t consume_scroll(float *accumulator, int8_t current) {
+    int16_t requested = (int16_t)*accumulator;
+    int8_t  result    = clamp_report_value((int16_t)current + requested);
+    *accumulator -= result - current;
+    return result;
+}
+
+// 回転後の移動量を主軸だけのスクロールへ変換する。
+static report_mouse_t apply_scroll(report_mouse_t report, int16_t x, int16_t y) {
+    if (abs(x) > abs(y)) {
+        y = 0;
+    } else {
+        x = 0;
+    }
+
+    horizontal_scroll_accumulator -= (float)x / SCROLL_DIVISOR;
+    vertical_scroll_accumulator   -= (float)y / SCROLL_DIVISOR;
+    report.h = consume_scroll(&horizontal_scroll_accumulator, report.h);
+    report.v = consume_scroll(&vertical_scroll_accumulator, report.v);
+    report.x = 0;
+    report.y = 0;
+    return report;
+}
+
+// 回転後の移動量へ速度調整を適用する。
+static report_mouse_t apply_cursor(report_mouse_t report, int16_t x, int16_t y) {
+    int16_t adjusted_x = x * CURSOR_GAIN;
+    int16_t adjusted_y = y * CURSOR_GAIN;
+
+    if (layer_state_is(_CMD)) {
+        adjusted_x /= FINE_CURSOR_DIVISOR;
+        adjusted_y /= FINE_CURSOR_DIVISOR;
+    }
+
+    report.x = clamp_report_value(adjusted_x);
+    report.y = clamp_report_value(adjusted_y);
+    return report;
+}
 
 // トラックボール入力を回転補正し、レイヤに応じてカーソル移動またはスクロールへ変換する。
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
+    int16_t rotated_x;
+    int16_t rotated_y;
+    rotate_trackball(mouse_report.x, mouse_report.y, &rotated_x, &rotated_y);
 
-    bool is_scroll_mode = layer_state_is(_NUM);
-
-    double rad = 45 * (M_PI / 180) * -1;
-    int8_t x_rev =  + mouse_report.x * cos(rad) - mouse_report.y * sin(rad);
-    int8_t y_rev =  + mouse_report.x * sin(rad) + mouse_report.y * cos(rad);
-
-    if (is_scroll_mode) {
-        if (abs(x_rev) > abs(y_rev)) {
-            y_rev = 0;
-        } else {
-            x_rev = 0;
-        }
-
-        h_acm += (float)x_rev / 6.0;
-        v_acm += (float)y_rev / 6.0;
-
-        int8_t h_rev = h_acm;
-        int8_t v_rev = v_acm;
-
-        if (h_rev != 0) {
-            if (mouse_report.h + h_rev > 127) {
-                //h_rev = 127 - mouse_report.h;
-                h_rev = -127 -mouse_report.h;
-            } else if (mouse_report.h + h_rev < -127) {
-                //h_rev = -127 - mouse_report.h;
-                h_rev = 127 - mouse_report.h;
-            }
-            mouse_report.h += h_rev;
-            h_acm -= h_rev;
-        }
-        if (v_rev != 0) {
-            if (mouse_report.v + v_rev > 127) {
-                v_rev = 127 - mouse_report.v;
-            } else if (mouse_report.v + v_rev < -127) {
-                v_rev = -127 - mouse_report.v;
-            }
-            mouse_report.v += v_rev;
-            v_acm -= v_rev;
-        }
-
-        mouse_report.x = 0;
-        mouse_report.y = 0;
+    if (layer_state_is(_NUM)) {
+        mouse_report = apply_scroll(mouse_report, rotated_x, rotated_y);
     } else {
-        int8_t base_gain = 3; //通常速度
-        int8_t fine_div = 3;  //精密分数
-
-        int16_t mx = x_rev * base_gain;
-        int16_t my = y_rev * base_gain;
-
-        if (layer_state_is(_CMD)){
-            mx /= fine_div;
-            my /= fine_div;
-    
-        }
-        
-        if (mx > 127) mx = 127;
-        if (mx < -127) mx = -127;
-        if (my > 127 ) my = 127;
-        if (my < -127) my = -127;
-
-        mouse_report.x = (int8_t)mx;
-        mouse_report.y = (int8_t)my;
+        mouse_report = apply_cursor(mouse_report, rotated_x, rotated_y);
     }
 
     return pointing_device_task_user(mouse_report);
